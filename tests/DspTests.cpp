@@ -538,7 +538,189 @@ int main()
         run(e, l, r);
         check(rms(l) == 0, "reprepare with freeze clears tails and adapts delay capacity");
     }
+    // Review regressions: an upstream stage must influence the signal that Modal actually consumes.
+    {
+        for (int mode : {0, 2})
+        {
+            aether::Engine a, b;
+            a.prepare(48000, 64);
+            b.prepare(48000, 64);
+            auto p = bare();
+            p.mode = mode;
+            p.order = 12; // Colour, Spectral, Modal, Space.
+            p.enabled[1] = p.enabled[2] = true;
+            p.modalMix = mode == 0 ? 1.f : 0.f;
+            a.setParameters(p);
+            a.reset();
+            p.driveDb = 36;
+            b.setParameters(p);
+            b.reset();
+            if (mode == 2)
+            {
+                a.noteOn(69, 1);
+                b.noteOn(69, 1);
+            }
+            auto al = mode == 0 ? tone(24000, 110, .1f) : std::vector<float>(24000);
+            auto ar = al, bl = al, br = al;
+            run(a, al, ar);
+            run(b, bl, br);
+            double diff = 0;
+            for (size_t i = 12000; i < al.size(); ++i)
+                diff += std::abs(al[i] - bl[i]);
+            check(diff > 1, mode == 0 ? "FX full-wet Modal consumes upstream Colour output"
+                                      : "Synth source passes through Colour before Modal");
+        }
+    }
+    {
+        aether::Engine a, b;
+        a.prepare(48000, 64);
+        b.prepare(48000, 64);
+        auto p = bare();
+        p.mode = 1;
+        p.enabled[1] = true;
+        p.modalMix = 1;
+        a.setParameters(p);
+        b.setParameters(p);
+        a.reset();
+        b.reset();
+        a.noteOn(69, 1);
+        std::vector<float> al(24000), ar(al), bl(al), br(al);
+        run(a, al, ar);
+        run(b, bl, br);
+        check(rms(al, 12000) > .001f && rms(bl) == 0, "Resynth full-wet Modal preserves MIDI with silent source input");
+        a.reset();
+        b.reset();
+        a.noteOn(69, 1);
+        al = tone(24000, 220, .1f);
+        ar = al;
+        bl = al;
+        br = al;
+        run(a, al, ar);
+        run(b, bl, br);
+        double diff = 0;
+        for (size_t i = 12000; i < al.size(); ++i)
+            diff += std::abs(al[i] - bl[i]);
+        check(diff > 1, "Resynth full-wet Modal preserves MIDI layered over tracked audio");
+    }
+    {
+        for (int mode : {1, 2})
+        {
+            aether::Engine e;
+            e.prepare(48000, 64);
+            auto p = bare();
+            p.mode = mode;
+            e.setParameters(p);
+            e.reset();
+            if (mode == 2)
+                e.noteOn(69, 1);
+            auto l = mode == 1 ? tone(24000, 220, .1f) : std::vector<float>(24000);
+            auto r = l;
+            auto original = l;
+            run(e, l, r);
+            double sourceChange = 0;
+            for (size_t i = 12000; i < l.size(); ++i)
+                sourceChange += std::abs(l[i] - original[i]);
+            check(rms(l, 12000) > .01f && sourceChange > 1, mode == 1
+                                                                ? "Resynth source functions when Modal is bypassed"
+                                                                : "Synth voice functions when Modal is bypassed");
+        }
+    }
+    {
+        aether::Engine a, b;
+        a.prepare(48000, 64);
+        b.prepare(48000, 64);
+        auto p = bare();
+        p.mode = 2;
+        p.enabled[0] = true;
+        p.enabled[1] = true;
+        p.spectralFocus = 440;
+        p.spectralThreshold = -60;
+        p.spectralAmount = 0;
+        p.transientProtect = 0;
+        a.setParameters(p);
+        a.reset();
+        p.spectralAmount = 1;
+        b.setParameters(p);
+        b.reset();
+        a.noteOn(69, 1);
+        b.noteOn(69, 1);
+        std::vector<float> al(24000), ar(al), bl(al), br(al);
+        run(a, al, ar);
+        run(b, bl, br);
+        check(rms(bl, 12000) < rms(al, 12000) * .9f, "Spectral before Modal processes the generated Synth voice");
+    }
+    {
+        float minimum = 10, maximum = 0;
+        for (float sr : {44100.f, 48000.f, 96000.f, 192000.f})
+        {
+            float gain[2]{};
+            int index = 0;
+            for (float hz : {80.f, 1000.f})
+            {
+                aether::Engine e;
+                e.prepare(sr, 64);
+                auto p = bare();
+                p.enabled[2] = true;
+                p.driveTone = 1;
+                e.setParameters(p);
+                e.reset();
+                auto l = tone(size_t(sr), hz, .005f, sr), r = l;
+                run(e, l, r);
+                gain[index++] = rms(l, size_t(sr / 2)) / (.005f / std::sqrt(2.f));
+            }
+            float relativeBass = gain[0] / gain[1];
+            minimum = std::min(minimum, relativeBass);
+            maximum = std::max(maximum, relativeBass);
+        }
+        check(minimum > .95f && maximum - minimum < .02f,
+              "Colour normalized 80 Hz bass response is consistent from 44.1 to 192 kHz");
+    }
+    {
+        bool changed = true;
+        // Each pair must be a real serial path in both relative orderings, not a source overwrite.
+        for (int first = 0; first < 4; ++first)
+            for (int second = first + 1; second < 4; ++second)
+            {
+                std::array<int, 4> permutation{0, 1, 2, 3};
+                int forward = -1, reverse = -1, order = 0;
+                do
+                {
+                    auto a = std::find(permutation.begin(), permutation.end(), first);
+                    auto b = std::find(permutation.begin(), permutation.end(), second);
+                    if (a < b && forward < 0)
+                        forward = order;
+                    if (b < a && reverse < 0)
+                        reverse = order;
+                    ++order;
+                } while (std::next_permutation(permutation.begin(), permutation.end()));
+                aether::Engine a, b;
+                a.prepare(48000, 64);
+                b.prepare(48000, 64);
+                auto p = bare();
+                p.enabled[first] = p.enabled[second] = true;
+                p.spectralAmount = 1;
+                p.spectralFocus = 110;
+                p.spectralThreshold = -60;
+                p.transientProtect = 0;
+                p.modalMix = .85f;
+                p.driveDb = 24;
+                p.spaceMix = .8f;
+                p.order = forward;
+                a.setParameters(p);
+                a.reset();
+                p.order = reverse;
+                b.setParameters(p);
+                b.reset();
+                auto al = tone(16000, 110, .2f), ar = al, bl = al, br = al;
+                run(a, al, ar);
+                run(b, bl, br);
+                double diff = 0;
+                for (size_t i = 0; i < al.size(); ++i)
+                    diff += std::abs(al[i] - bl[i]);
+                changed &= diff > .01;
+            }
+        check(changed, "all six enabled-stage pairs produce distinct forward and reverse serial responses");
+    }
     std::cout << "Failures: " << failures << '\n';
     return failures ? 1 : 0;
 }
-

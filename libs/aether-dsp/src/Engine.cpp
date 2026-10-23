@@ -141,6 +141,7 @@ struct Engine::Impl
     std::array<float, 2> prevDrive{}, tone{}, dcX{}, dcY{};
     std::uint32_t noise = 0x51a79d3bu;
     float synthNoise = 0;
+    float dcPole = .9987f; // 10 Hz DC rejection, calculated from sample rate in prepare.
     float inputGain = 1, outputGain = 1, driveGain = 1, toneCoeff = .5f, release = .001f, ceiling = 1, limiter = 1,
           gr = 0;
     float envelope = 0, slowEnvelope = 0, pitch = 0, trackerLP = 0, lastTracker = 0;
@@ -361,25 +362,18 @@ struct Engine::Impl
             r -= .72f * correctionR;
         }
     }
-    void modal(float &l, float &r, float excitation, float midi) noexcept
+    // Generated source is produced once, before all four ordered effects. Modal never overwrites it.
+    float generatedSource(float midi) noexcept
     {
         if (p.mode == 2)
-        {
-            l = midi;
-            r = midi;
-            excitation = midi;
-        }
-        else if (p.mode == 1)
-        {
-            resynthPhase += (pitch > 0 ? pitch : 110) / sr;
-            resynthPhase -= std::floor(resynthPhase);
-            synthNoise += .18f * ((random() * 2 - 1) - synthNoise);
-            float resynth =
-                std::min(envelope * 2, 1.f) * (float(std::sin(2 * pi * resynthPhase)) * .65f + synthNoise * .15f) +
-                midi;
-            l = resynth;
-            r = resynth;
-        }
+            return midi;
+        resynthPhase += (pitch > 0 ? pitch : 110) / sr;
+        resynthPhase -= std::floor(resynthPhase);
+        synthNoise += .18f * ((random() * 2 - 1) - synthNoise);
+        return std::min(envelope * 2, 1.f) * (float(std::sin(2 * pi * resynthPhase)) * .65f + synthNoise * .15f) + midi;
+    }
+    void modal(float &l, float &r, float excitation) noexcept
+    {
         float out[2]{};
         for (int ch = 0; ch < 2; ++ch)
         {
@@ -410,7 +404,7 @@ struct Engine::Impl
         prevDrive[ch] = u;
         y -= shape(s.driveBias, p.driveModel);
         tone[ch] += toneCoeff * (y - tone[ch]);
-        float dc = tone[ch] - dcX[ch] + .995f * dcY[ch];
+        float dc = tone[ch] - dcX[ch] + dcPole * dcY[ch];
         dcX[ch] = tone[ch];
         dcY[ch] = zap(dc);
         return dc;
@@ -485,6 +479,7 @@ void Engine::prepare(double sampleRate, int maxBlockSize)
     d.envAttack = d.smooth;
     d.envSlow = float(1 - std::exp(-1 / (d.sr * .08)));
     d.trackCoeff = float(1 - std::exp(-2 * pi * 1800 / d.sr));
+    d.dcPole = float(std::exp(-2 * pi * 10 / d.sr));
     d.midiAttack = float(1 - std::exp(-1 / (d.sr * .004)));
     d.midiRelease = float(1 - std::exp(-1 / (d.sr * .07)));
     for (size_t i = 0; i < 24; ++i)
@@ -545,9 +540,12 @@ void Engine::process(float *left, float *right, const float *sidechain, int samp
         float l = dryL * d.inputGain, r = dryR * d.inputGain;
         float excitation = sidechain ? clean(sidechain[i]) : .5f * (l + r);
         d.analyse(excitation);
+        float midi = d.voicesSample() * d.inputGain;
+        if (d.p.mode != 0)
+            l = r = d.generatedSource(midi);
         if (!d.p.enabled[0])
             d.spectral(l, r, false);
-        float midi = d.voicesSample();
+
         for (int stage : d.order)
         {
             if (!d.p.enabled[stage])
@@ -558,7 +556,8 @@ void Engine::process(float *left, float *right, const float *sidechain, int samp
                 d.spectral(l, r);
                 break;
             case 1:
-                d.modal(l, r, excitation, midi);
+                // External sidechain intentionally overrides normal serial signal excitation.
+                d.modal(l, r, sidechain ? excitation : .5f * (l + r));
                 break;
             case 2:
                 l = d.colour(l, 0);
@@ -644,4 +643,3 @@ float Engine::gainReductionDb() const noexcept
     return impl->gr;
 }
 } // namespace aether
-
