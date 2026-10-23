@@ -8,7 +8,7 @@ A self-contained Windows x64 VST3 creative channel strip and companion MIDI inst
 
 ## Architecture decision
 
-Use C++20 and JUCE 8.0.13 already available at `C:/SDKs/JUCE`, with CMake FetchContent fallback pinned to that exact version. A pure standard-C++ MIT DSP library is separate from the GPL-3.0-or-later JUCE plugin shell. JUCE replaces the report's proposed Rust/nih-plug/WGPU combination to obtain a maintainable, verifiable native Windows release. Source CMake also supports macOS/Linux, but those binaries must not be represented as tested or delivered.
+Use C++20 and JUCE 8.0.12 already available at `C:/SDKs/JUCE`, with CMake FetchContent fallback pinned to that exact version. A pure standard-C++ MIT DSP library is separate from the AGPL-3.0-or-later JUCE plugin shell. JUCE replaces the report's proposed Rust/nih-plug/WGPU combination to obtain a maintainable, verifiable native Windows release. Source CMake also supports macOS/Linux, but those binaries must not be represented as tested or delivered.
 
 Alternative considered: Rust/WGPU host would increase dependency and integration risk without supplied source or models. Direct VST3 SDK would require rebuilding mature host/state/editor glue. JUCE gives the fastest reliable native result while retaining a reusable DSP library.
 

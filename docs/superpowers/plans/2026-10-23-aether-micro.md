@@ -6,14 +6,14 @@
 
 **Architecture:** Pure C++20 DSP behind a JUCE APVTS processor/editor. Fixed storage and cached atomics in the audio path, standalone tests, native vector UI.
 
-**Tech Stack:** C++20, JUCE 8.0.13, CMake, MSVC x64, CTest, pluginval.
+**Tech Stack:** C++20, JUCE 8.0.12, CMake, MSVC x64, CTest, pluginval.
 
 **Spec:** `docs/superpowers/specs/2026-10-23-aether-micro-design.md`
 
 ## Global Constraints
 
 - Version 1.0.0; Windows x64 deliverable.
-- Pure DSP MIT; plugin shell GPL-3.0-or-later.
+- Pure DSP MIT; plugin shell AGPL-3.0-or-later.
 - No allocations, locks, UI, I/O or logging in DSP processing.
 - Five genuine working DSP stages; 24 serial orders, master last.
 - Immutable dotted parameter IDs; state schema 1.
