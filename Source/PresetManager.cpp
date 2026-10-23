@@ -4,7 +4,7 @@
 namespace {
 using Setting=std::pair<const char*,float>;
 struct Factory { const char* name; std::initializer_list<Setting> values; };
-const std::array<Factory,12> factories {{
+const std::array<Factory,36> factories {{
     {"Gentle Orbit",{{"spectral.amount",0.35f},{"space.mix",0.12f}}},
     {"Clean Canvas",{{"spectral.amount",0},{"space.mix",0},{"master.ceiling",0}}},
     {"Vocal Silhouette",{{"spectral.amount",0.78f},{"spectral.threshold",-32},{"spectral.focus",5800},{"colour.drive",3},{"space.mix",0.08f}}},
@@ -16,7 +16,31 @@ const std::array<Factory,12> factories {{
     {"Nebula Drift",{{"space.mix",0.72f},{"space.size",0.9f},{"space.decay",14},{"space.dispersion",0.8f},{"mod.depth",0.2f},{"mod.target",3},{"mod.rate",0.11f}}},
     {"Resynth Halo",{{"global.mode",1},{"modal.mix",0.7f},{"modal.decay",2.8f},{"space.mix",0.35f},{"space.decay",6}}},
     {"Prism Keys",{{"global.mode",2},{"modal.mix",0.32f},{"modal.material",1},{"modal.decay",2},{"space.mix",0.22f},{"colour.drive",3}}},
-    {"Copper Strings",{{"global.mode",2},{"modal.mix",0.2f},{"modal.material",0},{"modal.brightness",0.35f},{"modal.decay",3.8f},{"space.mix",0.26f},{"colour.drive",6}}}
+    {"Copper Strings",{{"global.mode",2},{"modal.mix",0.2f},{"modal.material",0},{"modal.brightness",0.35f},{"modal.decay",3.8f},{"space.mix",0.26f},{"colour.drive",6}}},
+    {"Atlas / Suspended Paper",{{"routing.algorithm",3},{"graph.trim",-3}}},
+    {"Atlas / Ceramic Current",{{"routing.algorithm",1},{"graph.trim",-4}}},
+    {"Atlas / Shattered Prism",{{"routing.algorithm",4},{"graph.trim",-4}}},
+    {"Atlas / Grain Cathedral",{{"routing.algorithm",2},{"graph.trim",-4}}},
+    {"Atlas / Impossible String",{{"routing.algorithm",5},{"graph.trim",-3}}},
+    {"Atlas / Folded Sun",{{"routing.algorithm",0},{"graph.trim",-6}}},
+    {"Atlas / Clockwork Dust",{{"routing.algorithm",6},{"graph.trim",-4}}},
+    {"Atlas / Diode Garden",{{"routing.algorithm",7},{"graph.trim",-4}}},
+    {"Atlas / Frozen Architecture",{{"routing.algorithm",3},{"graph.trim",-4}}},
+    {"Atlas / Sideband Mirage",{{"routing.algorithm",1},{"graph.trim",-4}}},
+    {"Atlas / Cobalt Tape",{{"routing.algorithm",8},{"graph.trim",-3}}},
+    {"Atlas / Chaotic Orbit",{{"routing.algorithm",9},{"graph.feedback",0.25f},{"graph.trim",-6}}},
+    {"FM / Glass Staircase",{{"global.mode",2},{"fm.algorithm",4},{"fm.index",3},{"fm.attack",0.003f},{"fm.release",1.5f}}},
+    {"FM / Brass Compass",{{"global.mode",2},{"fm.algorithm",9},{"fm.index",2.8f},{"fm.decay",0.7f},{"fm.release",0.4f}}},
+    {"FM / Porcelain Keys",{{"global.mode",2},{"fm.algorithm",12},{"fm.index",1.8f},{"fm.sustain",0.3f},{"fm.release",1.2f}}},
+    {"FM / Inverted Bells",{{"global.mode",2},{"fm.algorithm",18},{"fm.index",5},{"fm.sustain",0.1f},{"fm.release",3}}},
+    {"FM / Mercury Thread",{{"global.mode",2},{"fm.algorithm",23},{"fm.index",2.2f},{"fm.morph",0.35f},{"fm.attack",0.2f},{"fm.release",2}}},
+    {"FM / Velvet Satellite",{{"global.mode",2},{"fm.algorithm",27},{"fm.index",1.2f},{"fm.attack",0.6f},{"fm.release",3}}},
+    {"FM / Broken Geometry",{{"global.mode",2},{"fm.algorithm",30},{"fm.index",6},{"fm.feedback",0.35f}}},
+    {"FM / Singing Glass",{{"global.mode",1},{"fm.algorithm",6},{"fm.index",2.5f},{"graph.trim",-3}}},
+    {"Motion / Breathing Stone",{{"routing.algorithm",2},{"graph.trim",-3}}},
+    {"Motion / Slow Collisions",{{"routing.algorithm",4},{"graph.trim",-4}}},
+    {"Motion / Lunar Loom",{{"routing.algorithm",10},{"graph.feedback",0.2f},{"graph.trim",-5}}},
+    {"Motion / Stochastic Room",{{"routing.algorithm",11},{"graph.feedback",0.15f},{"graph.trim",-5}}}
 }};
 }
 juce::StringArray AetherAudioProcessor::factoryPresetNames() {
@@ -38,11 +62,60 @@ void AetherAudioProcessor::loadFactoryPreset(int index) {
 #endif
         if(auto* param=state.getParameter(spec.id)) { param->beginChangeGesture(); param->setValueNotifyingHost(param->convertTo0to1(value)); param->endChangeGesture(); }
     }
+    if(index<12) {
+        setParameterValue("graph.enabled",0);setParameterValue("fm.enabled",0);
+    } else {
+        setParameterValue("graph.enabled",1);setParameterValue("fm.enabled",1);
+        using T=aether::modular::ModuleType;
+        std::array<T,6> chain{};
+        switch(index-12) {
+            case 0:chain={T::Spectral,T::WdfDiode,T::Chorus,T::Diffuser,T::Space,T::Tape};break;
+            case 1:chain={T::Wavefolder,T::Resonator,T::FrequencyShift,T::Diffuser,T::Space,T::Spectral};break;
+            case 2:chain={T::PrismPitch,T::FrequencyShift,T::RingMod,T::Comb,T::Space,T::Chorus};break;
+            case 3:chain={T::GrainCloud,T::Ladder,T::Diffuser,T::Space,T::Tape,T::PrismPitch};break;
+            case 4:chain={T::String,T::Modal,T::Colour,T::Chorus,T::Space,T::Diffuser};break;
+            case 5:chain={T::Wavefolder,T::WdfDiode,T::Ladder,T::Tape,T::Space,T::Spectral};break;
+            case 6:chain={T::LoFi,T::RingMod,T::Comb,T::GrainCloud,T::Space,T::Spectral};break;
+            case 7:chain={T::WdfDiode,T::Resonator,T::Ladder,T::Tape,T::Space,T::Chorus};break;
+            case 8:chain={T::SpectralFreeze,T::PrismPitch,T::Diffuser,T::Space,T::Tape,T::Chorus};break;
+            case 9:chain={T::FrequencyShift,T::RingMod,T::Chorus,T::Comb,T::Space,T::Diffuser};break;
+            case 10:chain={T::Tape,T::Colour,T::Ladder,T::Diffuser,T::Space,T::Chorus};break;
+            case 11:chain={T::Chaos,T::Comb,T::FrequencyShift,T::Wavefolder,T::Space,T::Spectral};break;
+            case 12:chain={T::Resonator,T::PrismPitch,T::Diffuser,T::Space,T::Chorus,T::Spectral};break;
+            case 13:chain={T::Ladder,T::Colour,T::Tape,T::Chorus,T::Space,T::Spectral};break;
+            case 14:chain={T::Modal,T::WdfDiode,T::Diffuser,T::Space,T::Chorus,T::Spectral};break;
+            case 15:chain={T::PrismPitch,T::FrequencyShift,T::Comb,T::Space,T::Diffuser,T::Spectral};break;
+            case 16:chain={T::Wavefolder,T::Chorus,T::GrainCloud,T::Space,T::Diffuser,T::Spectral};break;
+            case 17:chain={T::Ladder,T::Tape,T::Chorus,T::Space,T::Diffuser,T::Spectral};break;
+            case 18:chain={T::WdfDiode,T::LoFi,T::RingMod,T::Comb,T::Space,T::Spectral};break;
+            case 19:chain={T::Resonator,T::GrainCloud,T::Diffuser,T::Space,T::Chorus,T::Spectral};break;
+            case 20:chain={T::Ladder,T::Modal,T::Chorus,T::Space,T::Diffuser,T::Spectral};break;
+            case 21:chain={T::Wavefolder,T::FrequencyShift,T::GrainCloud,T::Comb,T::Space,T::Spectral};break;
+            case 22:chain={T::PrismPitch,T::Tape,T::Resonator,T::Diffuser,T::Space,T::Spectral};break;
+            default:chain={T::Chaos,T::LoFi,T::Diffuser,T::Space,T::Chorus,T::Spectral};break;
+        }
+        for(int slot=0;slot<aether::modular::slotCount;++slot) {
+            assignModule(slot,slot<6?static_cast<int>(chain[static_cast<size_t>(slot)]):0);
+            const auto id="node."+juce::String(slot+1)+".";
+            setParameterValue(id+"mix",slot<6?(chain[static_cast<size_t>(slot)]==T::Space?0.3f:0.45f):1.f);
+            if(slot>=6) setParameterValue(id+"on",0);
+        }
+        if(index>=24 && index<=31) {
+            const float ratios[]={1,2,3,1.5f,4,0.5f};
+            for(int op=1;op<=6;++op) setParameterValue("fm.op."+juce::String(op)+".ratio",ratios[(op+index)%6]);
+        }
+        if(index>=32) {
+            setParameterValue("modulation.1.source",1);setParameterValue("modulation.1.target",1);setParameterValue("modulation.1.depth",0.3f);
+            setParameterValue("modulation.2.source",2);setParameterValue("modulation.2.target",17);setParameterValue("modulation.2.depth",0.2f);
+            setParameterValue("lfo.1.rate",0.07f);setParameterValue("lfo.2.rate",0.13f);
+        }
+        applyRoutingAlgorithm(static_cast<int>(parameterValue("routing.algorithm")));
+    }
     { const juce::ScopedLock lock(metadataLock); presetName=factories[static_cast<size_t>(index)].name; }
     currentProgram.store(index); requestPanic();
 }
 juce::var AetherAudioProcessor::presetObject(const juce::String& name) const {
-    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","1.0.0"); root->setProperty("schema",1); root->setProperty("name",name);
+    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","2.0.0"); root->setProperty("schema",2); root->setProperty("name",name);
     auto* values=new juce::DynamicObject();
     for(const auto& spec:aether::parameterSpecs()) values->setProperty(spec.id,state.getRawParameterValue(spec.id)->load());
     root->setProperty("parameters",juce::var(values)); return juce::var(root);
@@ -65,13 +138,15 @@ juce::Result AetherAudioProcessor::loadPreset(const juce::File& file) {
     if(!file.existsAsFile() || file.getSize()>1024*1024) return juce::Result::fail("Preset missing or larger than 1 MB.");
     juce::var root; auto result=juce::JSON::parse(file.loadFileAsString(),root);
     if(result.failed()) return juce::Result::fail("Invalid preset JSON.");
-    if(root["product"].toString()!="AetherMicro" || static_cast<int>(root["schema"])!=1 || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
+    const int schema=static_cast<int>(root["schema"]);
+    if(root["product"].toString()!="AetherMicro" || schema<1 || schema>2 || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
     auto values=root["parameters"];
     for(const auto& spec:aether::parameterSpecs()) if(values.hasProperty(spec.id)) {
-        auto value=values[spec.id];
+        auto value=values.getProperty(juce::Identifier(spec.id),{});
         if(!(value.isDouble()||value.isInt()||value.isInt64()||value.isBool()) || !std::isfinite(static_cast<double>(value))) return juce::Result::fail("Preset contains invalid parameter values.");
     }
     applyValues(values);
+    if(schema==1) { setParameterValue("graph.enabled",0);setParameterValue("fm.enabled",0); }
     { const juce::ScopedLock lock(metadataLock); presetName=root["name"].toString().substring(0,128); }
     requestPanic(); return juce::Result::ok();
 }

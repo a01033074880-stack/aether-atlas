@@ -90,7 +90,10 @@ float LadderFilter::Process(float in)
     return total;
 }
 
-__attribute__((optimize("unroll-loops"))) void
+#if defined(__GNUC__) && !defined(__clang__)
+__attribute__((optimize("unroll-loops")))
+#endif
+void
 LadderFilter::ProcessBlock(float* buf, size_t size)
 {
     for(size_t i = 0; i < size; i++)

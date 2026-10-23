@@ -14,7 +14,7 @@ jobs:
       - name: Upload VST3 and standalone
         uses: actions/upload-artifact@v4
         with:
-          name: AetherMicro-1.0.0-Windows-x64
+          name: AetherAtlas-2.0.0-Windows-x64
           path: |
             build/AetherMicro_artefacts/Release/VST3
             build/AetherMicro_artefacts/Release/Standalone

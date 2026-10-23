@@ -3,15 +3,16 @@ param(
     [string]$Configuration = 'Release',
     [string]$JuceSourceZip = '',
     [string]$JucePath = '',
-    [string]$ValidationDirectory = 'tmp/validation',
-    [string]$ScreenshotsDirectory = 'out/screenshots',
-    [string]$AudioDirectory = 'out/audio'
+    [string]$ValidationDirectory = 'tmp/validation-v2',
+    [string]$ScreenshotsDirectory = 'out/atlas-screenshots',
+    [string]$AudioDirectory = 'out/atlas-audio'
 )
 $ErrorActionPreference = 'Stop'
 $aetherRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $aetherRoot
 try {
-    $aetherName = 'AetherMicro-1.0.0-Windows-x64'
+    $aetherVersion = '2.0.0'
+    $aetherName = "AetherAtlas-$aetherVersion-Windows-x64"
     $aetherRelease = Join-Path $aetherRoot "dist/$aetherName"
     # Never replace a prior reviewable release silently.
     if (Test-Path -LiteralPath $aetherRelease) { throw "Release directory already exists: $aetherRelease" }
@@ -36,13 +37,13 @@ try {
     if (Test-Path -LiteralPath $ScreenshotsDirectory) { Get-ChildItem -LiteralPath $ScreenshotsDirectory -Filter '*.png' | Copy-Item -Destination (Join-Path $aetherRelease 'Preview') }
     if (Test-Path -LiteralPath $AudioDirectory) { Get-ChildItem -LiteralPath $AudioDirectory -Filter '*.wav' | Copy-Item -Destination (Join-Path $aetherRelease 'Audio') }
     if (Test-Path -LiteralPath $ValidationDirectory) {
-        foreach ($aetherEvidence in @('ctest-final.log','dsp-tests-final.log','plugin-tests.log','render-benchmark.log','dependencies-fx.log','pluginval-fx','pluginval-synth')) {
+        foreach ($aetherEvidence in @('ctest-final.log','dsp-tests-final.log','fm-tests-final.log','modular-tests-final.log','plugin-tests.log','render-benchmark.log','dependencies-fx.log','pluginval-fx','pluginval-synth')) {
             $aetherEvidencePath = Join-Path $ValidationDirectory $aetherEvidence
             if (Test-Path -LiteralPath $aetherEvidencePath) { Copy-Item -LiteralPath $aetherEvidencePath -Destination (Join-Path $aetherRelease 'Validation') -Recurse }
         }
     }
-    $aetherSourceArchive = Join-Path $aetherRelease 'Source/AetherMicro-1.0.0-source.zip'
-    & git archive --format=zip --prefix=AetherMicro-1.0.0/ "--output=$aetherSourceArchive" HEAD
+    $aetherSourceArchive = Join-Path $aetherRelease "Source/AetherMicro-$aetherVersion-source.zip"
+    & git archive --format=zip "--prefix=AetherMicro-$aetherVersion/" "--output=$aetherSourceArchive" HEAD
     if ($LASTEXITCODE -ne 0) { throw 'Source archive failed.' }
     if ($JuceSourceZip) {
         if ((Get-FileHash -LiteralPath $JuceSourceZip -Algorithm SHA256).Hash -ne '66BCD380BA444DA6A9BB98B7471727C542232C27647C1EC22F47158353C186DC') { throw 'JUCE source SHA-256 mismatch.' }
@@ -51,6 +52,10 @@ try {
     if ($JucePath) {
         Copy-Item -LiteralPath (Join-Path $JucePath 'LICENSE.md') -Destination (Join-Path $aetherRelease 'licenses/JUCE-LICENSE.md')
         Copy-Item -LiteralPath (Join-Path $JucePath 'modules/juce_audio_processors_headless/format_types/VST3_SDK/LICENSE.txt') -Destination (Join-Path $aetherRelease 'licenses/VST3-SDK-LICENSE.txt')
+    }
+    foreach ($aetherNotice in @('third_party/DaisySP/LICENSE','third_party/signalsmith-stretch/LICENSE.txt','third_party/signalsmith-linear/LICENSE.txt','third_party/chowdsp_wdf/LICENSE','assets/fonts/InstrumentSerif-OFL.txt','assets/fonts/DMMono-OFL.txt')) {
+        $aetherNoticeName = ($aetherNotice -replace '[\\/]','_')
+        Copy-Item -LiteralPath $aetherNotice -Destination (Join-Path $aetherRelease "licenses/$aetherNoticeName")
     }
     $aetherManifest = Join-Path $aetherRelease 'SHA256SUMS.txt'
     $aetherChecksums = Get-ChildItem -LiteralPath $aetherRelease -Recurse -File | Sort-Object FullName | ForEach-Object {

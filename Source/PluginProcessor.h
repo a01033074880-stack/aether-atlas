@@ -44,22 +44,46 @@ public:
     void toggleAB();
     bool isSnapshotB() const noexcept { return snapshotB.load(); }
     void requestPanic() noexcept { panic.store(true); }
+    float parameterValue(const juce::String&) const;
+    void setParameterValue(const juce::String&,float);
+    void applyRoutingAlgorithm(int);
+    void setGraphEdge(int source,int destination,float gain);
+    void assignModule(int slot,int moduleType);
+    void applyFmAlgorithm(int);
+    void setFmEdge(int source,int destination,float depth);
+    std::array<std::atomic<float>,aether::modular::slotCount> nodeMeters{};
+    std::array<std::atomic<float>,aether::modular::sourceCount> modulationMeters{};
+    std::atomic<int> fmVoiceCount{0},textureLatencySamples{0};
 
 private:
     aether::Engine engine;
+    aether::Engine outputStage;
+    aether::modular::GraphEngine graph;
+    aether::fm::Synth fmEngine;
     std::array<std::atomic<float>*,aether::parameterCount> raw{};
+    std::vector<std::atomic<float>*> allRaw;
     static constexpr int scratchSize=512,analysisSize=16384;
     std::array<float,scratchSize> left{},right{},side{};
+    std::array<float,scratchSize> dryLeft{},dryRight{};
     std::array<float,analysisSize> analysis{};
     juce::AbstractFifo analysisFifo{analysisSize};
-    std::atomic<bool> panic{false},snapshotB{false};
+    std::atomic<bool> panic{false},graphReset{false},snapshotB{false};
     std::atomic<int> currentProgram{0};
     juce::ValueTree snapshot;
     mutable juce::CriticalSection metadataLock;
-    juce::String presetName="Gentle Orbit";
+    juce::String presetName="Atlas / Init";
     double currentRate=48000;
     bool prepared=false,wasBypassed=false;
+    bool graphActive=true,fmActive=true,atlasSourceActive=true;
+    float lastVelocity=0,lastNoteHz=0,fmInputGain=1,inputGainSmoothing=0.004f;
+    float excitationEnvelope=0,excitationLow=0,excitationPrevious=0,excitationPitch=0;
+    float excitationAttack=0.005f,excitationRelease=0.0003f,excitationLowpass=0.2f;
+    double excitationCrossing=-1;
+    std::uint64_t excitationClock=0;
     aether::Parameters parameters() const noexcept;
+    aether::modular::Parameters graphParameters() const noexcept;
+    aether::fm::Parameters fmParameters() const noexcept;
+    void analyseExcitation(float) noexcept;
     void handleMidi(const juce::MidiMessage&) noexcept;
     void renderSegment(juce::AudioBuffer<float>&,int,int,const aether::Parameters&);
     void publishAnalysis(const float*,const float*,int) noexcept;

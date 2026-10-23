@@ -22,7 +22,7 @@ int main(int argc,char** argv) {
     try {
         test("stable parameter contract",[] {
             AetherAudioProcessor p;
-            require(p.getParameters().size()==aether::parameterCount,"parameter count mismatch");
+            require(p.getParameters().size()==aether::totalParameterCount,"parameter count mismatch");
             for(const auto& spec:aether::parameterSpecs()) {
                 auto* v=p.state.getParameter(spec.id);
                 require(v!=nullptr,"parameter not exposed");
@@ -53,9 +53,17 @@ int main(int argc,char** argv) {
         });
         test("active space freeze reports infinite host tail",[] {
             AetherAudioProcessor p;
+            p.setParameterValue("graph.enabled",0);
             require(std::isfinite(p.getTailLengthSeconds()),"normal preset tail not finite");
             set(p,"space.freeze",1); require(std::isinf(p.getTailLengthSeconds()),"frozen tail may be cut by host");
             set(p,"space.enabled",0); require(std::isfinite(p.getTailLengthSeconds()),"disabled space reports infinite tail");
+        });
+        test("Atlas freeze modulation and cyclic routing advertise persistent tails",[] {
+            AetherAudioProcessor p;p.assignModule(0,static_cast<int>(aether::modular::ModuleType::GrainCloud));
+            p.setParameterValue("node.1.d",0.3f);p.setParameterValue("modulation.1.source",1);p.setParameterValue("modulation.1.target",4);p.setParameterValue("modulation.1.depth",0.5f);
+            require(std::isinf(p.getTailLengthSeconds()),"modulated freeze may be truncated by host");
+            p.setParameterValue("modulation.1.depth",0);p.setGraphEdge(11,0,0.5f);
+            require(std::isinf(p.getTailLengthSeconds()),"recursive patch advertised a short tail");
         });
         test("DAW state round trip and invalid payload",[] {
             AetherAudioProcessor p,q; set(p,"colour.drive",17); set(p,"space.mix",0.76f);
@@ -63,6 +71,69 @@ int main(int argc,char** argv) {
             require(std::abs(q.state.getRawParameterValue("colour.drive")->load()-17)<0.001f,"drive not recalled");
             require(std::abs(q.state.getRawParameterValue("space.mix")->load()-0.76f)<0.001f,"space not recalled");
             q.setStateInformation("bad",3); require(q.state.getRawParameterValue("colour.drive")->load()==17,"corruption changed state");
+        });
+        test("Atlas schema 2 stores custom routing FM and modulation",[] {
+            AetherAudioProcessor p,q;
+            p.setGraphEdge(11,0,-0.4f); p.setFmEdge(5,0,0.73f);
+            p.setParameterValue("modulation.4.source",3);p.setParameterValue("modulation.4.target",82);p.setParameterValue("modulation.4.depth",-0.37f);
+            juce::MemoryBlock data;p.getStateInformation(data);
+            const auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),static_cast<int>(data.getSize()));
+            require(xml && xml->getIntAttribute("schema")==2,"new state did not use schema 2");
+            q.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
+            require(std::abs(q.parameterValue("route.12.1")+0.4f)<0.0001f,"custom graph cable lost");
+            require(std::abs(q.parameterValue("fm.edge.6.1")-0.73f)<0.0001f,"custom FM cable lost");
+            require(std::abs(q.parameterValue("modulation.4.depth")+0.37f)<0.0001f,"modulation assignment lost");
+        });
+        test("v1 schema restores the legacy sound path",[] {
+            AetherAudioProcessor p;
+            juce::ValueTree old("AetherState");old.setProperty("schema",1,nullptr);old.setProperty("version","1.0.0",nullptr);
+            for(int i=0;i<aether::parameterCount;++i) {
+                const auto& spec=aether::parameterSpecs()[static_cast<size_t>(i)];
+                juce::ValueTree item("PARAM");item.setProperty("id",spec.id,nullptr);item.setProperty("value",spec.defaultValue,nullptr);old.addChild(item,-1,nullptr);
+            }
+            juce::MemoryBlock data;auto xml=old.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,data);
+            p.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
+            require(p.parameterValue("graph.enabled")==0,"v1 state unexpectedly enabled a new graph");
+            require(p.parameterValue("fm.enabled")==0,"v1 state unexpectedly enabled six-operator sound");
+        });
+        test("module assignment and custom cabling drive stable parameters",[] {
+            AetherAudioProcessor p;p.assignModule(5,static_cast<int>(aether::modular::ModuleType::WdfDiode));
+            require(static_cast<int>(p.parameterValue("node.6.type"))==static_cast<int>(aether::modular::ModuleType::WdfDiode),"module assignment missing");
+            p.applyRoutingAlgorithm(7);p.setGraphEdge(0,5,0.44f);
+            require(p.parameterValue("routing.algorithm")==32,"custom cable did not select custom matrix");
+            require(std::abs(p.parameterValue("route.1.6")-0.44f)<0.0001f,"custom cable gain missing");
+        });
+        test("first custom FM edit preserves the current algorithm morph",[] {
+            AetherAudioProcessor p;p.applyFmAlgorithm(17);p.setParameterValue("fm.morph",0.5f);
+            p.setFmEdge(0,1,0.25f);
+            require(std::abs(p.parameterValue("fm.edge.6.5")-0.39f)<0.0001f,"first matrix edit discarded current morphed edges");
+            require(p.parameterValue("fm.morph")==0,"custom snapshot was morphed a second time");
+        });
+        test("FM remains enabled when the Atlas effects graph is bypassed",[] {
+            AetherAudioProcessor p;p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",1);p.setParameterValue("global.mode",2);
+            p.setParameterValue("fm.custom",1);
+            for(int i=1;i<=6;++i) p.setParameterValue("fm.op."+juce::String(i)+".carrier",0);
+            p.prepareToPlay(48000,256);juce::AudioBuffer<float> b(2,256);b.clear();juce::MidiBuffer midi;midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),0);
+            p.processBlock(b,midi);
+            require(b.getMagnitude(0,0,256)<1.e-7f,"graph bypass incorrectly replaced FM with the legacy oscillator");
+            require(p.fmVoiceCount.load()>0,"graph bypass stopped FM voice rendering");
+        });
+        test("audio-driven FM and pitch modulation do not depend on host block cuts",[] {
+            auto render=[](int block) {
+                AetherAudioProcessor p;p.setParameterValue("global.mode",1);p.setParameterValue("master.enabled",0);
+                for(int n=1;n<=12;++n) {p.setParameterValue("node."+juce::String(n)+".type",0);p.setParameterValue("node."+juce::String(n)+".on",0);}
+                p.assignModule(0,static_cast<int>(aether::modular::ModuleType::RingMod));
+                p.setParameterValue("modulation.1.source",7);p.setParameterValue("modulation.1.target",1);p.setParameterValue("modulation.1.depth",0.2f);
+                p.prepareToPlay(48000,block);std::vector<float> result(12000);juce::MidiBuffer midi;
+                for(int offset=0;offset<static_cast<int>(result.size());offset+=block) {
+                    const int count=juce::jmin(block,static_cast<int>(result.size())-offset);juce::AudioBuffer<float> audio(2,count);
+                    for(int i=0;i<count;++i) {const float sample=0.2f*std::sin(2*juce::MathConstants<float>::pi*220*static_cast<float>(i+offset)/48000.f);audio.setSample(0,i,sample);audio.setSample(1,i,sample);}
+                    p.processBlock(audio,midi);std::copy_n(audio.getReadPointer(0),count,result.data()+offset);
+                }return result;
+            };
+            const auto single=render(1),blocked=render(257);float difference=0,energy=0;
+            for(size_t i=0;i<single.size();++i) {difference=juce::jmax(difference,std::abs(single[i]-blocked[i]));energy+=std::abs(single[i]);}
+            require(energy>0.01f,"audio-driven FM test source is silent");require(difference<1.e-5f,"host block segmentation altered FM pitch modulation");
         });
         test("all factory presets render finite stereo",[] {
             AetherAudioProcessor p; p.prepareToPlay(48000,64);
@@ -108,6 +179,7 @@ int main(int argc,char** argv) {
         });
         test("sample-offset MIDI starts only at its timestamp",[] {
             AetherAudioProcessor p; set(p,"global.mode",2); set(p,"space.mix",0); p.prepareToPlay(48000,128);
+            for(int n=1;n<=12;++n) { p.setParameterValue("node."+juce::String(n)+".type",0);p.setParameterValue("node."+juce::String(n)+".on",0); }
             juce::AudioBuffer<float> b(2,128); b.clear(); juce::MidiBuffer midi;
             midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),73); p.processBlock(b,midi);
             float after=0;
@@ -119,7 +191,7 @@ int main(int argc,char** argv) {
             AetherAudioProcessor p; auto layout=p.getBusesLayout();
             layout.inputBuses.set(1,juce::AudioChannelSet::mono());
             require(p.setBusesLayout(layout),"mono sidechain unsupported");
-            set(p,"modal.mix",1); set(p,"space.mix",0); set(p,"spectral.amount",0);
+            set(p,"graph.enabled",0);set(p,"fm.enabled",0);set(p,"modal.mix",1); set(p,"space.mix",0); set(p,"spectral.amount",0);
             p.prepareToPlay(48000,256);
             juce::AudioBuffer<float> b(3,256); juce::MidiBuffer midi; float energy=0;
             for(int block=0;block<20;++block) {
@@ -151,19 +223,42 @@ int main(int argc,char** argv) {
                     auto stream=dir.getChildFile("AetherMicro-main.png").createOutputStream(); require(stream!=nullptr,"snapshot file");
                     stream->setPosition(0); stream->truncate();
                     require(png.writeImageToStream(image,*stream),"snapshot encode");
-                    editor->setSize(1280,900);
+                    editor->setSize(1920,1080);
                     image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
                     auto large=dir.getChildFile("AetherMicro-large.png").createOutputStream(); large->setPosition(0); large->truncate(); png.writeImageToStream(image,*large);
-                    editor->setSize(900,680);
+                    editor->setSize(1180,780);
                     image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
                     auto minimum=dir.getChildFile("AetherMicro-minimum.png").createOutputStream(); minimum->setPosition(0); minimum->truncate(); png.writeImageToStream(image,*minimum);
                     if(auto* aetherEditor=dynamic_cast<AetherAudioProcessorEditor*>(editor.get())) {
+                        for(int workspace=0;workspace<3;++workspace) {
+                            aetherEditor->setMinimalMode(false);aetherEditor->setWorkspace(workspace);editor->setSize(1440,900);
+                            image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
+                            auto page=dir.getChildFile("Atlas-workspace-"+juce::String(workspace)+".png").createOutputStream();page->setPosition(0);page->truncate();png.writeImageToStream(image,*page);
+                            editor->setSize(1180,780);image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
+                            auto minPage=dir.getChildFile("Atlas-minimum-"+juce::String(workspace)+".png").createOutputStream();minPage->setPosition(0);minPage->truncate();png.writeImageToStream(image,*minPage);
+                        }
+                        aetherEditor->setWorkspace(0);
+                        require(aetherEditor->performUiAction("slot.3"),"slot selection action missing");
+                        require(aetherEditor->performUiAction("module.8"),"module browser action missing");
+                        require(p.parameterValue("node.3.type")==8,"browser did not assign selected node");
+                        require(aetherEditor->performUiAction("routing.5"),"algorithm picker action missing");
+                        require(p.parameterValue("routing.algorithm")==5,"algorithm did not change graph");
+                        require(aetherEditor->performUiAction("route.2.10"),"canvas cable action missing");
+                        require(p.parameterValue("routing.algorithm")==32 && p.parameterValue("route.2.10")==1,"canvas did not create custom edge");
+                        aetherEditor->setWorkspace(1);
+                        require(aetherEditor->performUiAction("fm.algorithm.11"),"FM algorithm action missing");
+                        require(aetherEditor->performUiAction("fm.edge.6.1"),"FM matrix action missing");
+                        require(p.parameterValue("fm.custom")==1,"FM matrix edit did not enable custom mode");
                         aetherEditor->setMinimalMode(true);
                         image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
                         auto small=dir.getChildFile("AetherMicro-minimal.png").createOutputStream(); small->setPosition(0); small->truncate(); png.writeImageToStream(image,*small);
                     }
                     auto presets=dir.getChildFile("presets"); presets.createDirectory();
-                    for(int i=0;i<p.getNumPrograms();++i) { p.loadFactoryPreset(i); p.savePreset(presets.getChildFile(p.getProgramName(i)+".aether")); }
+                    for(int i=0;i<p.getNumPrograms();++i) {
+                        p.loadFactoryPreset(i);
+                        const auto filename=p.getProgramName(i).replaceCharacters("/\\:*?\"<>|","_________")+".aether";
+                        require(p.savePreset(presets.getChildFile(filename)).wasOk(),"factory preset export failed");
+                    }
                 }
             }
         });

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(AetherMicro VERSION 1.0.0 LANGUAGES C CXX)
+project(AetherMicro VERSION 2.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -8,6 +8,26 @@ option(AETHER_BUILD_TESTS "Build behavioral tests" ON)
 set(JUCE_PATH "" CACHE PATH "Existing JUCE source checkout (revision 501c07674e1ad693085a7e7c398f205c2677f5da)")
 add_library(aether_dsp STATIC libs/aether-dsp/src/Engine.cpp)
 target_include_directories(aether_dsp PUBLIC libs/aether-dsp/include)
+add_library(aether_fm STATIC libs/aether-fm/src/FmSynth.cpp)
+target_include_directories(aether_fm PUBLIC libs/aether-fm/include)
+add_library(atlas_daisy STATIC
+    third_party/DaisySP/Source/Sampling/granularplayer.cpp
+    third_party/DaisySP/Source/Control/phasor.cpp
+    third_party/DaisySP/Source/Effects/wavefolder.cpp
+    third_party/DaisySP/Source/Effects/decimator.cpp
+    third_party/DaisySP/Source/Effects/chorus.cpp
+    third_party/DaisySP/Source/Filters/ladder.cpp
+    third_party/DaisySP/Source/PhysicalModeling/resonator.cpp
+    third_party/DaisySP/Source/PhysicalModeling/KarplusString.cpp
+    third_party/DaisySP/Source/Dynamics/crossfade.cpp
+    third_party/DaisySP/Source/Utility/dcblock.cpp)
+target_include_directories(atlas_daisy PUBLIC third_party/DaisySP/Source third_party/DaisySP/Source/Utility)
+add_library(aether_modular STATIC libs/aether-modular/src/Modular.cpp libs/aether-modular/src/Metadata.cpp)
+target_include_directories(aether_modular PUBLIC libs/aether-modular/include)
+target_include_directories(aether_modular PRIVATE third_party third_party/signalsmith-stretch third_party/signalsmith-linear third_party/chowdsp_wdf/include)
+target_link_libraries(aether_modular PUBLIC atlas_daisy aether_dsp)
+add_executable(AetherAtlasRender tools/RenderAtlas.cpp)
+target_link_libraries(AetherAtlasRender PRIVATE aether_modular aether_fm)
 add_executable(AetherRender tools/RenderAudio.cpp)
 target_link_libraries(AetherRender PRIVATE aether_dsp)
 if(MSVC)
@@ -20,6 +40,12 @@ if(AETHER_BUILD_TESTS)
   add_executable(AetherDspTests tests/DspTests.cpp)
   target_link_libraries(AetherDspTests PRIVATE aether_dsp)
   add_test(NAME aether_dsp COMMAND AetherDspTests)
+  add_executable(AetherFmTests tests/FmTests.cpp)
+  target_link_libraries(AetherFmTests PRIVATE aether_fm)
+  add_test(NAME aether_fm COMMAND AetherFmTests)
+  add_executable(AetherModularTests tests/ModularTests.cpp)
+  target_link_libraries(AetherModularTests PRIVATE aether_modular)
+  add_test(NAME aether_modular COMMAND AetherModularTests)
 endif()
 if(NOT AETHER_BUILD_PLUGINS)
   return()
@@ -34,6 +60,7 @@ else()
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
   FetchContent_MakeAvailable(JUCE)
 endif()
+juce_add_binary_data(AetherAssets SOURCES assets/fonts/InstrumentSerif-Regular.ttf assets/fonts/DMMono-Regular.ttf)
 function(aether_plugin target product synth code)
   if(synth)
     set(aether_categories Instrument Synth)
@@ -49,13 +76,13 @@ function(aether_plugin target product synth code)
     COPY_PLUGIN_AFTER_BUILD FALSE FORMATS VST3 Standalone
     VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
-    Source/Parameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+    Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
   target_include_directories(${target} PUBLIC Source)
   target_compile_definitions(${target} PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0 JUCE_REPORT_APP_USAGE=0
     JUCE_USE_WIN_WEBVIEW2=0 JUCE_ASIO=0)
-  target_link_libraries(${target} PUBLIC aether_dsp juce::juce_audio_utils juce::juce_dsp
+  target_link_libraries(${target} PUBLIC aether_dsp aether_fm aether_modular AetherAssets juce::juce_audio_utils juce::juce_dsp
     PRIVATE juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
   if(MSVC)
     target_compile_options(${target} PRIVATE /utf-8 /bigobj)
