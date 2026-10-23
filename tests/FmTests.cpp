@@ -373,6 +373,172 @@ int main() {
   };
   check(releaseDuration(4) > releaseDuration(.1f) + 1e-5,
         "operator release scale changes tail");
+  // Long envelope regressions: float accumulation previously froze release
+  // and high-sustain decay because a decrement rounded back to the old value.
+  auto advance = [&](Synth &synth, int samples) {
+    while (samples > 0) {
+      const int chunk = std::min(samples, static_cast<int>(b.l.size()));
+      synth.process(b.l.data(), b.r.data(), chunk);
+      samples -= chunk;
+    }
+  };
+  s.prepare(192000, 16384);
+  auto longRelease = p;
+  longRelease.release = 12;
+  for (auto &op : longRelease.operators)
+    op.release = 4;
+  s.setParameters(longRelease);
+  s.noteOn(69, 1);
+  advance(s, 192000);
+  s.noteOff(69);
+  advance(s, 47 * 192000);
+  check(s.activeVoices() == 1,
+        "maximum 48 second release remains active before endpoint");
+  advance(s, 2 * 192000);
+  check(s.activeVoices() == 0 && energy(b.l) < 1e-20,
+        "maximum release at192kHz completes with silence");
+  {
+    Synth slowAttack, fastAttack;
+    auto ap = p;
+    ap.attack = 5;
+    for (auto &op : ap.operators)
+      op.attack = 4;
+    slowAttack.prepare(192000, 16384);
+    slowAttack.setParameters(ap);
+    slowAttack.noteOn(69, 1);
+    ap.attack = .001f;
+    fastAttack.prepare(192000, 16384);
+    fastAttack.setParameters(ap);
+    fastAttack.noteOn(69, 1);
+    advance(slowAttack, 10 * 192000);
+    advance(fastAttack, 10 * 192000);
+    Audio mid(4096), full(4096);
+    slowAttack.process(mid.l.data(), mid.r.data(), 4096);
+    fastAttack.process(full.l.data(), full.r.data(), 4096);
+    check(std::abs(energy(mid.l) / energy(full.l) - .25) < .002,
+          "maximum20secondattack reaches half amplitude at midpoint");
+    advance(slowAttack, 11 * 192000);
+    advance(fastAttack, 11 * 192000);
+    slowAttack.process(mid.l.data(), mid.r.data(), 4096);
+    fastAttack.process(full.l.data(), full.r.data(), 4096);
+    check(distance(mid.l, full.l) < 1e-12,
+          "maximum20secondattack reaches full level at endpoint");
+  }
+  for (double sr : {8000., 48000., 96000., 192000.}) {
+    auto dp = p;
+    dp.decay = 5;
+    dp.sustain = .99f;
+    for (bool excitation : {false, true}) {
+      dp.decay = 5;
+      s.prepare(sr, 16384);
+      s.setParameters(dp);
+      if (excitation)
+        s.setAudioExcitation(440, 1);
+      else
+        s.noteOn(69, 1);
+      advance(s, static_cast<int>(7 * sr));
+      Audio decayTail(4096);
+      s.process(decayTail.l.data(), decayTail.r.data(), 4096);
+      Synth reference;
+      reference.prepare(sr, 16384);
+      dp.decay = .01f;
+      reference.setParameters(dp);
+      if (excitation)
+        reference.setAudioExcitation(440, 1);
+      else
+        reference.noteOn(69, 1);
+      advance(reference, static_cast<int>(7 * sr));
+      Audio expected(4096);
+      reference.process(expected.l.data(), expected.r.data(), 4096);
+      check(distance(decayTail.l, expected.l) < 1e-12,
+            excitation
+                ? "long high-sustain decay converges for continuous excitation"
+                : "long high-sustain decay converges for MIDI");
+    }
+    for (float scale : {.1f, 1.f, 4.f}) {
+      s.prepare(sr, 16384);
+      auto timing = p;
+      timing.attack = .2f;
+      timing.release = .25f;
+      for (auto &op : timing.operators) {
+        op.attack = scale;
+        op.release = scale;
+      }
+      s.setParameters(timing);
+      s.noteOn(69, 1);
+      advance(s, static_cast<int>(sr));
+      s.sustain(true);
+      s.noteOff(69);
+      advance(s, static_cast<int>(sr * .1));
+      check(s.activeVoices() == 1,
+            "sustain holds prior to timed scaled release");
+      s.sustain(false);
+      advance(s, static_cast<int>(sr * .25 * scale * .9));
+      check(s.activeVoices() == 1,
+            "scaled pedal release lasts advertised duration");
+      advance(s, static_cast<int>(sr * .25 * scale * .2) + 64);
+      check(s.activeVoices() == 0,
+            "scaled pedal release completes across sample rates");
+    }
+  }
+  auto gainTransition = [&](int block, bool repeatParameters) {
+    Synth synth;
+    synth.prepare(48000, 16384);
+    auto gp = p;
+    synth.setParameters(gp);
+    synth.noteOn(69, 1);
+    advance(synth, 16384);
+    gp.gain = 0;
+    synth.setParameters(gp);
+    Audio transition(1024);
+    for (int offset = 0; offset < 1024; offset += block) {
+      if (repeatParameters)
+        synth.setParameters(gp);
+      synth.process(transition.l.data() + offset, transition.r.data() + offset,
+                    std::min(block, 1024 - offset));
+    }
+    return transition;
+  };
+  auto fade = gainTransition(1024, false);
+  check(energy(std::vector<float>(fade.l.begin() + 48, fade.l.begin() + 144)) >
+            1e-5,
+        "gain automation ramps audibly over five milliseconds");
+  check(energy(std::vector<float>(fade.l.begin() + 512, fade.l.end())) < 1e-20,
+        "gain ramp reaches exact silence after five milliseconds");
+  check(distance(fade.l, gainTransition(1, true).l) < 1e-15,
+        "smoothing is block invariant and repeated parameter targets do not "
+        "restart ramp");
+  for (bool changeFeedback : {false, true}) {
+    Synth unchanged, automated;
+    auto sp = p;
+    sp.matrix[0][1] = 1;
+    sp.operators[1].ratio = 2.37f;
+    unchanged.prepare(48000, 16384);
+    automated.prepare(48000, 16384);
+    unchanged.setParameters(sp);
+    automated.setParameters(sp);
+    unchanged.noteOn(69, 1);
+    automated.noteOn(69, 1);
+    advance(unchanged, 16384);
+    advance(automated, 16384);
+    if (changeFeedback)
+      sp.feedback = .95f;
+    else
+      sp.index = 8;
+    automated.setParameters(sp);
+    Audio dry(512), smoothed(512);
+    unchanged.process(dry.l.data(), dry.r.data(), 512);
+    automated.process(smoothed.l.data(), smoothed.r.data(), 512);
+    double early = 0;
+    for (int i = 0; i < 16; ++i)
+      early += (dry.l[i] - smoothed.l[i]) * (dry.l[i] - smoothed.l[i]);
+    check(early / 16 < distance(dry.l, smoothed.l) * .01,
+          changeFeedback ? "feedback automation starts with short smooth ramp"
+                         : "index automation starts with short smooth ramp");
+    check(distance(dry.l, smoothed.l) > 1e-6,
+          changeFeedback ? "feedback ramp reaches audible new value"
+                         : "index ramp reaches audible new value");
+  }
   auto high = p;
   high.operators[0].ratio = 16;
   check(energy(render(high, 8192, 8000, 128, 127).l) < 1e-12,

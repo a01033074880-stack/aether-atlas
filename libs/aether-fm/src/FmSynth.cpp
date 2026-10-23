@@ -94,18 +94,18 @@ const std::array<Algorithm, 32> &algorithms() noexcept {
 }
 struct Envelope {
   enum Stage { off, attack, decay, sustain, release } stage = off;
-  float value = 0, releaseStep = 0;
+  double value = 0, releaseStep = 0;
   void gate() noexcept {
     value = 0;
     stage = attack;
   }
   void ungate(float seconds, double rate) noexcept {
     if (stage != off && stage != release) {
-      releaseStep = value / static_cast<float>(seconds * rate);
+      releaseStep = value / (seconds * rate);
       stage = release;
     }
   }
-  float tick(float attackStep, float decayStep, float sustainValue) noexcept {
+  float tick(double attackStep, double decayStep, float sustainValue) noexcept {
     switch (stage) {
     case attack:
       value += attackStep;
@@ -134,7 +134,7 @@ struct Envelope {
     case off:
       break;
     }
-    return value;
+    return static_cast<float>(value);
   }
 };
 struct Voice {
@@ -145,6 +145,33 @@ struct Voice {
   std::array<double, 6> phase{}, increment{};
   std::array<float, 6> previous{}, audible{};
   std::array<Envelope, 6> envelopes{};
+};
+// Linear host-sample ramps: repeated unchanged APVTS snapshots must not
+// restart the transition. Double state also guarantees progress at high rates.
+struct Ramp {
+  double value = 0, target = 0, step = 0;
+  int remaining = 0;
+  void set(float next, int samples, bool snap) noexcept {
+    if (snap) {
+      value = target = next;
+      step = 0;
+      remaining = 0;
+      return;
+    }
+    if (target == next)
+      return;
+    target = next;
+    remaining = samples;
+    step = (target - value) / samples;
+  }
+  float tick() noexcept {
+    if (remaining > 0) {
+      value += step;
+      if (--remaining == 0)
+        value = target;
+    }
+    return static_cast<float>(value);
+  }
 };
 struct Biquad {
   double b0 = 0, b1 = 0, b2 = 0, a1 = 0, a2 = 0, z1 = 0, z2 = 0;
@@ -184,12 +211,14 @@ struct Synth::Impl {
   std::array<bool, 16> pedals{};
   struct Edge {
     int source = 0;
-    float depth = 0;
+    float depth = 0, weightedDepth = 0;
   };
   std::array<std::array<Edge, 6>, 6> edges{};
   std::array<int, 6> edgeCounts{};
-  std::array<float, 6> carriers{}, attackSteps{}, decaySteps{}, panLeft{},
-      panRight{};
+  std::array<float, 6> carriers{}, panLeft{}, panRight{};
+  std::array<double, 6> attackSteps{}, decaySteps{};
+  Ramp gain, index, feedback;
+  float currentIndex = 2, currentFeedback = .1f;
   std::array<std::array<Biquad, 4>, 2> filters{};
   std::uint64_t serial = 0;
   float carrierNorm = 1;
@@ -222,9 +251,10 @@ struct Synth::Impl {
       for (int dst = 0; dst < 6; ++dst) {
         const float from = p.custom ? p.matrix[dst][src] : a.matrix[dst][src];
         const float to = p.custom ? a.matrix[dst][src] : next.matrix[dst][src];
-        const float depth = p.index * (from + (to - from) * p.morph);
+        const float depth = from + (to - from) * p.morph;
         if (depth != 0)
-          edges[dst][edgeCounts[dst]++] = {src, depth};
+          edges[dst][edgeCounts[dst]++] = {
+              src, depth, depth * static_cast<float>(index.value)};
       }
       float weight = p.custom
                          ? 1.f
@@ -235,8 +265,8 @@ struct Synth::Impl {
       carriers[src] = weight * p.operators[src].carrier;
       carrierNorm += carriers[src];
       attackSteps[src] =
-          static_cast<float>(1 / (p.attack * p.operators[src].attack * rate));
-      decaySteps[src] = static_cast<float>((1 - p.sustain) / (p.decay * rate));
+          1 / (static_cast<double>(p.attack) * p.operators[src].attack * rate);
+      decaySteps[src] = (1 - static_cast<double>(p.sustain)) / (p.decay * rate);
       const float pan = p.spread * (static_cast<float>(src) / 5 * 2 - 1);
       panLeft[src] = static_cast<float>(std::cos((pan + 1) * pi / 4));
       panRight[src] = static_cast<float>(std::sin((pan + 1) * pi / 4));
@@ -257,11 +287,11 @@ struct Synth::Impl {
     // Descending evaluation: higher -> lower operators use this sub-sample.
     // Other arcs and diagonal recursion use the previous 4x sub-sample.
     for (int dst = 5; dst >= 0; --dst) {
-      float phaseInput = 2 * p.feedback * v.previous[dst];
+      float phaseInput = currentFeedback * v.previous[dst];
       for (int e = 0; e < edgeCounts[dst]; ++e) {
         const auto edge = edges[dst][e];
         phaseInput +=
-            edge.depth *
+            edge.weightedDepth *
             (edge.source > dst ? now[edge.source] : v.previous[edge.source]);
       }
       phaseInput = std::clamp(phaseInput, -24.f, 24.f);
@@ -309,6 +339,9 @@ void Synth::reset() noexcept {
   impl->bends = {};
   impl->pedals = {};
   impl->serial = 0;
+  impl->gain.set(impl->p.gain, 1, true);
+  impl->index.set(impl->p.index, 1, true);
+  impl->feedback.set(impl->p.feedback, 1, true);
   for (auto &channel : impl->filters)
     for (auto &f : channel)
       f.z1 = f.z2 = 0;
@@ -338,6 +371,14 @@ void Synth::setParameters(const Parameters &incoming) noexcept {
   for (auto &row : p.matrix)
     for (auto &edge : row)
       edge = bound(edge, 0, 1);
+  bool silent = !impl->audio.active;
+  for (const auto &voice : impl->voices)
+    silent &= !voice.active;
+  const int rampSamples =
+      std::max(1, static_cast<int>(impl->sampleRate * .005));
+  impl->gain.set(p.gain, rampSamples, silent);
+  impl->index.set(p.index, rampSamples, silent);
+  impl->feedback.set(p.feedback, rampSamples, silent);
   impl->coefficients();
 }
 void Synth::noteOn(int note, float velocity, int channel) noexcept {
@@ -423,14 +464,25 @@ void Synth::process(float *left, float *right, int samples) noexcept {
     return;
   for (int n = 0; n < samples; ++n) {
     float l = 0, r = 0;
+    const float gain = impl->gain.tick();
+    const float newIndex = impl->index.tick();
+    if (newIndex != impl->currentIndex) {
+      impl->currentIndex = newIndex;
+      for (int dst = 0; dst < 6; ++dst)
+        for (int e = 0; e < impl->edgeCounts[dst]; ++e) {
+          auto &edge = impl->edges[dst][e];
+          edge.weightedDepth = edge.depth * newIndex;
+        }
+    }
+    impl->currentFeedback = 2 * impl->feedback.tick();
     for (int sub = 0; sub < oversampling; ++sub) {
       l = 0;
       r = 0;
       for (auto &v : impl->voices)
         impl->tick(v, v.velocity, l, r);
       impl->tick(impl->audio, impl->audioEnvelope, l, r);
-      l *= impl->p.gain * .25f;
-      r *= impl->p.gain * .25f;
+      l *= gain * .25f;
+      r *= gain * .25f;
       for (auto &f : impl->filters[0])
         l = f.tick(l);
       for (auto &f : impl->filters[1])
