@@ -15,7 +15,8 @@ float Phasor::Process()
     float out;
     out = phs_ / TWOPI_F;
     phs_ += inc_;
-    if(phs_ > TWOPI_F)
+    // Atlas: keep lookup-table phases in the half-open interval [0, 1).
+    if(phs_ >= TWOPI_F)
     {
         phs_ -= TWOPI_F;
     }

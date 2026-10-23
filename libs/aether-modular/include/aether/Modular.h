@@ -16,6 +16,8 @@ struct MacroInfo {
 struct ModuleInfo {
     const char* name; const char* category; const char* description; const char* provenance;
     std::array<MacroInfo,4> macros;
+    int freezeMacro=-1;
+    float freezeThreshold=0.5f;
 };
 const ModuleInfo& moduleInfo(ModuleType) noexcept;
 const char* algorithmName(int) noexcept;

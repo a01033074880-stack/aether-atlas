@@ -24,14 +24,9 @@ void GranularPlayer::Init(float* sample, int size, float sample_rate)
 
 uint32_t GranularPlayer::WrapIdx(uint32_t idx, uint32_t sz)
 {
-    /*wraps idx to sz*/
-    if(idx > sz)
-    {
-        idx = idx - sz;
-        return idx;
-    }
-
-    return idx;
+    // Atlas safety patch: the exact end index is outside the sample; modulo
+    // also handles offsets spanning more than one complete capture buffer.
+    return sz == 0 ? 0 : idx % sz;
 }
 
 float GranularPlayer::CentsToRatio(float cents)
@@ -73,7 +68,10 @@ float GranularPlayer::Process(float speed,
                    * MsToSamps(grain_size_, sample_rate_));
     idx_        = WrapIdx((uint32_t)(idxSpeed_ + idxTransp_), size_);
     idx2_       = WrapIdx((uint32_t)(idxSpeed2_ + idxTransp2_), size_);
-    sig_        = sample_[idx_] * cosEnv_[(uint32_t)(phs_.Process() * 256)];
-    sig2_       = sample_[idx2_] * cosEnv_[(uint32_t)(phs2_.Process() * 256)];
+    // Atlas: guard floating-point rounding at the phase/table boundary.
+    const auto env1 = static_cast<uint32_t>(phs_.Process() * 256);
+    const auto env2 = static_cast<uint32_t>(phs2_.Process() * 256);
+    sig_        = sample_[idx_] * cosEnv_[env1 < 256 ? env1 : 255];
+    sig2_       = sample_[idx2_] * cosEnv_[env2 < 256 ? env2 : 255];
     return (sig_ + sig2_) / 2;
 }

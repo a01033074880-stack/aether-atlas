@@ -37,6 +37,9 @@ struct SignalsmithStretch {
 
 	SignalsmithStretch() : randomEngine(std::random_device{}()) {}
 	SignalsmithStretch(long seed) : randomEngine(seed) {}
+	// Atlas extension: deterministic realtime reset, without reallocating the
+	// configured FFT/STFT buffers. Original algorithm and license are retained.
+	void reseed(long seed) { randomEngine.seed(seed); }
 		
 	// The difference between the internal position (centre of a block) and the input samples you're supplying
 	int inputLatency() const {
