@@ -79,6 +79,18 @@ int main(int argc,char** argv) {
         test("all-parameter keyboard edits activate custom graph and FM routing",[] {
             AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
             auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");editor->setMinimalMode(true);
+            struct Gestures final:juce::AudioProcessorParameter::Listener {
+                std::array<int,aether::totalParameterCount> depth{};bool valid=true;
+                std::vector<juce::RangedAudioParameter*> observed;
+                ~Gestures() override {for(auto* value:observed)value->removeListener(this);}
+                void watch(juce::RangedAudioParameter* value) {observed.push_back(value);value->addListener(this);}
+                void parameterValueChanged(int index,float) override {if(depth[static_cast<size_t>(index)]!=1)valid=false;}
+                void parameterGestureChanged(int index,bool starting) override {
+                    auto& active=depth[static_cast<size_t>(index)];if(starting){if(active!=0)valid=false;++active;}else{if(active!=1)valid=false;--active;}
+                }
+                bool balanced() const {return valid&&std::all_of(depth.begin(),depth.end(),[](int value){return value==0;});}
+            } gestures;
+            gestures.watch(p.state.getParameter("route.1.2"));gestures.watch(p.state.getParameter("fm.edge.6.1"));gestures.watch(p.state.getParameter("node.1.input"));
             auto* route=findSlider(*editor,"route.1.2");require(route!=nullptr,"full parameter view route slider missing");
             route->keyPressed(juce::KeyPress(juce::KeyPress::leftKey));
             require(p.parameterValue("routing.algorithm")==32,"generic routing edit stayed inactive under built-in template");
@@ -87,6 +99,7 @@ int main(int argc,char** argv) {
             require(p.parameterValue("fm.custom")==1,"generic FM edge edit stayed inactive under built-in template");
             p.applyRoutingAlgorithm(1);auto* send=findSlider(*editor,"node.1.input");require(send!=nullptr,"input send missing");
             send->keyPressed(juce::KeyPress(juce::KeyPress::leftKey));require(p.parameterValue("routing.algorithm")==32,"input send keyboard edit stayed inactive");
+            require(gestures.balanced(),"structural edit emitted nested or unbalanced host parameter gestures");
         });
         test("DAW state round trip and invalid payload",[] {
             AetherAudioProcessor p,q; set(p,"colour.drive",17); set(p,"space.mix",0.76f);
