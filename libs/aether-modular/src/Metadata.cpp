@@ -429,4 +429,3 @@ void applyAlgorithm(int a, Parameters &p) noexcept {
   }
 }
 } // namespace aether::modular
-
