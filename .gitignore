@@ -1,0 +1,10 @@
+build*/
+out/
+dist/
+tmp/
+.superpowers/
+.vs/
+*.user
+*.pdb
+*.ilk
+__pycache__/
