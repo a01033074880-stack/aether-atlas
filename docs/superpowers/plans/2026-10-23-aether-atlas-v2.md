@@ -43,4 +43,4 @@ Update Chineseguide,feature/provenance matrices,changelog,licenses and phase2rep
 
 ## Execution evidence
 
-Tasks1–4 complete:12slots/20effects/32routing,6operator16voice32FM,467hostparams/schema2/legacycompat,Patch/FM/Motion/AllparamsUI. FMdouble-envelope/rampfix andChorus/vendor/hostgesturefixes passedindependentreviews.46legacy,215FM,allmoduletests,21hostscenarios andfinal4/4CTestpass. BothactualVST3pluginvalstrictness5SUCCESS. Task5source/docs/audio completed; hash/package/install finalaudit follows taggedsource; see docs/ATLAS_ACCEPTANCE.md anddocs/VALIDATION.md.
+Tasks1–4 complete:12slots/20effects/32routing,6operator16voice32FM,467hostparams/schema2/legacycompat,Patch/FM/Motion/AllparamsUI. FMdouble-envelope/rampfix andChorus/vendor/hostgesturefixes passedindependentreviews.46legacy,215FM,allmoduletests,21hostscenarios andfinal4/4CTestpass. BothactualVST3pluginvalstrictness5SUCCESS. Task5complete:source/docs/audio,preflightpackage/hash/ZIP/sourcecommitchecksandtwoinstallrunsverified;finaltaggedarchive producedby scripts/package.ps1. see docs/ATLAS_ACCEPTANCE.md anddocs/VALIDATION.md.

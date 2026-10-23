@@ -64,7 +64,7 @@ Gain/Index/Feedback有5ms样本时钟平滑；ADSR状态与步长采用double，
 | 六算子FM | 215项PASS；GCC/MSVC严格告警验证 |
 | 模块/图 | 所有20效果×四宏、32模板、84目标、12重复实例、多采样率/块长/重置、冻结/无分配均通过 |
 | 宿主/GUI | 21场景PASS，含真实组件操作和宿主手势监听 |
-| CTest | 四套件全部通过；最终日志约32.55s |
+| CTest | 四套件全部通过；不同次完整运行约33–45s |
 | 实际VST3 | pluginval1.0.4 strictness5，FX/Synth均SUCCESS，含GUI/自动化/总线 |
 | 声音输出 | 8份8秒、48kHz、立体声PCM16，非静音、无非有限值、峰值未过满幅 |
 | 二进制依赖 | dumpbin仅Windows系统DLL，不要求安装独立DSP/JUCE运行库 |

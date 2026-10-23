@@ -33,6 +33,7 @@ try {
     Copy-Item -LiteralPath 'scripts/install.ps1' -Destination $aetherRelease
     Copy-Item -LiteralPath 'README.md','CHANGELOG.md','LICENSE','THIRD_PARTY_NOTICES.md' -Destination $aetherRelease
     Get-ChildItem -LiteralPath docs -File -Filter '*.md' | Copy-Item -Destination (Join-Path $aetherRelease 'docs')
+    Copy-Item -LiteralPath 'docs/archive' -Destination (Join-Path $aetherRelease 'docs') -Recurse
     Copy-Item -LiteralPath 'AETHER_Atlas_Phase_2_Development_Report.zh-CN.md' -Destination $aetherRelease
     $aetherReadme = Join-Path $aetherRelease 'README.md'
     $aetherReadmeText = [IO.File]::ReadAllText($aetherReadme).Replace('out/atlas-screenshots/','Preview/')
@@ -63,6 +64,26 @@ try {
         $aetherNoticeName = ($aetherNotice -replace '[\\/]','_')
         Copy-Item -LiteralPath $aetherNotice -Destination (Join-Path $aetherRelease "licenses/$aetherNoticeName")
     }
+    [IO.File]::WriteAllText((Join-Path $aetherRelease 'licenses/README.txt'),
+        "Upstream license documents retain their original text and source-relative links. For JUCE-LICENSE.md links, extract Source/JUCE-501c076-source.zip and read the same LICENSE.md at that source root. For Atlas DSP/font licenses, the complete original source and notices are in Source/AetherMicro-2.0.0-source.zip. These archives are part of this distribution.`n",[Text.UTF8Encoding]::new($false))
+    $aetherReleaseMetadata = [ordered]@{
+        product = 'AETHER Micro - Atlas'
+        version = $aetherVersion
+        sourceCommit = ((& git rev-parse HEAD) | Out-String).Trim()
+        expectedTag = "v$aetherVersion"
+        platform = 'Windows x64'
+        modules = 20
+        slots = 12
+        routingAlgorithms = 32
+        fmOperators = 6
+        fmVoices = 16
+        fmAlgorithms = 32
+        modulationRows = 16
+        modulationDestinations = 84
+        factoryPresets = 36
+        schema = 2
+    }
+    [IO.File]::WriteAllText((Join-Path $aetherRelease 'RELEASE.json'),($aetherReleaseMetadata | ConvertTo-Json),[Text.UTF8Encoding]::new($false))
     $aetherManifest = Join-Path $aetherRelease 'SHA256SUMS.txt'
     $aetherChecksums = Get-ChildItem -LiteralPath $aetherRelease -Recurse -File | Sort-Object FullName | ForEach-Object {
         $aetherRelative = [IO.Path]::GetRelativePath($aetherRelease,$_.FullName).Replace([IO.Path]::DirectorySeparatorChar,[char]'/')
