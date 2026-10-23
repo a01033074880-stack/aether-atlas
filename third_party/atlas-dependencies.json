@@ -1,0 +1,30 @@
+[
+  {
+    "name": "signalsmith-stretch",
+    "repository": "https://github.com/Signalsmith-Audio/signalsmith-stretch",
+    "commit": "88061fd4eda56a2353c5d65c74aa3f4ccf76f9da",
+    "archive_sha256": "717711bcf859a9a9a8cbb4baa6a8f994ca594368335eb73430fb6ac98ff1fc04",
+    "bytes": 534316
+  },
+  {
+    "name": "DaisySP",
+    "repository": "https://github.com/electro-smith/DaisySP",
+    "commit": "2c72eaf9eac5fc0dca1919d65d606da907832618",
+    "archive_sha256": "b83c237a1265dd5f12018654946f6bc0db938245f853c5f23e09da31ba3891d7",
+    "bytes": 2027749
+  },
+  {
+    "name": "chowdsp_wdf",
+    "repository": "https://github.com/Chowdhury-DSP/chowdsp_wdf",
+    "commit": "43bcd295e8403de913f9966f4fd7ff9d17c9f1a5",
+    "archive_sha256": "8eeeb25a994019153539b93109414ebc259895d89841961972443b06aef29b20",
+    "bytes": 574208
+  },
+  {
+    "name": "signalsmith-linear",
+    "repository": "https://github.com/Signalsmith-Audio/linear",
+    "commit": "7bb1c8f36794d6980080ce817c91f8da8fe56a66",
+    "archive_sha256": "f9a7b159488c6e2940718d6de1048996cecdb7fadac9c142b677953f52df15d4",
+    "bytes": 83504
+  }
+]

@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Run tests on ${{ matrix.os }} with XSIMD version ${{ matrix.xsimd_version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # show all errors for each platform (vs. cancel jobs on error)
+      matrix:
+        os: [ubuntu-latest, windows-2022, macos-latest]
+        xsimd_version: ["", "12.1.1", "13.2.0"]
+        include:
+          - os: macos-latest
+            xsimd_version: "13.2.0"
+            cmake_args: "-GXcode -D\"CMAKE_OSX_ARCHITECTURES=arm64;x86_64\" -DCHOWDSP_WDF_BUILD_BENCHMARKS=OFF"
+
+    steps:
+      - name: Get latest CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure
+        shell: bash
+        run: cmake -DCMAKE_BUILD_TYPE=Release -Bbuild -DCHOWDSP_WDF_TEST_WITH_XSIMD_VERSION="${{ matrix.xsimd_version }}" ${{ matrix.cmake_args }}
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config Release --parallel 4 --target chowdsp_wdf_tests
+
+      - name: Test
+        shell: bash
+        run: ./build/test-binary/chowdsp_wdf_tests

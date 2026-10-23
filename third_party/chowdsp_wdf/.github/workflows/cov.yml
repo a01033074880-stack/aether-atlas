@@ -1,0 +1,63 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Analyze test coverage with XSIMD version ${{ matrix.xsimd_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # show all errors for each platform (vs. cancel jobs on error)
+      matrix:
+        xsimd_version: ["", "13.2.0"]
+
+    steps:
+      - name: Install Linux Deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt install lcov
+          lcov --version
+
+      - name: Get latest CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure
+        shell: bash
+        run: cmake -Bbuild -DCHOWDSP_WDF_CODE_COVERAGE=ON -DCHOWDSP_WDF_TEST_WITH_XSIMD_VERSION="${{ matrix.xsimd_version }}"
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --parallel 4 --target chowdsp_wdf_tests
+
+      - name: Test
+        shell: bash
+        run: ./build/test-binary/chowdsp_wdf_tests
+
+      - name: Collect Coverage Data
+        shell: bash
+        run: |
+          lcov --ignore-errors mismatch --directory . --capture --output-file coverage.info
+          lcov --ignore-errors unused --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' '/Applications/Xcode*' '*chowdsp_wdf/build/*' '*chowdsp_wdf/tests/*' --output-file coverage.info
+
+      - name: Report Coverage Data
+        shell: bash
+        run: lcov --list coverage.info
+
+      - name: Upload Coverage Data
+        shell: bash
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

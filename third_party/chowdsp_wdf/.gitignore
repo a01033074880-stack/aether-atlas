@@ -1,0 +1,8 @@
+build*/
+cmake-build*/
+.vscode/
+docs/
+.idea/
+
+.DS_Store
+chowdsp_wdf_clang_tidy.cpp
