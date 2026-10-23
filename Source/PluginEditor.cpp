@@ -1,448 +1,224 @@
 #include "PluginEditor.h"
+#include <aether/Modular.h>
+#include <aether/FmSynth.h>
+#include "BinaryData.h"
 #include <cmath>
+#include <map>
 
 namespace {
-const juce::Colour background{0xff101518}, panel{0xff192125}, edge{0xff2b363b},
-    text{0xffe0e9e7}, muted{0xff839795}, mint{0xff8ae5c7}, amber{0xffe8ba7e};
-const std::array<juce::Colour, 5> accents{{mint, juce::Colour{0xff8dc9e6}, amber,
-                                       juce::Colour{0xffb3a2df}, juce::Colour{0xffd6dfb0}}};
-juce::Font font(float size, bool bold = false) {
-    return juce::Font{juce::FontOptions{size, bold ? juce::Font::bold : juce::Font::plain}};
+const juce::Colour paper{0xffeee9dc}, light{0xfff7f3e9}, ink{0xff252b2b}, muted{0xff7d8078}, line{0xffcfcbbd}, earth{0xffb65337}, blue{0xff264fba}, pale{0xffded9ca};
+juce::Font type(float size, bool display=false) {
+    static auto serif=juce::Typeface::createSystemTypefaceFor(BinaryData::InstrumentSerifRegular_ttf,BinaryData::InstrumentSerifRegular_ttfSize);
+    static auto mono=juce::Typeface::createSystemTypefaceFor(BinaryData::DMMonoRegular_ttf,BinaryData::DMMonoRegular_ttfSize);
+    return juce::Font(juce::FontOptions(display?serif:mono).withHeight(size));
 }
-void write(juce::Graphics& g, juce::String value, juce::Rectangle<int> r,
-           float size, juce::Colour colour, int justify = juce::Justification::centredLeft) {
-    g.setColour(colour); g.setFont(font(size));
-    g.drawText(value, r, justify, true);
+void text(juce::Graphics& g,const juce::String& s,juce::Rectangle<int> r,float size=11,juce::Colour colour=ink,int justification=juce::Justification::centredLeft,bool display=false) {
+    g.setColour(colour); g.setFont(type(size,display)); g.drawText(s,r,justification,true);
 }
-juce::String format(float value, const juce::String& unit) {
-    if (unit == "%") return juce::String(juce::roundToInt(value * 100.0f)) + "%";
-    if (unit == "Hz" && value >= 1000) return juce::String(value / 1000.0f, 2) + " kHz";
-    if (unit == "Hz") return (value<20 ? juce::String(value,2) : juce::String(juce::roundToInt(value))) + " Hz";
-    if (unit == "ms") return juce::String(juce::roundToInt(value)) + " ms";
-    return juce::String(value, std::abs(value) < 10.0f ? 2 : 1)
-           + (unit.isEmpty() ? "" : " " + unit);
+juce::String nid(int n,const juce::String& suffix) {return "node."+juce::String(n+1)+"."+suffix;}
+juce::String oid(int n,const juce::String& suffix) {return "fm.op."+juce::String(n+1)+"."+suffix;}
+juce::String rid(int s,int d) {return "route."+juce::String(s+1)+"."+juce::String(d+1);}
+juce::String eid(int s,int d) {return "fm.edge."+juce::String(s+1)+"."+juce::String(d+1);}
+const aether::ParameterSpec* specFor(const juce::String& id) { for(const auto& s:aether::parameterSpecs()) if(juce::String(s.id)==id)return &s; return nullptr; }
+void arch(juce::Graphics& g,juce::Rectangle<float> r,float alpha=1) {
+    auto outer=r; juce::Path p; p.startNewSubPath(outer.getX(),outer.getBottom()); p.lineTo(outer.getX(),outer.getY()+outer.getWidth()/2);
+    p.cubicTo(outer.getX(),outer.getY()-outer.getWidth()/6,outer.getRight(),outer.getY()-outer.getWidth()/6,outer.getRight(),outer.getY()+outer.getWidth()/2);
+    p.lineTo(outer.getRight(),outer.getBottom()); p.closeSubPath();
+    g.setColour(pale.withAlpha(alpha));g.fillPath(p);
+    auto inner=r.reduced(r.getWidth()*.24f,0).withTrimmedTop(r.getWidth()*.24f); juce::Path hole;
+    hole.startNewSubPath(inner.getX(),inner.getBottom());hole.lineTo(inner.getX(),inner.getY()+inner.getWidth()/2);
+    hole.cubicTo(inner.getX(),inner.getY()-inner.getWidth()/6,inner.getRight(),inner.getY()-inner.getWidth()/6,inner.getRight(),inner.getY()+inner.getWidth()/2);
+    hole.lineTo(inner.getRight(),inner.getBottom());hole.closeSubPath();g.setColour(paper.withAlpha(alpha));g.fillPath(hole);
 }
-}
-
-class AetherAudioProcessorEditor::Theme final : public juce::LookAndFeel_V4 {
+class AtlasTheme final:public juce::LookAndFeel_V4 {
 public:
-    Theme() {
-        setColour(juce::Slider::textBoxTextColourId, text);
-        setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-        setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
-        setColour(juce::ComboBox::backgroundColourId, juce::Colour{0xff111a1d});
-        setColour(juce::ComboBox::outlineColourId, edge);
-        setColour(juce::ComboBox::textColourId, text);
-        setColour(juce::ComboBox::arrowColourId, muted);
-        setColour(juce::PopupMenu::backgroundColourId, panel);
-        setColour(juce::PopupMenu::textColourId, text);
-        setColour(juce::PopupMenu::highlightedBackgroundColourId, mint.withAlpha(0.15f));
-        setColour(juce::PopupMenu::highlightedTextColourId, mint);
-        setColour(juce::TooltipWindow::backgroundColourId, panel);
-        setColour(juce::TooltipWindow::textColourId, text);
-        setColour(juce::TooltipWindow::outlineColourId, edge);
+    AtlasTheme(){
+        setColour(juce::ComboBox::backgroundColourId,light);setColour(juce::ComboBox::outlineColourId,line);setColour(juce::ComboBox::textColourId,ink);setColour(juce::ComboBox::arrowColourId,earth);
+        setColour(juce::PopupMenu::backgroundColourId,light);setColour(juce::PopupMenu::textColourId,ink);setColour(juce::PopupMenu::highlightedBackgroundColourId,blue);setColour(juce::PopupMenu::highlightedTextColourId,light);
+        setColour(juce::TextEditor::backgroundColourId,light);setColour(juce::TextEditor::textColourId,ink);setColour(juce::TextEditor::outlineColourId,line);
+        setColour(juce::Slider::textBoxTextColourId,ink);setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);setColour(juce::Slider::textBoxBackgroundColourId,juce::Colours::transparentBlack);
+        setColour(juce::TooltipWindow::backgroundColourId,ink);setColour(juce::TooltipWindow::textColourId,light);setColour(juce::TooltipWindow::outlineColourId,ink);
+        setColour(juce::ScrollBar::thumbColourId,line);
     }
-    juce::Font getComboBoxFont(juce::ComboBox&) override { return font(12.0f); }
-    juce::Font getTextButtonFont(juce::TextButton&, int) override { return font(12.0f); }
-    juce::Font getLabelFont(juce::Label&) override { return font(12.0f); }
-    void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour&,
-                              bool hover, bool down) override {
-        const bool on = button.getToggleState();
-        auto bounds = button.getLocalBounds().toFloat().reduced(0.5f);
-        g.setColour(on ? mint.withAlpha(0.16f) : (hover || down ? edge : panel));
-        g.fillRoundedRectangle(bounds, 5.0f);
-        g.setColour(on ? mint.withAlpha(0.55f) : edge);
-        g.drawRoundedRectangle(bounds, 5.0f, 1.0f);
+    juce::Font getComboBoxFont(juce::ComboBox&) override{return type(11);}
+    juce::Font getPopupMenuFont() override{return type(12);}
+    juce::Font getTextButtonFont(juce::TextButton&,int) override{return type(11);}
+    juce::Font getLabelFont(juce::Label&) override{return type(11);}
+    void drawButtonBackground(juce::Graphics& g,juce::Button& b,const juce::Colour&,bool hover,bool down) override{
+        g.setColour(b.getToggleState()?ink:(down?line:(hover?light:paper)));g.fillRect(b.getLocalBounds());
+        g.setColour(b.getToggleState()?ink:line);g.drawRect(b.getLocalBounds(),1);
     }
-    void drawButtonText(juce::Graphics& g, juce::TextButton& b, bool, bool) override {
-        write(g, b.getButtonText(), b.getLocalBounds().reduced(5, 0), 12.0f,
-              b.getToggleState() ? mint : text, juce::Justification::centred);
-        if (b.hasKeyboardFocus(true)) { g.setColour(mint); g.drawRect(b.getLocalBounds().reduced(2)); }
+    void drawButtonText(juce::Graphics& g,juce::TextButton& b,bool,bool) override{text(g,b.getButtonText(),b.getLocalBounds().reduced(5,0),11,b.getToggleState()?light:ink,juce::Justification::centred);}
+    void drawToggleButton(juce::Graphics& g,juce::ToggleButton& b,bool,bool) override{
+        auto r=b.getLocalBounds();g.setColour(b.getToggleState()?blue:line);g.fillEllipse(3.f,float(r.getCentreY()-4),8,8);text(g,b.getButtonText(),r.withTrimmedLeft(17),10,b.getToggleState()?ink:muted);
     }
-    void drawToggleButton(juce::Graphics& g, juce::ToggleButton& b, bool hover, bool) override {
-        auto r = b.getLocalBounds();
-        const auto colour = b.getToggleState() ? mint : muted;
-        g.setColour(colour.withAlpha(hover ? 0.25f : 0.12f));
-        g.fillRoundedRectangle(r.toFloat().reduced(1), 4.0f);
-        g.setColour(colour); g.fillEllipse(8.0f, static_cast<float>(r.getCentreY()) - 3, 6, 6);
-        const auto caption = b.getButtonText()=="ON" ? (b.getToggleState()?"ON":"OFF") : b.getButtonText();
-        write(g, caption, r.withTrimmedLeft(21), 11.0f, colour);
-        if (b.hasKeyboardFocus(true)) { g.setColour(mint); g.drawRect(r.reduced(1)); }
+    void drawLinearSlider(juce::Graphics& g,int x,int y,int w,int h,float pos,float,float,juce::Slider::SliderStyle,juce::Slider& s) override {
+        const float cy=float(y)+float(h)*.5f;g.setColour(line);g.drawLine(float(x),cy,float(x+w),cy,1);g.setColour(s.findColour(juce::Slider::rotarySliderFillColourId));g.drawLine(float(x),cy,pos,cy,2);g.fillEllipse(pos-3,cy-3,6,6);
     }
-    void drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
-                          float position, float, float, juce::Slider::SliderStyle,
-                          juce::Slider& slider) override {
-        const float centreY = static_cast<float>(y) + static_cast<float>(height) * 0.5f;
-        g.setColour(edge); g.fillRoundedRectangle(static_cast<float>(x), centreY - 2,
-                                                  static_cast<float>(width), 4, 2);
-        const auto colour = slider.findColour(juce::Slider::rotarySliderFillColourId);
-        g.setColour(colour.withAlpha(0.65f));
-        g.fillRoundedRectangle(static_cast<float>(x), centreY - 2,
-                                juce::jmax(1.0f, position - static_cast<float>(x)), 4, 2);
-        g.setColour(colour); g.fillEllipse(position - 3.5f, centreY - 3.5f, 7, 7);
-        if (slider.hasKeyboardFocus(true)) { g.setColour(mint); g.drawRect(slider.getLocalBounds().reduced(1)); }
-    }
-    void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
-                          float position, float start, float end, juce::Slider& slider) override {
-        const auto bounds = juce::Rectangle<float>{static_cast<float>(x), static_cast<float>(y),
-            static_cast<float>(width), static_cast<float>(height)}.reduced(5);
-        const float radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.5f;
-        const auto centre = bounds.getCentre();
-        const auto colour = slider.findColour(juce::Slider::rotarySliderFillColourId);
-        juce::Path track, value;
-        track.addCentredArc(centre.x, centre.y, radius, radius, 0, start, end, true);
-        value.addCentredArc(centre.x, centre.y, radius, radius, 0, start, start + position * (end-start), true);
-        g.setColour(edge); g.strokePath(track, juce::PathStrokeType(3.0f));
-        g.setColour(colour); g.strokePath(value, juce::PathStrokeType(3.0f));
-        g.setColour(juce::Colour{0xff11191d});
-        g.fillEllipse(centre.x-radius+7, centre.y-radius+7, 2*radius-14, 2*radius-14);
-        const float angle = start + position * (end-start) - juce::MathConstants<float>::halfPi;
-        g.setColour(colour);
-        g.drawLine(centre.x + std::cos(angle)*(radius-16), centre.y+std::sin(angle)*(radius-16),
-                   centre.x+std::cos(angle)*(radius-9), centre.y+std::sin(angle)*(radius-9), 2.0f);
-        if (slider.hasKeyboardFocus(true)) { g.setColour(mint); g.drawRect(slider.getLocalBounds().reduced(1)); }
+    void drawRotarySlider(juce::Graphics& g,int x,int y,int w,int h,float v,float start,float end,juce::Slider& s) override{
+        const auto r=juce::Rectangle<float>(float(x),float(y),float(w),float(h)).reduced(8);auto c=r.getCentre();const float radius=juce::jmin(r.getWidth(),r.getHeight())/2;
+        g.setColour(ink.withAlpha(.08f));g.fillEllipse(c.x-radius+5,c.y-radius+7,radius*2,radius*2);g.setColour(light);g.fillEllipse(c.x-radius,c.y-radius,radius*2,radius*2);g.setColour(line);g.drawEllipse(c.x-radius,c.y-radius,radius*2,radius*2,1);
+        juce::Path a;a.addCentredArc(c.x,c.y,radius+3,radius+3,0,start,start+(end-start)*v,true);g.setColour(s.findColour(juce::Slider::rotarySliderFillColourId));g.strokePath(a,juce::PathStrokeType(2));
+        const float angle=start+(end-start)*v-juce::MathConstants<float>::halfPi;g.drawLine(c.x+std::cos(angle)*radius*.4f,c.y+std::sin(angle)*radius*.4f,c.x+std::cos(angle)*radius*.8f,c.y+std::sin(angle)*radius*.8f,2);
     }
 };
-
-class AetherAudioProcessorEditor::Control final : public juce::Component {
+class ParamControl final:public juce::Component {
 public:
-    Control(AetherAudioProcessor& processor, const aether::ParameterSpec& spec, juce::Colour colour)
-        : specification(spec) {
-        setName(juce::String(spec.group) + " " + spec.name);
-        label.setText(spec.name, juce::dontSendNotification);
-        label.setColour(juce::Label::textColourId, muted);
-        label.setFont(font(11)); label.setBorderSize({0,0,0,0});
-        addAndMakeVisible(label);
-        juce::String tip = juce::String(spec.group) + ": " + spec.name;
-        if (spec.boolean) {
-            toggle.setButtonText(spec.name); toggle.setTooltip(tip);
-            toggle.setName(getName()); addAndMakeVisible(toggle);
-            buttonAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.state, spec.id, toggle);
-            label.setVisible(false);
-        } else if (!spec.choices.isEmpty()) {
-            combo.addItemList(spec.choices, 1); combo.setTooltip(tip); combo.setName(getName());
-            addAndMakeVisible(combo);
-            comboAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.state,spec.id,combo);
-        } else {
-            slider.setSliderStyle(juce::Slider::LinearHorizontal);
-            slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 65, 20);
-            slider.setColour(juce::Slider::rotarySliderFillColourId, colour);
-            slider.setDoubleClickReturnValue(true, spec.defaultValue);
-            slider.setTooltip(tip + ". Double-click to reset; drag or use arrow keys to adjust.");
-            slider.setName(getName()); slider.setWantsKeyboardFocus(true);
-            addAndMakeVisible(slider);
-            sliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processor.state,spec.id,slider);
-            const juce::String unit = spec.unit;
-            slider.textFromValueFunction = [unit](double value) { return format(static_cast<float>(value), unit); };
-            slider.valueFromTextFunction = [unit](const juce::String& input) {
-                auto v = input.getDoubleValue();
-                if (unit == "%") v *= 0.01;
-                if (unit == "Hz" && input.containsIgnoreCase("k")) v *= 1000.0;
-                return v;
-            };
-            slider.updateText();
-        }
+    ParamControl(AetherAudioProcessor& p,const juce::String& id,const juce::String& caption={},bool rotary=false):parameterId(id){
+        setName(id);setComponentID(id);const auto* spec=specFor(id);if(!spec)return;
+        title=caption.isEmpty()?juce::String(spec->name):caption;
+        if(spec->boolean){toggle.setButtonText(title);addAndMakeVisible(toggle);toggle.setComponentID(id);toggle.setName(id);buttonAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.state,id,toggle);}
+        else if(!spec->choices.isEmpty()){combo.addItemList(spec->choices,1);addAndMakeVisible(combo);combo.setComponentID(id);combo.setName(id);choiceAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.state,id,combo);}
+        else {addAndMakeVisible(slider);slider.setComponentID(id);slider.setName(id);slider.setSliderStyle(rotary?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);slider.setTextBoxStyle(rotary?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rotary?90:65,18);slider.setColour(juce::Slider::rotarySliderFillColourId,earth);slider.setDoubleClickReturnValue(true,spec->defaultValue);sliderAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,slider);}
+        setTooltipText(juce::String(spec->group)+" / "+title+". Double click a slider to restore its default.");
     }
-    void layout(bool isPrimary, bool isCompact = false) {
-        primary = isPrimary; compact = isCompact;
-        label.setText(compact ? juce::String(specification.group) + " · " + specification.name : specification.name,
-                      juce::dontSendNotification);
-        if (buttonAttachment) {
-            const juce::String id{specification.id};
-            toggle.setButtonText(!compact && id.endsWith(".enabled") ? "ON" : specification.name);
-        }
-        if (sliderAttachment) {
-            slider.setSliderStyle(primary ? juce::Slider::RotaryHorizontalVerticalDrag : juce::Slider::LinearHorizontal);
-            slider.setTextBoxStyle(primary ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,
-                                   false, primary ? 80 : 65, primary ? 20 : 18);
-        }
-        resized();
-    }
-    void stageToggle() { toggle.setButtonText("ON"); }
-    void resized() override {
-        auto r = getLocalBounds();
-        if (buttonAttachment) { toggle.setBounds(r); return; }
-        if (compact) {
-            label.setJustificationType(juce::Justification::centredLeft);
-            label.setBounds(r.removeFromTop(17));
-            if (comboAttachment) combo.setBounds(r.reduced(0,2));
-            else slider.setBounds(r);
-        } else if (primary) {
-            label.setJustificationType(juce::Justification::centred);
-            label.setBounds(r.removeFromTop(17)); slider.setBounds(r);
-        } else {
-            label.setJustificationType(juce::Justification::centredLeft);
-            label.setBounds(r.removeFromTop(11));
-            if (comboAttachment) combo.setBounds(r.reduced(0,1));
-            else slider.setBounds(r);
-        }
-    }
-    const aether::ParameterSpec& specification;
+    void setTooltipText(const juce::String& t){slider.setTooltip(t);combo.setTooltip(t);toggle.setTooltip(t);}
+    void macro(const aether::modular::MacroInfo& info){title=info.name;const auto lo=info.minimum,hi=info.maximum;const juce::String unit=info.unit;slider.textFromValueFunction=[lo,hi,unit](double v){return juce::String(lo+float(v)*(hi-lo),hi-lo>100?0:2)+(unit.isEmpty()?"":" "+unit);};slider.valueFromTextFunction=[lo,hi](const juce::String& v){return (v.getDoubleValue()-lo)/juce::jmax(.00001f,hi-lo);};slider.updateText();resized();repaint();}
+    void paint(juce::Graphics& g)override{if(!buttonAttachment)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
+    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(17);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else slider.setBounds(r);}
+    juce::String parameterId,title;juce::Slider slider;juce::ComboBox combo;juce::ToggleButton toggle;
 private:
-    juce::Label label;
-    juce::Slider slider;
-    juce::ComboBox combo;
-    juce::ToggleButton toggle;
-    bool primary = false, compact = false;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> comboAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> choiceAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachment;
 };
-
-AetherAudioProcessorEditor::AetherAudioProcessorEditor(AetherAudioProcessor& p)
-    : AudioProcessorEditor(&p), processor(p), theme(std::make_unique<Theme>()) {
-    setLookAndFeel(theme.get()); setOpaque(true);
-    const auto& specs = aether::parameterSpecs();
-    for (const auto& spec : specs) {
-        auto colour = mint;
-        const juce::String group{spec.group};
-        if (group=="Modal") colour=accents[1];
-        if (group=="Colour") colour=accents[2];
-        if (group=="Space") colour=accents[3];
-        if (group=="Master") colour=accents[4];
-        auto c=std::make_unique<Control>(p,spec,colour); addAndMakeVisible(*c); controls.push_back(std::move(c));
-    }
-    for (auto i : {aether::spectralOn,aether::modalOn,aether::colourOn,aether::spaceOn,aether::masterOn}) control(i).stageToggle();
-    presets.addItemList(AetherAudioProcessor::factoryPresetNames(),1);
-    presets.setName("Factory preset"); presets.setTooltip("Choose a factory starting point. Load and Save use .aether preset files.");
-    presets.onChange=[this] { if (presets.getSelectedId()>0) { processor.loadFactoryPreset(presets.getSelectedId()-1); displayedPreset.clear(); } };
-    displayedPreset=processor.currentPresetName(); presets.setText(displayedPreset,juce::dontSendNotification);
-    addAndMakeVisible(presets);
-    for (auto* b : {&loadButton,&saveButton,&abButton,&minimalButton,&panicButton}) { addAndMakeVisible(*b); b->setName(b->getButtonText()); }
-    loadButton.setTooltip("Open an AETHER .aether preset"); saveButton.setTooltip("Save the current sound as an .aether preset");
-    abButton.setTooltip("Swap between the A and B parameter snapshots");
-    minimalButton.setTooltip("Compact all-parameter view. Spectrum analysis pauses to save resources.");
-    panicButton.setTooltip("Clear resonators, space tails and held notes");
-    minimalButton.setClickingTogglesState(true);
-    loadButton.onClick=[this]{choosePresetFile(false);}; saveButton.onClick=[this]{choosePresetFile(true);};
-    abButton.onClick=[this]{processor.toggleAB(); abButton.setButtonText(processor.isSnapshotB()?"B  /  A":"A  /  B");
-        displayedPreset=processor.currentPresetName(); presets.setText(displayedPreset,juce::dontSendNotification);};
-    minimalButton.onClick=[this]{setMinimalMode(minimalButton.getToggleState());};
-    panicButton.onClick=[this]{processor.requestPanic();};
-    setResizable(true,true); setResizeLimits(900,680,1800,1300); setSize(1080,760);
-    processor.analysisEnabled.store(true); spectrum.fill(-100.0f); startTimerHz(30);
-}
-AetherAudioProcessorEditor::~AetherAudioProcessorEditor() {
-    stopTimer(); processor.analysisEnabled.store(false); chooser.reset(); setLookAndFeel(nullptr);
-}
-AetherAudioProcessorEditor::Control& AetherAudioProcessorEditor::control(int index) { return *controls[static_cast<size_t>(index)]; }
-void AetherAudioProcessorEditor::setMinimalMode(bool shouldBeMinimal) {
-    minimal=shouldBeMinimal; minimalButton.setToggleState(minimal,juce::dontSendNotification);
-    processor.analysisEnabled.store(!minimal); fftWrite=0;
-    if (minimal) { spectrum.fill(-100.0f); receivedAudio=false; }
-    startTimerHz(minimal?8:30); resized(); repaint();
-}
-void AetherAudioProcessorEditor::choosePresetFile(bool save) {
-    loadButton.setEnabled(false); saveButton.setEnabled(false);
-    chooser=std::make_unique<juce::FileChooser>(save?"Save AETHER preset":"Load AETHER preset",
-        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),"*.aether");
-    juce::Component::SafePointer<AetherAudioProcessorEditor> safe{this};
-    chooser->launchAsync((save?juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::warnAboutOverwriting:
-                               juce::FileBrowserComponent::openMode)|juce::FileBrowserComponent::canSelectFiles,
-        [safe,save](const juce::FileChooser& fileChooser) {
-            if (!safe) return;
-            safe->loadButton.setEnabled(true); safe->saveButton.setEnabled(true);
-            auto file=fileChooser.getResult(); if (file==juce::File{}) return;
-            if (save) file=file.withFileExtension(".aether");
-            const auto result=save?safe->processor.savePreset(file):safe->processor.loadPreset(file);
-            safe->displayedPreset.clear();
-            if (result.failed()) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-                "Preset could not be opened",result.getErrorMessage(),"OK",safe.getComponent());
-        });
+class Surface:public juce::Component {public:std::function<void(juce::Graphics&)> draw;std::function<void(const juce::MouseEvent&)> down,drag,up;void paint(juce::Graphics& g)override{if(draw)draw(g);}void mouseDown(const juce::MouseEvent& e)override{if(down)down(e);}void mouseDrag(const juce::MouseEvent& e)override{if(drag)drag(e);}void mouseUp(const juce::MouseEvent& e)override{if(up)up(e);}};
 }
 
-void AetherAudioProcessorEditor::resized() {
-    const int w=getWidth(), h=getHeight(), margin=20, gap=10;
-    auto toolbar=juce::Rectangle<int>{margin,54,w-2*margin,39};
-    const int presetWidth=juce::jlimit(175,280,w/4);
-    presets.setBounds(toolbar.removeFromLeft(presetWidth).reduced(0,4)); toolbar.removeFromLeft(8);
-    for (auto* b : {&loadButton,&saveButton,&abButton}) { b->setBounds(toolbar.removeFromLeft(53).reduced(2,4)); }
-    minimalButton.setBounds(toolbar.removeFromRight(78).reduced(2,4));
-    if (!minimal) {
-        control(aether::bypass).setBounds(toolbar.removeFromRight(83).reduced(2,4));
-        control(aether::bypass).layout(false,true);
-        control(aether::mode).setBounds(toolbar.removeFromRight(112).reduced(4,0)); control(aether::mode).layout(false,true);
+struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Timer {
+    AetherAudioProcessorEditor& owner;AetherAudioProcessor& p;AtlasTheme theme;
+    juce::TooltipWindow tooltips{this,550};
+    juce::ComboBox presets,algorithm,fmAlgorithm;juce::TextButton load{"Open"},save{"Save"},ab{"A / B"},panic{"Panic"},minimalButton{"All params"},patchTab{"01  Patch"},fmTab{"02  FM"},motionTab{"03  Motion"};
+    juce::TextEditor search;juce::Viewport browserViewport,allViewport;Surface browser,canvas,gallery,fmDiagram,fmMatrix,motionScope,allBody;
+    std::vector<std::unique_ptr<ParamControl>> globals,inspector,fmControls,motionControls,allControls;
+    juce::Slider cableGain;juce::TextButton removeCable{"Remove cable"};
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cableAttachment;
+    std::unique_ptr<juce::FileChooser> chooser;std::vector<int> browserItems;
+    juce::Rectangle<int> content,left,right,stage,footer;std::array<juce::Point<float>,12> nodePoints{};
+    int workspace=0,slot=0,lastType=-1,source=-1,selectedSource=-1,selectedDestination=-1;bool minimal=false;juce::Point<float> cableEnd;juce::String currentName;
+    Impl(AetherAudioProcessorEditor& o,AetherAudioProcessor& proc):owner(o),p(proc){
+        setLookAndFeel(&theme);setOpaque(true);
+        for(auto* b:{&load,&save,&ab,&panic,&minimalButton,&patchTab,&fmTab,&motionTab}){addAndMakeVisible(*b);b->setName(b->getButtonText());}
+        load.setComponentID("preset.open");save.setComponentID("preset.save");ab.setComponentID("preset.ab");panic.setComponentID("panic");minimalButton.setComponentID("workspace.minimal");patchTab.setComponentID("workspace.patch");fmTab.setComponentID("workspace.fm");motionTab.setComponentID("workspace.motion");
+        patchTab.onClick=[this]{setWorkspace(0);};fmTab.onClick=[this]{setWorkspace(1);};motionTab.onClick=[this]{setWorkspace(2);};minimalButton.onClick=[this]{setMinimal(!minimal);};panic.onClick=[this]{p.requestPanic();};ab.onClick=[this]{p.toggleAB();};load.onClick=[this]{choose(false);};save.onClick=[this]{choose(true);};
+        addAndMakeVisible(presets);presets.setName("Factory preset");presets.setComponentID("preset.factory");presets.addItemList(AetherAudioProcessor::factoryPresetNames(),1);presets.onChange=[this]{if(presets.getSelectedId()>0)p.loadFactoryPreset(presets.getSelectedId()-1);};
+        for(auto id:{"global.input","global.output","global.mix","global.mode","global.bypass","graph.enabled"})addControl(globals,id);
+        addAndMakeVisible(search);search.setName("Search module library");search.setComponentID("library.search");search.setTextToShowWhenEmpty("Search modules...",muted);search.onTextChange=[this]{filterBrowser();};
+        addAndMakeVisible(browserViewport);browserViewport.setViewedComponent(&browser,false);browserViewport.setScrollBarsShown(true,false);browser.draw=[this](juce::Graphics& g){paintBrowser(g);};browser.down=[this](const juce::MouseEvent& e){int index=e.y/48;if(index>=0&&index<int(browserItems.size()))assign(browserItems[size_t(index)]);};filterBrowser();
+        addAndMakeVisible(canvas);canvas.setName("Twelve slot patch canvas");canvas.setComponentID("patch.canvas");canvas.draw=[this](juce::Graphics& g){paintCanvas(g);};canvas.down=[this](const juce::MouseEvent& e){canvasDown(e);};canvas.drag=[this](const juce::MouseEvent& e){if(source>=0){cableEnd=e.position;canvas.repaint();}};canvas.up=[this](const juce::MouseEvent& e){canvasUp(e);};
+        addAndMakeVisible(gallery);gallery.draw=[this](juce::Graphics& g){paintGallery(g);};gallery.down=[this](const juce::MouseEvent& e){const int cellW=gallery.getWidth()/8,index=(e.y/36)*8+e.x/juce::jmax(1,cellW);if(index<32)p.applyRoutingAlgorithm(index);};gallery.setComponentID("routing.gallery");
+        addAndMakeVisible(algorithm);for(int i=0;i<32;++i)algorithm.addItem(juce::String(i+1).paddedLeft('0',2)+"  "+aether::modular::algorithmName(i),i+1);algorithm.addItem("33  Custom constellation",33);algorithm.setComponentID("routing.algorithm");algorithm.onChange=[this]{if(algorithm.getSelectedId()>0&&algorithm.getSelectedId()<=32)p.applyRoutingAlgorithm(algorithm.getSelectedId()-1);else if(algorithm.getSelectedId()==33)p.setParameterValue("routing.algorithm",32);};
+        addAndMakeVisible(cableGain);cableGain.setName("Selected cable gain");cableGain.setComponentID("routing.cable.gain");cableGain.setSliderStyle(juce::Slider::LinearHorizontal);cableGain.setTextBoxStyle(juce::Slider::TextBoxRight,false,60,18);cableGain.setColour(juce::Slider::rotarySliderFillColourId,blue);addAndMakeVisible(removeCable);removeCable.onClick=[this]{if(selectedSource>=0){p.setGraphEdge(selectedSource,selectedDestination,0);selectCable(-1,-1);}};
+        for(auto id:{"graph.feedback","graph.trim"})addControl(globals,id);
+        addAndMakeVisible(fmAlgorithm);for(int i=0;i<32;++i)fmAlgorithm.addItem(juce::String(i+1).paddedLeft('0',2)+"  "+aether::fm::algorithm(i).name,i+1);fmAlgorithm.setComponentID("fm.algorithm");fmAlgorithm.onChange=[this]{if(fmAlgorithm.getSelectedId()>0)p.applyFmAlgorithm(fmAlgorithm.getSelectedId()-1);};
+        addAndMakeVisible(fmDiagram);fmDiagram.draw=[this](juce::Graphics& g){paintFmDiagram(g);};addAndMakeVisible(fmMatrix);fmMatrix.setComponentID("fm.matrix");fmMatrix.draw=[this](juce::Graphics& g){paintFmMatrix(g);};fmMatrix.down=[this](const juce::MouseEvent& e){int s=(e.x-38)/30,d=(e.y-30)/30;if(e.x>=38&&e.y>=30&&s<6&&d<6){const float v=fmEdge(s,d);p.setFmEdge(s,d,e.mods.isRightButtonDown()?0:(v<.1f?.5f:(v<.9f?1:0)));fmMatrix.repaint();}};
+        for(int op=0;op<6;++op)for(auto id:{"ratio","level","carrier","detune","attack","release"})addControl(fmControls,oid(op,id));
+        for(auto id:{"fm.enabled","fm.custom","fm.index","fm.morph","fm.feedback","fm.attack","fm.decay","fm.sustain","fm.release","fm.gain","fm.spread"})addControl(fmControls,id);
+        for(int i=0;i<4;++i)for(auto id:{"rate","phase","shape","sync"})addControl(motionControls,"lfo."+juce::String(i+1)+"."+id);
+        for(int i=0;i<16;++i)for(auto id:{"source","target","depth"})addControl(motionControls,"modulation."+juce::String(i+1)+"."+id);
+        addAndMakeVisible(motionScope);motionScope.draw=[this](juce::Graphics& g){paintMotion(g);};
+        addAndMakeVisible(allViewport);allViewport.setViewedComponent(&allBody,false);allViewport.setScrollBarsShown(true,false);
+        for(const auto& spec:aether::parameterSpecs()){auto c=std::make_unique<ParamControl>(p,spec.id,juce::String(spec.group)+" / "+juce::String(spec.name));allBody.addAndMakeVisible(*c);allControls.push_back(std::move(c));}
+        rebuildInspector();setWorkspace(0);p.analysisEnabled.store(false);startTimerHz(24);
     }
-    for (auto& c:controls) c->setVisible(true);
-    if (minimal) {
-        spectrumBounds={}; footerBounds={}; orderBounds={}; cards.fill({});
-        const int columns=4, rows=10, cellWidth=(w-2*margin-3*gap)/columns;
-        const int cellHeight=(h-129)/rows;
-        for (int i=0;i<aether::parameterCount;++i) {
-            auto& c=control(i); c.setBounds(margin+(i/rows)*(cellWidth+gap),112+(i%rows)*cellHeight,cellWidth,cellHeight-5);
-            c.layout(false,true);
-        }
-        panicButton.setBounds(w-95,18,75,27);
-        return;
-    }
-    const int footerHeight=140;
-    const int cardsHeight=juce::jlimit(280,320,(h-100-footerHeight-36)*57/100);
-    const int spectrumHeight=h-100-footerHeight-cardsHeight-55;
-    spectrumBounds={margin,103,w-2*margin,spectrumHeight};
-    orderBounds={margin,spectrumBounds.getBottom()+5,w-2*margin,31};
-    control(aether::order).setBounds(orderBounds.withTrimmedLeft(100).withWidth(juce::jmin(470,w-320)));
-    control(aether::order).layout(false);
-    const int cardY=orderBounds.getBottom()+8, cardWidth=(w-2*margin-4*gap)/5;
-    const std::array<int,5> first{{aether::spectralOn,aether::modalOn,aether::colourOn,aether::spaceOn,aether::masterOn}};
-    const std::array<int,5> last{{aether::transientProtect,aether::modalMaterial,aether::driveModel,aether::freeze,aether::dither}};
-    for (int stage=0;stage<5;++stage) {
-        auto& card=cards[static_cast<size_t>(stage)]; card={margin+stage*(cardWidth+gap),cardY,cardWidth,cardsHeight};
-        auto body=card.reduced(13,10); auto header=body.removeFromTop(25);
-        control(first[static_cast<size_t>(stage)]).setBounds(header.removeFromRight(48));
-        control(first[static_cast<size_t>(stage)]).layout(false);
-        const int primaryIndex=first[static_cast<size_t>(stage)]+1;
-        const int secondaryCount=last[static_cast<size_t>(stage)]-primaryIndex;
-        const int primaryHeight=92;
-        control(primaryIndex).setBounds(body.removeFromTop(primaryHeight)); control(primaryIndex).layout(true);
-        const int rowHeight=body.getHeight()/juce::jmax(1,secondaryCount);
-        for (int i=primaryIndex+1;i<=last[static_cast<size_t>(stage)];++i) {
-            auto& c=control(i); c.setBounds(body.removeFromTop(rowHeight).reduced(0,1)); c.layout(false);
+    ~Impl()override{stopTimer();chooser.reset();cableAttachment.reset();setLookAndFeel(nullptr);}
+    ParamControl& addControl(std::vector<std::unique_ptr<ParamControl>>& v,const juce::String& id,const juce::String& name={},bool rotary=false){auto c=std::make_unique<ParamControl>(p,id,name,rotary);addAndMakeVisible(*c);v.push_back(std::move(c));return *v.back();}
+    void setWorkspace(int w){workspace=juce::jlimit(0,2,w);minimal=false;resized();repaint();}
+    void setMinimal(bool b){minimal=b;resized();repaint();}
+    void select(int s){slot=juce::jlimit(0,11,s);rebuildInspector();resized();repaint();}
+    void assign(int type){p.assignModule(slot,type);rebuildInspector();resized();repaint();}
+    void rebuildInspector(){inspector.clear();lastType=int(p.parameterValue(nid(slot,"type")));lastType=juce::jlimit(0,20,lastType);const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(lastType));for(auto id:{"type","on","mix","level","pan"})addControl(inspector,nid(slot,id));for(int k=0;k<4;++k){auto& c=addControl(inspector,nid(slot,juce::String::charToString(char('a'+k))),{},true);c.macro(info.macros[size_t(k)]);c.setTooltipText(juce::String(info.description)+"\n"+info.macros[size_t(k)].name+" / "+info.macros[size_t(k)].unit);}for(auto id:{"input","output"}){auto& c=addControl(inspector,nid(slot,id));c.slider.onDragStart=[this]{const int a=int(p.parameterValue("routing.algorithm"));if(a<32)p.applyRoutingAlgorithm(a);p.setParameterValue("routing.algorithm",32);};}}
+    void filterBrowser(){browserItems.clear();const auto query=search.getText().trim();for(int i=0;i<21;++i){const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(i));if(query.isEmpty()||juce::String(info.name).containsIgnoreCase(query)||juce::String(info.category).containsIgnoreCase(query))browserItems.push_back(i);}browser.setSize(juce::jmax(170,browserViewport.getWidth()-10),int(browserItems.size())*48);browser.repaint();}
+    void choose(bool saving){load.setEnabled(false);save.setEnabled(false);chooser=std::make_unique<juce::FileChooser>(saving?"Save Atlas sound":"Open Atlas sound",juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),"*.aether");juce::Component::SafePointer<Impl> safe(this);chooser->launchAsync((saving?juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::warnAboutOverwriting:juce::FileBrowserComponent::openMode)|juce::FileBrowserComponent::canSelectFiles,[safe,saving](const juce::FileChooser& fc){if(!safe)return;safe->load.setEnabled(true);safe->save.setEnabled(true);auto f=fc.getResult();if(f==juce::File{})return;if(saving)f=f.withFileExtension(".aether");auto result=saving?safe->p.savePreset(f):safe->p.loadPreset(f);if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Preset",result.getErrorMessage());});}
+    void resized()override{
+        auto r=getLocalBounds().reduced(26,0);auto top=r.removeFromTop(104);auto tabs=top.withY(60).withHeight(31);tabs.removeFromLeft(215);for(auto* b:{&patchTab,&fmTab,&motionTab})b->setBounds(tabs.removeFromLeft(119).reduced(3,0));minimalButton.setBounds(top.getRight()-103,20,103,28);
+        auto tools=top.withY(20).withHeight(28);tools.removeFromLeft(625);presets.setBounds(tools.removeFromLeft(juce::jmax(140,tools.getWidth()-290)));tools.removeFromLeft(8);for(auto* b:{&load,&save,&ab})b->setBounds(tools.removeFromLeft(59).reduced(3,0));
+        footer={26,getHeight()-96,getWidth()-52,76};content={26,114,getWidth()-52,getHeight()-222};
+        auto fr=footer.withY(footer.getY()+22).withHeight(48);for(int i=0;i<3;++i)globals[size_t(i)]->setBounds(fr.removeFromLeft(juce::jmax(120,footer.getWidth()/7)).reduced(0,1));fr.removeFromLeft(18);globals[3]->setBounds(fr.removeFromLeft(126));globals[4]->setBounds(fr.removeFromLeft(100));panic.setBounds(footer.getRight()-70,footer.getY()+27,70,29);
+        for(auto* c:std::initializer_list<juce::Component*>{&search,&browserViewport,&canvas,&gallery,&algorithm,&cableGain,&removeCable})c->setVisible(!minimal&&workspace==0);
+        for(auto* c:std::initializer_list<juce::Component*>{&fmAlgorithm,&fmDiagram,&fmMatrix})c->setVisible(!minimal&&workspace==1);
+        motionScope.setVisible(!minimal&&workspace==2);for(auto& c:inspector)c->setVisible(!minimal&&workspace==0);for(auto& c:fmControls)c->setVisible(!minimal&&workspace==1);for(auto& c:motionControls)c->setVisible(!minimal&&workspace==2);allViewport.setVisible(minimal);
+        globals[5]->setVisible(!minimal&&workspace==0);globals[6]->setVisible(!minimal&&workspace==0);globals[7]->setVisible(!minimal&&workspace==0);
+        patchTab.setToggleState(!minimal&&workspace==0,juce::dontSendNotification);fmTab.setToggleState(!minimal&&workspace==1,juce::dontSendNotification);motionTab.setToggleState(!minimal&&workspace==2,juce::dontSendNotification);minimalButton.setToggleState(minimal,juce::dontSendNotification);
+        if(minimal){allViewport.setBounds(content);const int cw=(content.getWidth()-22)/4;for(size_t i=0;i<allControls.size();++i)allControls[i]->setBounds(int(i%4)*cw,int(i/4)*57,cw-18,51);allBody.setSize(content.getWidth()-18,int((allControls.size()+3)/4)*57);return;}
+        if(workspace==0){
+            left=content.removeFromLeft(194);content.removeFromLeft(24);right=content.removeFromRight(270);content.removeFromRight(24);stage=content;
+            search.setBounds(left.withY(left.getY()+50).withHeight(30));browserViewport.setBounds(left.withTrimmedTop(95));filterBrowser();
+            auto st=stage;st.removeFromTop(51);algorithm.setBounds(st.removeFromTop(29).withTrimmedRight(100));globals[5]->setBounds(stage.getRight()-88,stage.getY()+51,88,29);st.removeFromTop(12);gallery.setBounds(st.removeFromTop(144));st.removeFromTop(10);canvas.setBounds(st.withTrimmedBottom(40));
+            auto end=stage.withY(stage.getBottom()-34).withHeight(32);globals[6]->setBounds(end.removeFromLeft(125));globals[7]->setBounds(end.removeFromLeft(125));end.removeFromLeft(10);cableGain.setBounds(end.removeFromLeft(juce::jmax(50,end.getWidth()-100)));removeCable.setBounds(end.removeFromRight(94).reduced(0,3));cableGain.setVisible(selectedSource>=0);removeCable.setVisible(selectedSource>=0);
+            auto ins=right;ins.removeFromTop(100);auto typeRow=ins.removeFromTop(45);inspector[0]->setBounds(typeRow.withTrimmedRight(62));inspector[1]->setBounds(typeRow.removeFromRight(58).withTrimmedTop(17));auto levels=ins.removeFromTop(40);inspector[2]->setBounds(levels.removeFromLeft(132));inspector[3]->setBounds(levels.withTrimmedLeft(6));inspector[4]->setBounds(ins.removeFromTop(35));ins.removeFromTop(8);const int knobH=juce::jlimit(70,120,(right.getHeight()-398)/2);for(int i=0;i<4;++i)inspector[size_t(i+5)]->setBounds(right.getX()+(i%2)*137,ins.getY()+(i/2)*knobH,130,knobH);ins.removeFromTop(knobH*2);for(int i=9;i<11;++i)inspector[size_t(i)]->setBounds(ins.removeFromTop(35));
+        }else if(workspace==1){
+            stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,260,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+278,content.getY()+48,225,218);
+            const int gx=content.getX()+535,gw=content.getWidth()-535;for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
+            const int y=content.getY()+282,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(content.getX()+op*cw+10,y+32+k*39,cw-25,36);
+        }else{
+            stage=content;const int cw=content.getWidth()/4;for(int n=0;n<4;++n){for(int k=0;k<4;++k)motionControls[size_t(n*4+k)]->setBounds(content.getX()+n*cw+12+(k%2)*((cw-24)/2),content.getY()+41+(k/2)*49,(cw-24)/2-12,43);}motionScope.setBounds(content.withY(content.getY()+147).withHeight(47));
+            const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,100,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+110,y,half-274,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
         }
     }
-    footerBounds={margin,cardY+cardsHeight+10,w-2*margin,footerHeight-12};
-    auto inner=footerBounds.reduced(13,10); inner.removeFromTop(17);
-    const int telemetryWidth=145, globalWidth=juce::jmax(180,w/5);
-    auto telemetry=inner.removeFromRight(telemetryWidth); inner.removeFromRight(16);
-    auto globals=inner.removeFromRight(globalWidth); inner.removeFromRight(16);
-    const int modWidth=inner.getWidth();
-    auto modTop=inner.removeFromTop(38);
-    const std::array<int,3> modRow{{aether::modRate,aether::modDepth,aether::modSync}};
-    for (int k=0;k<3;++k) { auto& c=control(modRow[static_cast<size_t>(k)]); c.setBounds(modTop.removeFromLeft(modWidth/3).reduced(0,1)); c.layout(false); }
-    auto& target=control(aether::modTarget); target.setBounds(inner.removeFromLeft(modWidth/2).reduced(0,1)); target.layout(false);
-    auto& shape=control(aether::modShape); shape.setBounds(inner.reduced(2,1)); shape.layout(false);
-    for (int i=aether::input;i<=aether::mix;++i) { auto& c=control(i); c.setBounds(globals.removeFromTop(30)); c.layout(false); }
-    panicButton.setBounds(telemetry.getRight()-58,footerBounds.getY()+7,58,20);
-}
-
-void AetherAudioProcessorEditor::paint(juce::Graphics& g) {
-    g.fillAll(background);
-    g.setGradientFill(juce::ColourGradient(juce::Colour{0xff1d2b2c},0,0,background,
-        static_cast<float>(getWidth()),static_cast<float>(getHeight())*0.7f,false));
-    g.fillRect(getLocalBounds());
-    g.setFont(font(25,true)); g.setColour(text); g.drawText("AETHER",20,14,125,30,juce::Justification::centredLeft);
-    write(g,"MICRO",{150,19,65,25},12,mint);
-    write(g,"1.0.0  /  " + juce::String(JucePlugin_Name),{219,20,360,23},11,muted);
-    if (!minimal) write(g,"SOUND, IN ITS ELEMENT.",{getWidth()-275,20,255,23},10,muted,juce::Justification::centredRight);
-    g.setColour(edge); g.drawHorizontalLine(99,20.0f,static_cast<float>(getWidth()-20));
-    if (minimal) {
-        const int cellWidth=(getWidth()-70)/4;
-        for (int i=0;i<4;++i) {
-            auto r=juce::Rectangle<int>{16+i*(cellWidth+10),107,cellWidth+8,getHeight()-120};
-            g.setColour(panel.withAlpha(0.55f)); g.fillRoundedRectangle(r.toFloat(),7);
-            g.setColour(edge); g.drawRoundedRectangle(r.toFloat(),7,1);
+    void paint(juce::Graphics& g)override{
+        g.fillAll(paper);g.setColour(line.withAlpha(.3f));for(int y=0;y<getHeight();y+=4)g.drawHorizontalLine(y,0,float(getWidth()));
+        text(g,"Atlas",{26,4,162,57},51,ink,juce::Justification::centredLeft,true);text(g,"AETHER / 2.0",{29,66,172,17},10,earth);text(g,"THE IMPOSSIBLE INSTRUMENT",{204,17,390,20},10,muted);
+        g.setColour(line);g.drawHorizontalLine(103,26,float(getWidth()-26));g.drawHorizontalLine(getHeight()-105,26,float(getWidth()-26));
+        text(g,"SIGNAL / GLOBAL",footer.withHeight(17),10,earth);const int mx=footer.getRight()-275;meter(g,"IN",p.inputMeterDb.load(),{mx,footer.getY()+28,170,15});meter(g,"OUT",p.outputMeterDb.load(),{mx,footer.getY()+48,170,15});text(g,"2.0.0  /  "+juce::String(JucePlugin_Name),{26,getHeight()-18,400,13},9,muted);text(g,"DESIGNED FOR THE UNEXPECTED",{getWidth()-350,getHeight()-18,324,13},9,muted,juce::Justification::centredRight);
+        if(minimal){text(g,"Complete parameter atlas",content.withY(110).withHeight(0));return;}
+        if(workspace==0){
+            text(g,"Materials",left.withHeight(42),31,ink,juce::Justification::centredLeft,true);text(g,"21 MODULES / CLICK TO ASSIGN",left.withY(left.getY()+80).withHeight(14),8,muted);
+            text(g,"A constellation of sound",stage.withHeight(42),32,ink,juce::Justification::centredLeft,true);
+            text(g,"INSPECT / "+juce::String(slot+1).paddedLeft('0',2),right.withHeight(22),10,earth);const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(lastType));text(g,info.name,right.withY(right.getY()+27).withHeight(40),31,ink,juce::Justification::centredLeft,true);
+            g.setColour(muted);g.setFont(type(10));g.drawFittedText(info.description,right.withY(right.getY()+67).withHeight(30),juce::Justification::topLeft,3);
+            text(g,"Drag OUT to IN / click two ports to connect",stage.withY(stage.getBottom()-54).withHeight(15),9,muted);
+        }else if(workspace==1){
+            text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+316,stage.getY()+24,190,20},9,muted);
+            text(g,"Click matrix: 0 / 0.5 / 1  ·  right-click: clear",{stage.getX()+278,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
+            const int cw=stage.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(stage.getX()+op*cw,stage.getY()+282,cw-8,stage.getHeight()-282);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),r.withY(r.getY()+5).withHeight(25).reduced(10,0),19,op%2?earth:blue,juce::Justification::centredLeft,true);}
+        }else{
+            const int cw=stage.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{stage.getX()+n*cw+12,stage.getY(),cw-20,32},22,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(stage.getX()+n*cw,float(stage.getY()),float(stage.getY()+134));}
+            text(g,"Movements & destinations",{stage.getX(),stage.getY()+195,600,36},28,ink,juce::Justification::centredLeft,true);text(g,"BIPOLAR SOURCES / SIGNED DEPTH",{stage.getRight()-330,stage.getY()+206,330,20},9,muted,juce::Justification::centredRight);
+            const int rh=juce::jmax(36,(stage.getHeight()-236)/8),half=stage.getWidth()/2;for(int n=0;n<16;++n)text(g,juce::String(n+1).paddedLeft('0',2),{stage.getX()+(n/8)*half,stage.getY()+255+(n%8)*rh,27,20},10,earth);
         }
-        write(g,"ALL PARAMETERS  /  ANALYSER PAUSED",{20,getHeight()-15,getWidth()-40,13},9,muted);
-        return;
     }
-    paintSpectrum(g);
-    write(g,"SIGNAL FLOW",orderBounds.withWidth(92),10,muted);
-    write(g,"MASTER ALWAYS LAST",orderBounds.withTrimmedLeft(orderBounds.getWidth()-175),9,muted,juce::Justification::centredRight);
-    const std::array<juce::String,5> names{{"SPECTRAL","MODAL","COLOUR","SPACE","MASTER"}};
-    for (int i=0;i<5;++i) {
-        const auto r=cards[static_cast<size_t>(i)]; const auto accent=accents[static_cast<size_t>(i)];
-        g.setColour(panel); g.fillRoundedRectangle(r.toFloat(),8);
-        g.setColour(edge); g.drawRoundedRectangle(r.toFloat().reduced(0.5f),8,1);
-        g.setColour(accent.withAlpha(0.8f)); g.fillRoundedRectangle(static_cast<float>(r.getX()+13),static_cast<float>(r.getY()),34,2,1);
-        write(g,names[static_cast<size_t>(i)],r.reduced(13,0).withY(r.getY()+10).withHeight(25).withTrimmedRight(50),12,accent);
+    void meter(juce::Graphics& g,const juce::String& label,float db,juce::Rectangle<int> r){text(g,label,r.removeFromLeft(30),9,muted);text(g,db<=-99?"-inf":juce::String(db,1),r.removeFromRight(42),9,ink,juce::Justification::centredRight);auto bar=r.reduced(0,6).toFloat();g.setColour(line);g.fillRect(bar);g.setColour(db>-.5f?earth:blue);g.fillRect(bar.withWidth(bar.getWidth()*juce::jlimit(0.f,1.f,(db+60)/60)));}
+    void paintBrowser(juce::Graphics& g){for(size_t n=0;n<browserItems.size();++n){int i=browserItems[n];const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(i));auto r=juce::Rectangle<int>(0,int(n)*48,browser.getWidth(),48);if(i==lastType){g.setColour(ink);g.fillRect(r);}text(g,juce::String(i).paddedLeft('0',2),r.withWidth(28).reduced(3,0),9,i==lastType?light:earth);text(g,info.name,r.withTrimmedLeft(33).withHeight(26),12,i==lastType?light:ink);text(g,juce::String(info.category).toUpperCase(),r.withTrimmedLeft(33).withY(r.getY()+27).withHeight(16),8,i==lastType?line:muted);g.setColour(line);g.drawHorizontalLine(r.getBottom()-1,0,float(r.getRight()));}}
+    void miniature(juce::Graphics& g,juce::Rectangle<float> r,int index,bool fm=false){
+        const int count=fm?6:12;std::array<juce::Point<float>,12> pts{};for(int i=0;i<count;++i)pts[size_t(i)]={r.getX()+r.getWidth()*(.1f+.8f*float(i%4)/3),r.getY()+r.getHeight()*(.15f+.7f*float(i/4)/float(fm?1:2))};
+        aether::modular::Parameters routing;if(!fm)aether::modular::applyAlgorithm(index,routing);for(int d=0;d<count;++d)for(int s=0;s<count;++s){const float v=fm?aether::fm::algorithm(index).matrix[size_t(d)][size_t(s)]:routing.connection[size_t(d)][size_t(s)];if(std::abs(v)>.001f){g.setColour(s>=d?earth.withAlpha(.6f):muted.withAlpha(.65f));g.drawLine({pts[size_t(s)],pts[size_t(d)]},.7f);}}
+        for(int i=0;i<count;++i){g.setColour(index==int(p.parameterValue("routing.algorithm"))?earth:ink);g.fillEllipse(pts[size_t(i)].x-1.3f,pts[size_t(i)].y-1.3f,2.6f,2.6f);}
     }
-    g.setColour(panel); g.fillRoundedRectangle(footerBounds.toFloat(),8);
-    g.setColour(edge); g.drawRoundedRectangle(footerBounds.toFloat().reduced(0.5f),8,1);
-    const int globalWidth=juce::jmax(180,getWidth()/5);
-    write(g,"MODULATION",footerBounds.reduced(13,0).withY(footerBounds.getY()+7).withHeight(17),10,amber);
-    write(g,"GLOBAL",{footerBounds.getRight()-13-145-16-globalWidth,footerBounds.getY()+7,globalWidth,17},10,mint);
-    paintMeters(g,{footerBounds.getRight()-158,footerBounds.getY()+30,145,footerBounds.getHeight()-35});
-}
+    void paintGallery(juce::Graphics& g){const int cw=gallery.getWidth()/8,selected=int(p.parameterValue("routing.algorithm"));for(int i=0;i<32;++i){auto r=juce::Rectangle<int>((i%8)*cw,(i/8)*36,cw-4,32);if(i==selected){g.setColour(light);g.fillRect(r);g.setColour(earth);g.drawRect(r);}text(g,juce::String(i+1).paddedLeft('0',2),r.withWidth(21).reduced(3,0),8,i==selected?earth:muted);miniature(g,r.withTrimmedLeft(24).reduced(2,3).toFloat(),i);}}
+    void positionNodes(){const float w=float(canvas.getWidth()),h=float(canvas.getHeight());for(int i=0;i<12;++i){int row=i/4,col=i%4;nodePoints[size_t(i)]={w*(.11f+.26f*float(col)),36.f+juce::jmax(60.f,h-104.f)*float(row)/2.f+(col%2?5.f:-5.f)};}}
+    juce::Point<float> port(int n,bool out)const{return nodePoints[size_t(n)]+juce::Point<float>(out?28.f:-28.f,0);}
+    juce::Path connectionPath(int s,int d)const{auto a=port(s,true),b=port(d,false);juce::Path path;path.startNewSubPath(a);if(s==d)path.cubicTo(a.x+48,a.y-70,b.x-48,b.y-70,b.x,b.y);else{const float bend=s<d?30.f:-55.f;path.cubicTo(a.x+bend,a.y+float(s>=d?38:0),b.x-bend,b.y+float(s>=d?38:0),b.x,b.y);}return path;}
+    float graphEdge(int s,int d)const{const int a=int(p.parameterValue("routing.algorithm"));if(a==32)return p.parameterValue(rid(s,d));aether::modular::Parameters routing;aether::modular::applyAlgorithm(a,routing);return routing.connection[size_t(d)][size_t(s)];}
+    void paintCanvas(juce::Graphics& g){
+        positionNodes();const float w=float(canvas.getWidth()),h=float(canvas.getHeight());arch(g,{w*.36f,h*.10f,w*.26f,h*.78f},.8f);
+        juce::Path shadow;shadow.startNewSubPath(w*.36f,h*.88f);shadow.lineTo(w*.62f,h*.88f);shadow.lineTo(w*.81f,h*.98f);shadow.lineTo(w*.55f,h*.98f);shadow.closeSubPath();g.setColour(ink.withAlpha(.04f));g.fillPath(shadow);
+        g.setGradientFill(juce::ColourGradient(light,w*.79f,h*.02f,earth,w*.87f,h*.24f,true));g.fillEllipse(w*.80f,h*.02f,46,46);g.setColour(ink.withAlpha(.07f));g.fillEllipse(w*.86f,h*.26f,70,11);
+        aether::modular::Parameters visualRouting;const int visualAlgorithm=int(p.parameterValue("routing.algorithm"));if(visualAlgorithm!=32)aether::modular::applyAlgorithm(visualAlgorithm,visualRouting);for(int i=0;i<12;++i){const float input=visualAlgorithm==32?p.parameterValue(nid(i,"input")):visualRouting.input[size_t(i)],output=visualAlgorithm==32?p.parameterValue(nid(i,"output")):visualRouting.output[size_t(i)];g.setColour(blue.withAlpha(.22f));if(std::abs(input)>.001f)g.drawLine(7,h*.5f,port(i,false).x,port(i,false).y,.8f);g.setColour(earth.withAlpha(.22f));if(std::abs(output)>.001f)g.drawLine(port(i,true).x,port(i,true).y,w-7,h*.5f,.8f);}
+        for(int d=0;d<12;++d)for(int s=0;s<12;++s){const float v=visualAlgorithm==32?p.parameterValue(rid(s,d)):visualRouting.connection[size_t(d)][size_t(s)];if(std::abs(v)<.001f)continue;const bool selected=s==selectedSource&&d==selectedDestination;g.setColour((selected?blue:(s>=d?earth:ink)).withAlpha(selected?.95f:.4f));g.strokePath(connectionPath(s,d),juce::PathStrokeType(selected?2.8f:1.25f));if(s>=d){auto mid=connectionPath(s,d).getPointAlongPath(connectionPath(s,d).getLength()*.5f);text(g,"z-1",{int(mid.x)-12,int(mid.y)-8,25,15},8,earth);}}
+        for(int i=0;i<12;++i){auto c=nodePoints[size_t(i)];const int t=juce::jlimit(0,20,int(p.parameterValue(nid(i,"type"))));const bool on=p.parameterValue(nid(i,"on"))>.5f;auto colour=i==slot?blue:ink;g.setColour(ink.withAlpha(.07f));g.fillEllipse(c.x-24+8,c.y-24+11,48,48);g.setColour(i==slot?blue:light);g.fillEllipse(c.x-24,c.y-24,48,48);g.setColour(i==slot?blue:line);g.drawEllipse(c.x-24,c.y-24,48,48,1);text(g,juce::String(i+1).paddedLeft('0',2),{int(c.x)-22,int(c.y)-17,44,34},20,i==slot?light:ink,juce::Justification::centred,true);text(g,aether::modular::moduleInfo(aether::modular::ModuleType(t)).name,{int(c.x)-58,int(c.y)+29,116,18},9,on?colour:muted,juce::Justification::centred);const float meterLevel=juce::jlimit(0.f,1.f,p.nodeMeters[size_t(i)].load());g.setColour(line);g.fillRect(c.x-21,c.y+52,42.f,2.f);g.setColour(earth);g.fillRect(c.x-21,c.y+52,42.f*meterLevel,2.f);
+            for(bool out:{false,true}){auto q=port(i,out);g.setColour(out?earth:blue);g.fillEllipse(q.x-3.3f,q.y-3.3f,6.6f,6.6f);}if(!on){g.setColour(earth);g.drawLine(c.x-15,c.y+15,c.x+15,c.y-15,1);}}
+        if(source>=0){g.setColour(blue);juce::Path dragPath;auto a=port(source,true);dragPath.startNewSubPath(a);dragPath.cubicTo(a.x+50,a.y,cableEnd.x-50,cableEnd.y,cableEnd.x,cableEnd.y);g.strokePath(dragPath,juce::PathStrokeType(2));}
+        text(g,"IN",{0,int(h/2)-10,23,20},8,muted);text(g,"OUT",{int(w)-28,int(h/2)-10,28,20},8,muted);
+    }
+    int hitNode(juce::Point<float> q)const{for(int i=0;i<12;++i)if(q.getDistanceFrom(nodePoints[size_t(i)])<26)return i;return -1;}
+    int hitPort(juce::Point<float> q,bool out)const{for(int i=0;i<12;++i)if(q.getDistanceFrom(port(i,out))<12)return i;return -1;}
+    void canvasDown(const juce::MouseEvent& e){positionNodes();int out=hitPort(e.position,true),in=hitPort(e.position,false);if(in>=0&&source>=0){p.setGraphEdge(source,in,1);selectCable(source,in);source=-1;canvas.repaint();return;}if(out>=0){source=out;cableEnd=e.position;canvas.repaint();return;}int n=hitNode(e.position);if(n>=0){source=-1;select(n);return;}for(int d=0;d<12;++d)for(int s=0;s<12;++s)if(std::abs(graphEdge(s,d))>.001f){juce::PathStrokeType stroke(13);juce::Path hit;stroke.createStrokedPath(hit,connectionPath(s,d));if(hit.contains(e.position)){if(e.mods.isRightButtonDown()){p.setGraphEdge(s,d,0);selectCable(-1,-1);}else selectCable(s,d);return;}}source=-1;selectCable(-1,-1);}
+    void canvasUp(const juce::MouseEvent& e){if(source<0)return;int d=hitPort(e.position,false);if(d>=0){p.setGraphEdge(source,d,1);selectCable(source,d);source=-1;}else if(e.getDistanceFromDragStart()>5)source=-1;canvas.repaint();}
+    void selectCable(int s,int d){cableAttachment.reset();selectedSource=s;selectedDestination=d;if(s>=0){cableAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,rid(s,d),cableGain);cableGain.setTooltip("Signed source-to-destination gain. Self and backward arcs use one sample of delay.");cableGain.setValue(graphEdge(s,d),juce::dontSendNotification);cableGain.onDragStart=[this]{p.setGraphEdge(selectedSource,selectedDestination,graphEdge(selectedSource,selectedDestination));};}resized();canvas.repaint();}
+    float fmEdge(int s,int d)const{if(p.parameterValue("fm.custom")>.5f)return p.parameterValue(eid(s,d));return aether::fm::algorithm(int(p.parameterValue("fm.algorithm"))).matrix[size_t(d)][size_t(s)];}
+    void paintFmDiagram(juce::Graphics& g){const float w=float(fmDiagram.getWidth()),h=float(fmDiagram.getHeight());arch(g,{w*.26f,12,w*.48f,h-25},.8f);std::array<juce::Point<float>,6> points;for(int i=0;i<6;++i)points[size_t(i)]={35.f+float(i%3)*(w-70)/2,35.f+float(i/3)*(h-70)};for(int d=0;d<6;++d)for(int s=0;s<6;++s)if(fmEdge(s,d)>.001f){g.setColour(s>=d?earth:blue);auto a=points[size_t(s)],b=points[size_t(d)];if(s==d)g.drawEllipse(a.x-20,a.y-34,40,30,1.3f);else g.drawArrow({a,b},1,5,5);}for(int i=0;i<6;++i){auto c=points[size_t(i)];g.setColour(light);g.fillEllipse(c.x-16,c.y-16,32,32);g.setColour(ink);g.drawEllipse(c.x-16,c.y-16,32,32,1);text(g,juce::String(i+1),{int(c.x)-14,int(c.y)-14,28,28},15,ink,juce::Justification::centred,true);}text(g,p.parameterValue("fm.custom")>.5f?"CUSTOM / STORED MATRIX":"ALGORITHM / MORPH TO NEXT",{0,int(h)-16,int(w),16},9,muted,juce::Justification::centred);}
+    void paintFmMatrix(juce::Graphics& g){for(int i=0;i<6;++i){text(g,juce::String(i+1),{38+i*30,5,27,20},10,blue,juce::Justification::centred);text(g,juce::String(i+1),{4,30+i*30,27,27},10,earth,juce::Justification::centred);}for(int d=0;d<6;++d)for(int s=0;s<6;++s){const float v=fmEdge(s,d);auto r=juce::Rectangle<int>(38+s*30,30+d*30,27,27);g.setColour(v>.001f?(s>=d?earth:blue).withAlpha(.2f+.8f*v):light);g.fillRect(r);g.setColour(line);g.drawRect(r);text(g,v>.001f?juce::String(v,1):"·",r,9,v>.001f?light:muted,juce::Justification::centred);}}
+    void paintMotion(juce::Graphics& g){const int cw=motionScope.getWidth()/4;for(int n=0;n<4;++n){auto r=juce::Rectangle<float>(float(n*cw+12),4,float(cw-25),35);g.setColour(line);g.drawLine(r.getX(),r.getCentreY(),r.getRight(),r.getCentreY());juce::Path waveform;const int shape=int(p.parameterValue("lfo."+juce::String(n+1)+".shape"));const float phase=p.parameterValue("lfo."+juce::String(n+1)+".phase");for(int i=0;i<100;++i){float t=float(i)/99+phase,v=0;t-=std::floor(t);switch(shape){case 0:v=std::sin(t*juce::MathConstants<float>::twoPi);break;case 1:v=1-4*std::abs(t-.5f);break;case 2:v=2*t-1;break;case 3:v=t<.5f?1.f:-1.f;break;default:v=std::sin(std::floor(t*7)*27.4f);break;}float x=r.getX()+r.getWidth()*float(i)/99,y=r.getCentreY()-v*r.getHeight()*.4f;if(i==0)waveform.startNewSubPath(x,y);else waveform.lineTo(x,y);}g.setColour(n%2?earth:blue);g.strokePath(waveform,juce::PathStrokeType(1.2f));const float live=p.modulationMeters[size_t(n+1)].load();g.fillEllipse(r.getRight()-5,r.getCentreY()-live*14-3,6,6);}}
+    void timerCallback()override{const auto name=p.currentPresetName();if(name!=currentName){currentName=name;presets.setText(name,juce::dontSendNotification);}ab.setButtonText(p.isSnapshotB()?"B / A":"A / B");if(lastType!=int(p.parameterValue(nid(slot,"type")))){rebuildInspector();resized();}algorithm.setSelectedId(int(p.parameterValue("routing.algorithm"))+1,juce::dontSendNotification);fmAlgorithm.setSelectedId(int(p.parameterValue("fm.algorithm"))+1,juce::dontSendNotification);if(!minimal){canvas.repaint();gallery.repaint();fmDiagram.repaint();fmMatrix.repaint();motionScope.repaint();repaint();}}
+    bool action(const juce::String& a){auto parts=juce::StringArray::fromTokens(a,".","");if(a=="workspace.patch"){patchTab.triggerClick();return true;}if(a=="workspace.fm"){fmTab.triggerClick();return true;}if(a=="workspace.motion"){motionTab.triggerClick();return true;}if(a=="workspace.minimal"){minimalButton.triggerClick();return true;}if(parts.size()==2&&parts[0]=="slot"){select(parts[1].getIntValue()-1);return true;}if(parts.size()==2&&parts[0]=="module"){assign(parts[1].getIntValue());return true;}if(parts.size()==2&&parts[0]=="routing"){algorithm.setSelectedId(parts[1].getIntValue()+1,juce::sendNotificationSync);return true;}if(parts.size()==3&&parts[0]=="fm"&&parts[1]=="algorithm"){fmAlgorithm.setSelectedId(parts[2].getIntValue()+1,juce::sendNotificationSync);return true;}if(parts.size()==3&&parts[0]=="route"){int s=parts[1].getIntValue()-1,d=parts[2].getIntValue()-1;if(s<0||s>11||d<0||d>11)return false;positionNodes();juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(),port(s,true),juce::ModifierKeys(),1.f,0.f,0.f,0.f,0.f,&canvas,&canvas,juce::Time(),port(s,true),juce::Time(),1,false);canvasDown(e);juce::MouseEvent end=e.withNewPosition(port(d,false));canvasDown(end);return true;}if(parts.size()==4&&parts[0]=="fm"&&parts[1]=="edge"){int s=parts[2].getIntValue()-1,d=parts[3].getIntValue()-1;if(s<0||s>5||d<0||d>5)return false;juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(),{float(38+s*30+13),float(30+d*30+13)},juce::ModifierKeys(),1.f,0.f,0.f,0.f,0.f,&fmMatrix,&fmMatrix,juce::Time(),{},juce::Time(),1,false);fmMatrix.mouseDown(e);return true;}return false;}
+};
 
-void AetherAudioProcessorEditor::paintSpectrum(juce::Graphics& g) {
-    // A host may request its first editor snapshot before a timer has run.
-    // Consume only genuine queued samples; an empty queue stays visibly empty.
-    if (!receivedAudio) updateAnalysis();
-    auto frame=spectrumBounds.toFloat();
-    g.setColour(juce::Colour{0xff111b1e}); g.fillRoundedRectangle(frame,8);
-    g.setColour(edge); g.drawRoundedRectangle(frame.reduced(0.5f),8,1);
-    write(g,"SPECTRAL FIELD",spectrumBounds.reduced(14,0).withHeight(30),10,mint);
-    const float pitch=processor.detectedPitchHz.load();
-    write(g,pitch>20.0f?"PITCH  "+format(pitch,"Hz"):"PITCH  —",spectrumBounds.reduced(14,0).withHeight(30),10,muted,juce::Justification::centredRight);
-    const auto plot=spectrumBounds.reduced(40,27).withTrimmedRight(-18).toFloat();
-    for (int db=-72;db<=0;db+=24) {
-        const float y=plot.getBottom()-plot.getHeight()*static_cast<float>(db+84)/84.0f;
-        g.setColour(edge.withAlpha(0.5f)); g.drawHorizontalLine(juce::roundToInt(y),plot.getX(),plot.getRight());
-        write(g,juce::String(db),{spectrumBounds.getX()+8,juce::roundToInt(y)-7,27,14},9,muted);
-    }
-    const double sampleRate=processor.getSampleRate()>0?processor.getSampleRate():48000.0;
-    const float maxFrequency=static_cast<float>(juce::jmin(20000.0,sampleRate*0.49));
-    for (float hz : {40.0f,100.0f,250.0f,1000.0f,4000.0f,10000.0f}) {
-        if (hz>=maxFrequency) continue;
-        const float x=plot.getX()+plot.getWidth()*std::log(hz/20.0f)/std::log(maxFrequency/20.0f);
-        g.setColour(edge.withAlpha(0.5f)); g.drawVerticalLine(juce::roundToInt(x),plot.getY(),plot.getBottom());
-        write(g,hz>=1000?juce::String(hz/1000,0)+"k":juce::String(hz,0),
-            {juce::roundToInt(x)-17,spectrumBounds.getBottom()-20,35,14},9,muted,juce::Justification::centred);
-    }
-    if (!receivedAudio) {
-        write(g,"AWAITING AUDIO",plot.toNearestInt(),10,muted,juce::Justification::centred); return;
-    }
-    juce::Path line;
-    for (size_t i=0;i<spectrum.size();++i) {
-        const float x=plot.getX()+plot.getWidth()*static_cast<float>(i)/static_cast<float>(spectrum.size()-1);
-        const float y=plot.getBottom()-plot.getHeight()*juce::jlimit(0.0f,1.0f,(spectrum[i]+84.0f)/84.0f);
-        if (i==0) line.startNewSubPath(x,y); else line.lineTo(x,y);
-    }
-    auto fill=line; fill.lineTo(plot.getRight(),plot.getBottom()); fill.lineTo(plot.getX(),plot.getBottom()); fill.closeSubPath();
-    g.setGradientFill(juce::ColourGradient(mint.withAlpha(0.23f),0,plot.getY(),mint.withAlpha(0.01f),0,plot.getBottom(),false));
-    g.fillPath(fill); g.setColour(mint.withAlpha(0.08f)); g.strokePath(line,juce::PathStrokeType(6));
-    g.setColour(mint); g.strokePath(line,juce::PathStrokeType(1.4f));
-}
-void AetherAudioProcessorEditor::paintMeters(juce::Graphics& g,juce::Rectangle<int> area) {
-    auto meter=[&](const juce::String& name,float value,juce::Colour colour) {
-        auto row=area.removeFromTop(18);
-        write(g,name,row.removeFromLeft(22),9,muted);
-        auto number=row.removeFromRight(44); write(g,value<=-99?"−∞":juce::String(value,1),number,10,text,juce::Justification::centredRight);
-        auto bar=row.reduced(3,6).toFloat(); g.setColour(edge); g.fillRoundedRectangle(bar,1);
-        g.setColour(colour); g.fillRoundedRectangle(bar.withWidth(bar.getWidth()*juce::jlimit(0.0f,1.0f,(value+60)/60)),1);
-    };
-    meter("IN",processor.inputMeterDb.load(),mint); meter("OUT",processor.outputMeterDb.load(),mint);
-    auto row=area.removeFromTop(17);
-    write(g,"GR  "+juce::String(processor.gainReductionDb.load(),1)+" dB",row,9,amber);
-    const float cpu=processor.cpuPercent.load();
-    if (cpu>=0) write(g,"CPU  "+juce::String(cpu,1)+"%",area.removeFromTop(14),9,muted);
-}
-void AetherAudioProcessorEditor::timerCallback() {
-    const auto name=processor.currentPresetName();
-    if (name!=displayedPreset) { displayedPreset=name; presets.setText(name,juce::dontSendNotification); }
-    abButton.setButtonText(processor.isSnapshotB()?"B  /  A":"A  /  B");
-    if (!minimal) {
-        updateAnalysis();
-        repaint(spectrumBounds); repaint(footerBounds);
-    }
-}
-void AetherAudioProcessorEditor::updateAnalysis() {
-    if (!minimal) {
-        // Drain a full FIFO even at 192 kHz; compute only the newest complete frame.
-        std::array<float,16384> samples{};
-        const int count=processor.readAnalysis(samples.data(),static_cast<int>(samples.size()));
-        bool transformed=false;
-        for (int i=0;i<count;++i) {
-            fftInput[static_cast<size_t>(fftWrite++)]=samples[static_cast<size_t>(i)];
-            if (fftWrite==2048) {
-                std::copy(fftInput.begin(),fftInput.end(),fftData.begin());
-                fftWrite=0; transformed=true; receivedAudio=true;
-            }
-        }
-        if (transformed) {
-            window.multiplyWithWindowingTable(fftData.data(),2048);
-            fft.performFrequencyOnlyForwardTransform(fftData.data());
-            const double sampleRate=processor.getSampleRate()>0?processor.getSampleRate():48000.0;
-            const float maxFrequency=static_cast<float>(juce::jmin(20000.0,sampleRate*0.49));
-            for (size_t i=0;i<spectrum.size();++i) {
-                const float frequency=20*std::pow(maxFrequency/20.0f,static_cast<float>(i)/static_cast<float>(spectrum.size()-1));
-                const float bin=frequency*2048.0f/static_cast<float>(sampleRate);
-                const int index=juce::jlimit(0,1022,static_cast<int>(bin));
-                const float fraction=bin-static_cast<float>(index);
-                const float magnitude=juce::jmap(fraction,fftData[static_cast<size_t>(index)],fftData[static_cast<size_t>(index+1)]);
-                const float db=juce::Decibels::gainToDecibels(magnitude/512.0f,-100.0f);
-                spectrum[i]=juce::jmax(db,spectrum[i]-2.0f);
-            }
-        } else if (count==0) { for (auto& value:spectrum) value=juce::jmax(-100.0f,value-1.5f); }
-    }
-}
-
+AetherAudioProcessorEditor::AetherAudioProcessorEditor(AetherAudioProcessor& p):AudioProcessorEditor(&p),ui(std::make_unique<Impl>(*this,p)){addAndMakeVisible(*ui);setResizable(true,true);setResizeLimits(1180,780,2200,1500);setSize(1440,900);}
+AetherAudioProcessorEditor::~AetherAudioProcessorEditor()=default;
+void AetherAudioProcessorEditor::paint(juce::Graphics& g){g.fillAll(paper);}
+void AetherAudioProcessorEditor::resized(){if(ui)ui->setBounds(getLocalBounds());}
+void AetherAudioProcessorEditor::setMinimalMode(bool b){ui->setMinimal(b);}
+void AetherAudioProcessorEditor::setWorkspace(int w){ui->setWorkspace(w);}
+void AetherAudioProcessorEditor::selectSlot(int s){ui->select(s);}
+bool AetherAudioProcessorEditor::performUiAction(const juce::String& s){return ui->action(s);}
