@@ -141,7 +141,6 @@ struct Channel {
     folder.Init();
     decimator.Init();
     decimator.SetSmoothCrushing(true);
-    chorus = daisysp::ChorusEngine{};
     chorus.Init(sr);
     ladder = daisysp::LadderFilter{};
     ladder.Init(sr);
@@ -305,8 +304,8 @@ struct SlotState {
         break;
       case ModuleType::Chorus:
         x.chorus.SetLfoFreq(v[0] * (c ? 1.071f : 1.f));
-        x.chorus.SetLfoDepth(v[1]);
         x.chorus.SetDelayMs(std::min(v[2], 1100000.f / sr));
+        x.chorus.SetLfoDepth(v[1]);
         x.chorus.SetFeedback(v[3]);
         break;
       default:

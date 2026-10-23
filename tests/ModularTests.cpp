@@ -1,10 +1,13 @@
 #include <Control/phasor.h>
+#include <Effects/chorus.h>
 #include <aether/Modular.h>
 #include <algorithm>
 #include <array>
 #include <atomic>
 #include <cmath>
+#include <cstddef>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <new>
@@ -81,7 +84,69 @@ static double magnitude(const std::vector<float> &a, double frequency,
   }
   return std::hypot(re, im);
 }
+static void chorusRegressions() {
+  // Empty upstream constructors must not let stale object storage select the
+  // initial direction. Both byte patterns represent finite float values.
+  alignas(daisysp::ChorusEngine)
+      std::array<std::byte, sizeof(daisysp::ChorusEngine)>
+          positiveStorage;
+  alignas(daisysp::ChorusEngine)
+      std::array<std::byte, sizeof(daisysp::ChorusEngine)>
+          negativeStorage;
+  std::memset(positiveStorage.data(), 0x3f, positiveStorage.size());
+  std::memset(negativeStorage.data(), 0xbf, negativeStorage.size());
+  auto *positive = new (positiveStorage.data()) daisysp::ChorusEngine;
+  auto *negative = new (negativeStorage.data()) daisysp::ChorusEngine;
+  positive->Init(48000);
+  negative->Init(48000);
+  double initializationDifference = 0;
+  for (int n = 0; n < 4096; ++n) {
+    float input = .3f * std::sin(float(n) * .071f);
+    initializationDifference +=
+        std::abs(positive->Process(input) - negative->Process(input));
+  }
+  check(initializationDifference < 1e-7,
+        "Chorus Init ignores poisoned storage LFO direction");
+  // Reinitialization after a turning point must restore the same trajectory.
+  positive->SetLfoFreq(5);
+  for (int n = 0; n < 2400; ++n)
+    positive->Process(0);
+  positive->Init(48000);
+  negative->Init(48000);
+  double resetDifference = 0;
+  for (int n = 0; n < 4096; ++n) {
+    float input = .3f * std::sin(float(n) * .071f);
+    resetDifference +=
+        std::abs(positive->Process(input) - negative->Process(input));
+  }
+  check(resetDifference < 1e-7, "Chorus Init resets previous LFO direction");
+  positive->~ChorusEngine();
+  negative->~ChorusEngine();
+
+  GraphEngine graph;
+  graph.prepare(48000, 256);
+  auto p = single(ModuleType::Chorus);
+  graph.setParameters(p);
+  graph.reset();
+  const auto reference = render(graph, 12000, 48000, 16);
+  graph.reset();
+  std::vector<float> edited(12000), right(12000);
+  for (int n = 0; n < 12000; ++n) {
+    edited[n] = float(.23 * std::sin(6.283185307179586 * 440 * n / 48000) +
+                      .08 * std::sin(6.283185307179586 * 1297 * n / 48000));
+    right[n] = .8f * edited[n];
+  }
+  graph.process(edited.data(), right.data(), nullptr, 16);
+  // Negative balance affects only R. Any L difference is a hidden change to
+  // the delay/depth trajectory, not the intended pan operation.
+  p.slots[0].pan = -.2f;
+  graph.setParameters(p);
+  graph.process(edited.data() + 16, right.data() + 16, nullptr, 11984);
+  check(difference(reference, edited) < 1e-7,
+        "Chorus unrelated pan edit preserves LFO depth trajectory");
+}
 int main() {
+  chorusRegressions();
   daisysp::Phasor phasor;
   phasor.Init(48000, 24000, 0);
   for (int i = 0; i < 8; ++i) {

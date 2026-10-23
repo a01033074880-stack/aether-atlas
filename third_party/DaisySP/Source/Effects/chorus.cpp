@@ -15,6 +15,9 @@ void ChorusEngine::Init(float sample_rate)
     SetDelay(.75);
 
     lfo_phase_ = 0.f;
+    // Atlas: SetLfoFreq preserves the old direction, so initialize it before
+    // the first call and restore the same direction on every Init/reset.
+    lfo_freq_ = 0.f;
     SetLfoFreq(.3f);
     SetLfoDepth(.9f);
 }
