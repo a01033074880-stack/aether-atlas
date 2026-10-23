@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <charconv>
 #include <cmath>
+#include <limits>
 
 namespace {
 float finiteSample(float value) noexcept { return std::isfinite(value) ? juce::jlimit(-32.f,32.f,value) : 0.f; }
@@ -37,6 +38,11 @@ void AetherAudioProcessor::prepareToPlay(double rate,int block) {
 }
 void AetherAudioProcessor::releaseResources() { engine.reset(); prepared=false; }
 void AetherAudioProcessor::reset() { engine.reset(); }
+double AetherAudioProcessor::getTailLengthSeconds() const {
+    if(raw[aether::spaceOn]->load(std::memory_order_relaxed)>0.5f && raw[aether::freeze]->load(std::memory_order_relaxed)>0.5f)
+        return std::numeric_limits<double>::infinity();
+    return 30.0;
+}
 bool AetherAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout) const {
     const auto out=layout.getMainOutputChannelSet();
     if(out!=juce::AudioChannelSet::mono() && out!=juce::AudioChannelSet::stereo()) return false;

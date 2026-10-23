@@ -6,13 +6,16 @@
 #include <stdexcept>
 
 namespace {
-int passed=0;
+int passed=0,failed=0;
 void require(bool ok,const char* why) { if(!ok) throw std::runtime_error(why); }
 void set(AetherAudioProcessor& p,const char* id,float value) {
     auto* param=p.state.getParameter(id); require(param!=nullptr,"parameter missing");
     param->setValueNotifyingHost(param->convertTo0to1(value));
 }
-template<class F> void test(const char* name,F f) { f(); ++passed; std::cout<<"PASS "<<name<<'\n'; }
+template<class F> void test(const char* name,F f) {
+    try { f(); ++passed; std::cout<<"PASS "<<name<<'\n'; }
+    catch(const std::exception& error) { ++failed; std::cerr<<"FAIL "<<name<<": "<<error.what()<<'\n'; }
+}
 }
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
@@ -36,6 +39,23 @@ int main(int argc,char** argv) {
                 p.processBlock(b,midi);
                 for(int i=0;i<n;++i) require(b.getSample(0,i)==0.2f && b.getSample(1,i)==-0.1f,"bypass changed audio");
             }
+        });
+        test("host parameter display and text entry round trip units",[] {
+            AetherAudioProcessor p;
+            const std::pair<const char*,float> cases[]={{"spectral.amount",0.35f},{"master.width",1.4f},
+                {"spectral.focus",3500.f},{"spectral.focus",400.f},{"global.output",-6.f},{"master.release",125.f}};
+            for(const auto& item:cases) {
+                auto* parameter=p.state.getParameter(item.first);
+                const auto text=parameter->getText(parameter->convertTo0to1(item.second),64);
+                const auto parsed=parameter->convertFrom0to1(parameter->getValueForText(text));
+                require(std::abs(parsed-item.second)<0.01f,"host parameter text did not round trip units");
+            }
+        });
+        test("active space freeze reports infinite host tail",[] {
+            AetherAudioProcessor p;
+            require(std::isfinite(p.getTailLengthSeconds()),"normal preset tail not finite");
+            set(p,"space.freeze",1); require(std::isinf(p.getTailLengthSeconds()),"frozen tail may be cut by host");
+            set(p,"space.enabled",0); require(std::isfinite(p.getTailLengthSeconds()),"disabled space reports infinite tail");
         });
         test("DAW state round trip and invalid payload",[] {
             AetherAudioProcessor p,q; set(p,"colour.drive",17); set(p,"space.mix",0.76f);
@@ -147,6 +167,6 @@ int main(int argc,char** argv) {
                 }
             }
         });
-        std::cout<<"RESULT "<<passed<<" tests passed\n"; return 0;
+        std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
 }

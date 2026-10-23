@@ -5,7 +5,7 @@ Class `AetherAudioProcessor` in `Source/PluginProcessor.h`; editor class `Aether
 Public processor API:
 ```cpp
 juce::AudioProcessorValueTreeState state;
-std::atomic<float> inputMeterDb{-100}, outputMeterDb{-100}, gainReductionDb{0}, cpuPercent{0}, detectedPitchHz{0};
+std::atomic<float> inputMeterDb{-100}, outputMeterDb{-100}, gainReductionDb{0}, cpuPercent{-1}, detectedPitchHz{0};
 std::atomic<bool> analysisEnabled{true};
 int readAnalysis(float* dest, int maximum) noexcept;
 static juce::StringArray factoryPresetNames();

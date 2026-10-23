@@ -4,7 +4,7 @@ Copyright 2026 Aether Micro contributors. The original standalone DSP code under
 
 ## JUCE
 
-JUCE **8.0.12**, source revision `501c07674e1ad693085a7e7c398f205c2677f5da`, https://github.com/juce-framework/JUCE/tree/8.0.12.
+JUCE **8.0.12**, source revision `501c07674e1ad693085a7e7c398f205c2677f5da`, https://github.com/juce-framework/JUCE/tree/501c07674e1ad693085a7e7c398f205c2677f5da.
 Copyright Raw Material Software Limited. JUCE modules are dual licensed AGPLv3/commercial. This release uses the AGPLv3 option. No separate commercial JUCE license is conveyed. JUCE source and its original notices are included in the source dependency archive alongside the release. Do not use this project's MIT DSP license as a license for the JUCE application.
 
 JUCE incorporates code under additional permissive licenses, including VST3 SDK (Steinberg), FreeType, HarfBuzz, libpng, zlib, SheenBidi, FLAC, Ogg/Vorbis and platform-specific components. The complete notices from the actual JUCE source tree are retained in `licenses/JUCE-LICENSE.md` and the included JUCE source archive. The VST3 SDK license from this checkout is included as `licenses/VST3-SDK-LICENSE.txt`. JUCE's disabled browser/cURL/ASIO modules are not enabled as optional runtime features.

@@ -82,6 +82,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
                     if (unit=="%") return juce::String(value*100.f,0)+" %";
                     if (unit=="Hz" && value>=1000) return juce::String(value/1000.f,2)+" kHz";
                     return juce::String(value,(unit=="Hz"||unit=="ms") ? 0:2)+(unit.isEmpty()?"":" "+unit);
+                })
+                .withValueFromStringFunction([unit](const juce::String& text) {
+                    float value=text.getFloatValue();
+                    if(unit=="%") value*=0.01f;
+                    else if(unit=="Hz" && text.containsIgnoreCase("k")) value*=1000.f;
+                    return value;
                 });
             layout.add(std::make_unique<juce::AudioParameterFloat>(id,p.name,range,p.defaultValue,attrs));
         }
