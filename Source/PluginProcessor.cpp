@@ -54,6 +54,13 @@ void AetherAudioProcessor::reset() {
     for(auto& value:nodeMeters) value.store(0); for(auto& value:modulationMeters) value.store(0);
 }
 double AetherAudioProcessor::getTailLengthSeconds() const {
+    double finiteTail=30.0;
+    if(!allRaw.empty() && allRaw[aether::fmOffset]->load(std::memory_order_relaxed)>0.5f && raw[aether::mode]->load(std::memory_order_relaxed)>0.5f) {
+        float releaseScale=0;
+        for(int op=0;op<aether::fm::operatorCount;++op)
+            releaseScale=juce::jmax(releaseScale,allRaw[static_cast<size_t>(aether::operatorOffset+op*6+5)]->load(std::memory_order_relaxed));
+        finiteTail+=static_cast<double>(allRaw[aether::fmOffset+9]->load(std::memory_order_relaxed))*releaseScale;
+    }
     if(!allRaw.empty() && allRaw[aether::graphOffset]->load(std::memory_order_relaxed)>0.5f) {
         const auto config=graphParameters();
         if(config.feedback>0) for(int destination=0;destination<aether::modular::slotCount;++destination)
@@ -71,11 +78,11 @@ double AetherAudioProcessor::getTailLengthSeconds() const {
                 if(possible>=info.freezeThreshold) return std::numeric_limits<double>::infinity();
             }
         }
-        return 30.0;
+        return finiteTail;
     }
     if(raw[aether::spaceOn]->load(std::memory_order_relaxed)>0.5f && raw[aether::freeze]->load(std::memory_order_relaxed)>0.5f)
         return std::numeric_limits<double>::infinity();
-    return 30.0;
+    return finiteTail;
 }
 bool AetherAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout) const {
     const auto out=layout.getMainOutputChannelSet();

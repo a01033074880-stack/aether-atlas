@@ -12,6 +12,11 @@ void set(AetherAudioProcessor& p,const char* id,float value) {
     auto* param=p.state.getParameter(id); require(param!=nullptr,"parameter missing");
     param->setValueNotifyingHost(param->convertTo0to1(value));
 }
+juce::Slider* findSlider(juce::Component& component,const juce::String& id) {
+    if(auto* slider=dynamic_cast<juce::Slider*>(&component);slider && slider->getComponentID()==id) return slider;
+    for(auto* child:component.getChildren()) if(auto* found=findSlider(*child,id)) return found;
+    return nullptr;
+}
 template<class F> void test(const char* name,F f) {
     try { f(); ++passed; std::cout<<"PASS "<<name<<'\n'; }
     catch(const std::exception& error) { ++failed; std::cerr<<"FAIL "<<name<<": "<<error.what()<<'\n'; }
@@ -64,6 +69,24 @@ int main(int argc,char** argv) {
             require(std::isinf(p.getTailLengthSeconds()),"modulated freeze may be truncated by host");
             p.setParameterValue("modulation.1.depth",0);p.setGraphEdge(11,0,0.5f);
             require(std::isinf(p.getTailLengthSeconds()),"recursive patch advertised a short tail");
+        });
+        test("host tail covers the longest legal six-operator release",[] {
+            AetherAudioProcessor p;p.setParameterValue("graph.enabled",0);p.setParameterValue("global.mode",2);
+            p.setParameterValue("fm.release",12);p.setParameterValue("fm.op.6.release",4);
+            require(p.getTailLengthSeconds()>=48,"host may truncate a legal 48 second FM release");
+            p.setParameterValue("graph.enabled",1);require(p.getTailLengthSeconds()>=48,"effects graph reduced FM tail report");
+        });
+        test("all-parameter keyboard edits activate custom graph and FM routing",[] {
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");editor->setMinimalMode(true);
+            auto* route=findSlider(*editor,"route.1.2");require(route!=nullptr,"full parameter view route slider missing");
+            route->keyPressed(juce::KeyPress(juce::KeyPress::leftKey));
+            require(p.parameterValue("routing.algorithm")==32,"generic routing edit stayed inactive under built-in template");
+            auto* fm=findSlider(*editor,"fm.edge.6.1");require(fm!=nullptr,"full parameter view FM edge missing");
+            fm->keyPressed(juce::KeyPress(juce::KeyPress::rightKey));
+            require(p.parameterValue("fm.custom")==1,"generic FM edge edit stayed inactive under built-in template");
+            p.applyRoutingAlgorithm(1);auto* send=findSlider(*editor,"node.1.input");require(send!=nullptr,"input send missing");
+            send->keyPressed(juce::KeyPress(juce::KeyPress::leftKey));require(p.parameterValue("routing.algorithm")==32,"input send keyboard edit stayed inactive");
         });
         test("DAW state round trip and invalid payload",[] {
             AetherAudioProcessor p,q; set(p,"colour.drive",17); set(p,"space.mix",0.76f);
@@ -165,6 +188,10 @@ int main(int argc,char** argv) {
             AetherAudioProcessor q; q.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
             require(q.isSnapshotB(),"B selection not recalled"); q.toggleAB();
             require(std::abs(q.state.getRawParameterValue("colour.drive")->load()-5)<0.001f,"alternate snapshot not recalled");
+            p.setGraphEdge(4,9,0.25f);p.setFmEdge(1,0,0.4f);p.toggleAB();
+            p.setGraphEdge(4,9,-0.6f);p.setFmEdge(1,0,0.85f);p.toggleAB();
+            require(std::abs(p.parameterValue("route.5.10")-0.25f)<0.0001f,"A/B lost custom graph edges");
+            require(std::abs(p.parameterValue("fm.edge.2.1")-0.4f)<0.0001f,"A/B lost custom FM edges");
         });
         test("mono layout, repeated prepare and rates",[] {
             AetherAudioProcessor p; auto layout=p.getBusesLayout();

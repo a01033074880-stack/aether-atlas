@@ -24,9 +24,13 @@ void AetherAudioProcessor::applyRoutingAlgorithm(int index) {
 }
 void AetherAudioProcessor::setGraphEdge(int source,int destination,float gain) {
     if(source<0||source>=aether::modular::slotCount||destination<0||destination>=aether::modular::slotCount) return;
-    if(parameterValue("routing.algorithm")<aether::modular::algorithmCount) applyRoutingAlgorithm(static_cast<int>(parameterValue("routing.algorithm")));
-    setParameterValue("routing.algorithm",static_cast<float>(aether::modular::algorithmCount));
+    prepareGraphEditing();
     setParameterValue("route."+juce::String(source+1)+"."+juce::String(destination+1),juce::jlimit(-1.f,1.f,gain));
+}
+void AetherAudioProcessor::prepareGraphEditing() {
+    if(parameterValue("routing.algorithm")<aether::modular::algorithmCount)
+        applyRoutingAlgorithm(static_cast<int>(parameterValue("routing.algorithm")));
+    setParameterValue("routing.algorithm",static_cast<float>(aether::modular::algorithmCount));
 }
 void AetherAudioProcessor::assignModule(int slot,int moduleType) {
     using namespace aether::modular;
@@ -50,6 +54,11 @@ void AetherAudioProcessor::applyFmAlgorithm(int index) {
 void AetherAudioProcessor::setFmEdge(int source,int destination,float depth) {
     using namespace aether::fm;
     if(source<0||source>=operatorCount||destination<0||destination>=operatorCount) return;
+    prepareFmEditing();
+    setParameterValue("fm.edge."+juce::String(source+1)+"."+juce::String(destination+1),juce::jlimit(0.f,1.f,depth));
+}
+void AetherAudioProcessor::prepareFmEditing() {
+    using namespace aether::fm;
     if(parameterValue("fm.custom")<0.5f) {
         const int algorithmIndex=static_cast<int>(parameterValue("fm.algorithm"));
         const auto& config=algorithm(algorithmIndex);const auto& next=algorithm((algorithmIndex+1)%algorithmCount);
@@ -65,7 +74,6 @@ void AetherAudioProcessor::setFmEdge(int source,int destination,float depth) {
         setParameterValue("fm.morph",0);
     }
     setParameterValue("fm.custom",1);
-    setParameterValue("fm.edge."+juce::String(source+1)+"."+juce::String(destination+1),juce::jlimit(0.f,1.f,depth));
 }
 aether::modular::Parameters AetherAudioProcessor::graphParameters() const noexcept {
     using namespace aether;

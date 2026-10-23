@@ -48,9 +48,11 @@ public:
     void setParameterValue(const juce::String&,float);
     void applyRoutingAlgorithm(int);
     void setGraphEdge(int source,int destination,float gain);
+    void prepareGraphEditing();
     void assignModule(int slot,int moduleType);
     void applyFmAlgorithm(int);
     void setFmEdge(int source,int destination,float depth);
+    void prepareFmEditing();
     std::array<std::atomic<float>,aether::modular::slotCount> nodeMeters{};
     std::array<std::atomic<float>,aether::modular::sourceCount> modulationMeters{};
     std::atomic<int> fmVoiceCount{0},textureLatencySamples{0};
