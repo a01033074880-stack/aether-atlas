@@ -63,6 +63,15 @@ public:
         const float angle=start+(end-start)*v-juce::MathConstants<float>::halfPi;g.drawLine(c.x+std::cos(angle)*radius*.4f,c.y+std::sin(angle)*radius*.4f,c.x+std::cos(angle)*radius*.8f,c.y+std::sin(angle)*radius*.8f,2);
     }
 };
+// JUCE arrow-key edits call setValue directly; provide the same gesture boundary as mouse, wheel and text edits.
+class InstrumentSlider final:public juce::Slider {
+public:
+    bool keyPressed(const juce::KeyPress& key) override {
+        const bool arrow=key==juce::KeyPress::leftKey||key==juce::KeyPress::rightKey||key==juce::KeyPress::upKey||key==juce::KeyPress::downKey;
+        if(isEnabled()&&arrow&&!key.getModifiers().isAnyModifierKeyDown()){juce::Slider::ScopedDragNotification gesture(*this);return juce::Slider::keyPressed(key);}
+        return juce::Slider::keyPressed(key);
+    }
+};
 class ParamControl final:public juce::Component {
 public:
     ParamControl(AetherAudioProcessor& p,const juce::String& id,const juce::String& caption={},bool rotary=false):parameterId(id){
@@ -77,7 +86,7 @@ public:
     void macro(const aether::modular::MacroInfo& info){title=info.name;const auto lo=info.minimum,hi=info.maximum;const juce::String unit=info.unit;slider.textFromValueFunction=[lo,hi,unit](double v){return juce::String(lo+float(v)*(hi-lo),hi-lo>100?0:2)+(unit.isEmpty()?"":" "+unit);};slider.valueFromTextFunction=[lo,hi](const juce::String& v){return (v.getDoubleValue()-lo)/juce::jmax(.00001f,hi-lo);};slider.updateText();resized();repaint();}
     void paint(juce::Graphics& g)override{if(!buttonAttachment)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
     void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(17);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else slider.setBounds(r);}
-    juce::String parameterId,title;juce::Slider slider;juce::ComboBox combo;juce::ToggleButton toggle;
+    juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> choiceAttachment;
@@ -92,7 +101,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     juce::ComboBox presets,algorithm,fmAlgorithm;juce::TextButton load{"Open"},save{"Save"},ab{"A / B"},panic{"Panic"},help{"?"},minimalButton{"All params"},patchTab{"01  Patch"},fmTab{"02  FM"},motionTab{"03  Motion"};
     juce::TextEditor search;juce::Viewport browserViewport,allViewport;Surface browser,canvas,gallery,fmDiagram,fmMatrix,motionScope,allBody;
     std::vector<std::unique_ptr<ParamControl>> globals,inspector,fmControls,motionControls,allControls;
-    juce::Slider cableGain;juce::TextButton removeCable{"Remove cable"};
+    InstrumentSlider cableGain;juce::TextButton removeCable{"Remove cable"};
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cableAttachment;
     std::unique_ptr<juce::FileChooser> chooser;std::vector<int> browserItems;
     juce::Rectangle<int> content,left,right,stage,footer;std::array<juce::Point<float>,12> nodePoints{};
