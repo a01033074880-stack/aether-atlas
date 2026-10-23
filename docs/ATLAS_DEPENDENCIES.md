@@ -13,4 +13,4 @@ Research date2026-10-23. Upstream source was actually downloaded for integration
 
 Sources: https://github.com/Signalsmith-Audio/signalsmith-stretch ; https://github.com/Signalsmith-Audio/linear ; https://github.com/electro-smith/DaisySP ; https://github.com/Chowdhury-DSP/chowdsp_wdf ; https://github.com/google/fonts .
 
-Full vendoredsource in third_party, fontlicenses inassets/fonts. ArchiveSHA-256 manifest will be copiedfromtmp/research-v2/dependencies.json into source before release. Modules must not advertise a library integration until actual code uses that library and tests demonstrate its sound processing.
+Full vendoredsource in third_party, fontlicenses inassets/fonts. Archive SHA-256 values are recorded in the tracked third_party/atlas-dependencies.json manifest. Modules must not advertise a library integration until actual code uses that library and tests demonstrate its sound processing.

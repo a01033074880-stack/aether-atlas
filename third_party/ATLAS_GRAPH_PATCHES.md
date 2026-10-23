@@ -10,3 +10,5 @@ Upstream source and license notices remain in each vendor directory. These are l
 Atlas applies Chorus delay before depth because upstream `SetLfoDepth` scales amplitude by the current delay. An audio regression verifies that changing pan does not silently change the unaffected channel's modulation trajectory. The earlier claim that assigning `ChorusEngine{}` initialized its scalar fields was incorrect: the upstream class has a user-provided empty constructor. The wrapper now calls the patched `Init` directly.
 
 DaisySP String uses its zero-nonlinearity branch, avoiding the upstream dispersion branch's global `rand()`; the exposed excitation macro controls the actual input saturation instead.
+
+- `DaisySP/Source/Filters/ladder.cpp`: guard the GCC-specific unroll-loops function attribute so the same selected source compiles under MSVC; no DSP equation change.

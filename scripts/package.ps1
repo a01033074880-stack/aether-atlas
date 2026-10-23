@@ -33,9 +33,15 @@ try {
     Copy-Item -LiteralPath 'scripts/install.ps1' -Destination $aetherRelease
     Copy-Item -LiteralPath 'README.md','CHANGELOG.md','LICENSE','THIRD_PARTY_NOTICES.md' -Destination $aetherRelease
     Get-ChildItem -LiteralPath docs -File -Filter '*.md' | Copy-Item -Destination (Join-Path $aetherRelease 'docs')
+    Copy-Item -LiteralPath 'AETHER_Atlas_Phase_2_Development_Report.zh-CN.md' -Destination $aetherRelease
+    $aetherReadme = Join-Path $aetherRelease 'README.md'
+    $aetherReadmeText = [IO.File]::ReadAllText($aetherReadme).Replace('out/atlas-screenshots/','Preview/')
+    [IO.File]::WriteAllText($aetherReadme,$aetherReadmeText,[Text.UTF8Encoding]::new($false))
+    Copy-Item -LiteralPath 'assets/atlas-design-board.png' -Destination (Join-Path $aetherRelease 'Preview')
     if (Test-Path -LiteralPath "$ScreenshotsDirectory/presets") { Get-ChildItem -LiteralPath "$ScreenshotsDirectory/presets" -File | Copy-Item -Destination (Join-Path $aetherRelease 'presets') }
     if (Test-Path -LiteralPath $ScreenshotsDirectory) { Get-ChildItem -LiteralPath $ScreenshotsDirectory -Filter '*.png' | Copy-Item -Destination (Join-Path $aetherRelease 'Preview') }
     if (Test-Path -LiteralPath $AudioDirectory) { Get-ChildItem -LiteralPath $AudioDirectory -Filter '*.wav' | Copy-Item -Destination (Join-Path $aetherRelease 'Audio') }
+    if (Test-Path -LiteralPath "$AudioDirectory/Atlas-module-catalog.json") { Copy-Item -LiteralPath "$AudioDirectory/Atlas-module-catalog.json" -Destination (Join-Path $aetherRelease 'docs') }
     if (Test-Path -LiteralPath $ValidationDirectory) {
         foreach ($aetherEvidence in @('ctest-final.log','dsp-tests-final.log','fm-tests-final.log','modular-tests-final.log','plugin-tests.log','render-benchmark.log','dependencies-fx.log','pluginval-fx','pluginval-synth')) {
             $aetherEvidencePath = Join-Path $ValidationDirectory $aetherEvidence

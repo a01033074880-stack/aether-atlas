@@ -1,3 +1,5 @@
+> Historical v1 interface reference. For Atlas2 use [v2 contract](v2-contract.md) and current public headers.
+
 # Engine contract, v1.0.0
 
 Only standard C++20 is allowed in the DSP library. No JUCE dependency. Namespace `aether`.

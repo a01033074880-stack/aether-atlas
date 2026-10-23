@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 namespace {
 constexpr int rate=48000;
@@ -26,6 +27,16 @@ void setup(aether::modular::Parameters& p,const std::vector<aether::modular::Mod
 int main(int argc,char** argv){
     try{
         const auto dir=std::filesystem::path(argc>1?argv[1]:"out/atlas-audio");std::filesystem::create_directories(dir);
+        std::ofstream catalog(dir/"Atlas-module-catalog.json");catalog<<"{\n  \"version\": \"2.0.0\",\n  \"modules\": [\n";
+        for(int i=0;i<static_cast<int>(aether::modular::ModuleType::Count);++i) {
+            const auto& info=aether::modular::moduleInfo(static_cast<aether::modular::ModuleType>(i));
+            catalog<<"    {\"type\": "<<i<<", \"name\": "<<std::quoted(info.name)<<", \"category\": "<<std::quoted(info.category)<<", \"provenance\": "<<std::quoted(info.provenance)<<", \"macros\": [";
+            for(int m=0;m<4;++m) {const auto& macro=info.macros[static_cast<size_t>(m)];catalog<<"{\"name\": "<<std::quoted(macro.name)<<", \"unit\": "<<std::quoted(macro.unit)<<", \"min\": "<<macro.minimum<<", \"max\": "<<macro.maximum<<", \"default_normalized\": "<<macro.defaultValue<<"}"<<(m<3?", ":"");}
+            catalog<<"]}"<<(i+1<static_cast<int>(aether::modular::ModuleType::Count)?",":"")<<'\n';
+        }
+        catalog<<"  ],\n  \"audio_algorithms\": [";
+        for(int i=0;i<32;++i)catalog<<std::quoted(aether::modular::algorithmName(i))<<(i<31?", ":"");
+        catalog<<"],\n  \"fm_algorithms\": [";for(int i=0;i<32;++i)catalog<<std::quoted(aether::fm::algorithm(i).name)<<(i<31?", ":"");catalog<<"]\n}\n";
         std::vector<float> sourceL(rate*8),sourceR(sourceL.size());
         for(size_t i=0;i<sourceL.size();++i){double t=static_cast<double>(i)/rate,b=std::fmod(t,0.5);sourceL[i]=static_cast<float>(.22*std::exp(-b*9)*(std::sin(t*1382.3007676)+.35*std::sin(t*4146.9023)));sourceR[i]=sourceL[i]*.93f;}
         wav(dir/"01-Atlas-source.wav",sourceL,sourceR);

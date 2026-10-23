@@ -1,3 +1,5 @@
+> Historical v1 interface reference. For Atlas2 use [v2 contract](v2-contract.md) and current public headers.
+
 # Editor / processor contract
 
 Class `AetherAudioProcessor` in `Source/PluginProcessor.h`; editor class `AetherAudioProcessorEditor` in PluginEditor.h.

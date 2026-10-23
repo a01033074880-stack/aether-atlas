@@ -1,38 +1,73 @@
-# AETHER Micro 1.0.0 — local validation
+# Atlas 2.0.0 验证记录
 
-Date: 2026-10-23 (Asia/Shanghai). Platform: Windows x64, Intel Core i9-13900H (14 physical cores / 20 logical processors). MSVC 19.44.35229, CMake 4.3.2, Ninja, Windows SDK 10.0.26100.0. JUCE source revision `501c07674e1ad693085a7e7c398f205c2677f5da` reports version 8.0.12; bundled VST3 metadata reports SDK 3.8.0.
+日期：2026-10-23（Asia/Shanghai）。Windows x64；Intel Core i9-13900H，14物理核/20逻辑处理器；MSVC19.44.35229，Windows SDK10.0.26100.0，CMake4.3.2，Ninja；JUCE固定501c076（版本8.0.12），VST3元数据SDK3.8.0。
 
-## Built and exercised
+本记录区分已执行证据与尚未覆盖的条件。第一阶段验证归档在 `archive/v1/VALIDATION.md`。
 
-- Release x64 FX VST3, Synth VST3, FX standalone and Synth standalone successfully compiled and linked.
-- 46 pure-DSP behavioral assertions pass under MSVC and independently under GCC 14.3.0 with bounds assertions. Covers all five audio stages, serial stage pairs/permutations, finite output, silence, MIDI voices/sustain/bend/release/stealing, exact sample-block invariance, modal decay, space/freeze, limiter/dither, reset and rate changes. A replacement-new counter verifies no ordinary heap allocation in engine process/update/MIDI/reset after preparation.
-- 12 real processor integration scenarios pass: parameter contract, global bypass, host parameter text/units roundtrip, infinite host-tail reporting while space is frozen, XML DAW state/corruption, every factory preset, JSON preset validation, A/B state persistence, mono/reprepare/rates, sample-offset MIDI, external FX sidechain/no direct leakage, and repeated editor creation/destruction with rendered screenshots.
-- pluginval **1.0.4, strictness 5** reports **SUCCESS** for both actual VST3 bundles. Includes 44.1/48/96 kHz audio processing, 64/128/256/512/1024 block sizes, parameter/state/automation/editor and bus tests. No disabled tests or skip-GUI flags. pluginval's optional external Steinberg validator was not supplied and is explicitly skipped in the log; no claim of that separate validator passing.
-- Native editor renders inspected at 1080×760, 1280×900 and minimum 900×680, plus compact view. Fixed bottom clipping and numeric formatting. FFT trace uses actual generated audio; PNG outputs checked for a single valid image rather than appended old captures.
-- `dumpbin /dependents` lists Windows system DLLs only. Static C++ runtime; no JUCE, VCRUNTIME or third-party audio/model DLL installation is required. No GPU/WebView asset/runtime package is bundled.
+## 1. 构建与测试
 
-## Size and timing
+Release成功构建FX/Synth两款VST3、两个Standalone、四个测试套件和渲染工具。固定的实际第三方DSP源进入链接；不是只下载文档或把自写处理器命名为上游算法。
 
-Actual FX VST3 module is approximately **4.99 MB** (decimal), plus a small module manifest. A `.vst3` is delivered as a directory bundle. The portable package also includes Synth, standalones, source dependencies, docs and audio; its ZIP size is not the single-module size.
+| 套件 | 已检查范围 | 结果 |
+|---|---|---|
+| aether_dsp | 原始46项声音/状态/无分配/采样率/分块行为 | PASS |
+| aether_fm | 215项：全部32算法、36边方向、自定义/Morph、16声部、声道MIDI、包络、音频激励、4×处理、极端参数、无分配、分块一致性 | PASS |
+| aether_modular | 全20效果四宏、32不同模板、有符号延迟反馈、84目的地、12重复实例、全部类型多率重置/分块、冻结和实际频率/延迟、无分配、供应商回归 | PASS |
+| aether_plugin | 21场景：467参数、旁通/单位、普通/冻结/FM尾音、schema1/2、两矩阵、A/B、全36预设、总线/MIDI/侧链、独立图/FM开关、音频FM分块、GUI生产路径和宿主手势 | PASS |
 
-`AetherRender` supplies fresh 0.2-amplitude sine input for every default-preset stereo block at 48 kHz and times only Engine::process from outside the callback. One recorded local Release run:
+最终CTest日志包含全部四套件输出。主机测试还运行了真实编辑器组件：节点/模块选择、算法、端口接线、FM矩阵点击，以及All params真实Slider箭头编辑；监听参数通知检查begin/end不嵌套且数值发生在手势中。它不是仅调用DSP内部方法的界面假测试。
 
-| Block | Audio processed | Processing wall time | One-core realtime budget |
+GCC14.3.0和MSVC分别验证FM；纯FM构建启用严格告警，215项均通过。模块引擎也完成独立MinGW运行及集成MSVC运行。编译器通过并不构成任意宿主环境下的形式化实时证明。
+
+## 2. 独立审查与修复
+
+- FM：发现float包络在192kHz、48秒释放等合法配置下停滞，改为double状态/步长；新增长攻击/衰减/释放/踏板回归。Gain/Index/Feedback增加确定性5ms平滑。限定复核通过。
+- Graph：Daisy颗粒读取和相位边界已修；Signalsmith冻结随机相位reset增加显式reseed，原先不同的重置输出变为确定性。
+- Chorus：上游空构造器并不初始化LFO方向，Init已显式设值；设置顺序改为先Delay再Depth，避免无关Pan编辑改变调制轨迹。两个实际音频失败先复现再修正，限定复核通过。
+- Host/UI：修复All params连接/send/FM编辑未启用Custom、合法48秒FM释放报告过短、键盘缺少手势，以及模板准备造成的嵌套手势；真实组件与参数监听回归通过。
+- GUI：修复浅色值框、过小文字、首帧空标题、Morph图示/载波标记及不可用CPU伪显示；查看默认/最小/较大尺寸的实际渲染。
+
+审查报告在开发目录 `.superpowers/sdd/atlas-v2`。发布的源码、测试和验证日志是主要复现依据，内部审查文件不要求用户依赖工具环境读取。
+
+## 3. 实际VST3验证
+
+pluginval1.0.4，strictness5，对实际编译的FX和Synth完整bundle运行；最终两者均SUCCESS。没有禁用测试，也没有skip-GUI。覆盖44.1/48/96kHz、64/128/256/512/1024块长、音频/状态/参数/自动化/编辑器/总线。
+
+外接Steinberg独立validator没有提供路径，日志明确跳过该可选项；不宣称它通过。没有商业DAW人工测试、外部声卡实测或跨平台二进制验证。远程CI只有配置，没有在本会话运行。
+
+## 4. 信号、延迟和性能测量
+
+- Prism默认48kHz准备声明2560采样，实测unity移调冲激峰同为2560采样。
+- 880Hz移调八度测试的目标/原频率能量比约920；这里只证明该测试场景的移调，不是全频段音质/SNR指标。
+- Frequency Shift双部分音测试，目标/镜像边带抑制约26.1dB。127tap Hilbert在DC/Nyquist附近性能降低，不是全频完美解析器。
+- 效果图host PDC=0，Texture只显示最大已启用单节点延迟，不是累计路径。平行支路没有自动对齐；多个STFT节点串联累加延迟。此设计用于创作纹理，不宣称透明零延迟移调。
+
+一组最终Release短基准，48kHz/立体声/64块长/12个混合效果节点，每次新送入约0.1幅度正弦，外部计时仅包围process：
+
+| 路由算法 | 音频时长 | 处理时间 | 单核实时预算 |
 |---|---:|---:|---:|
-| 64 | 10.000 s | 0.262564 s | 2.63% |
-| 256 | 10.000 s | 0.259793 s | 2.60% |
-| 1024 | 9.984 s | 0.230081 s | 2.30% |
+| 0 | 2s | 0.210146s | 10.5073% |
+| 3 | 2s | 0.322684s | 16.1342% |
+| 14 | 2s | 0.251286s | 12.5643% |
+| 25 | 2s | 0.211494s | 10.5747% |
 
-These are short local microbenchmarks, subject to CPU scheduling, power state and workload. They are not DAW CPU-meter results, all-stage maximum-polyphony results, p99 deadlines or guarantees on other machines. The earlier behavioral-test loop feeds processed output back repeatedly and measured around 5%; it is a different workload. No startup-time, RAM, SNR/alias-rejection, LUFS or reconstructed true-peak figure has been established. Report targets are not substituted for measured values.
+FM一组16活动声部测试：2.73067秒音频用约1.43394秒处理，约52.5%单核实时预算。并发构建和电源/调度影响数值；此前同类图基准约13%–17%，不能用单次值承诺其他机器。最大16声部+12昂贵节点、长时p99期限和最大实例数没有建立保证。
 
-Three 8-second stereo PCM16/48 kHz renders are supplied: generated source, processed Prism FX and MIDI Prism Keys. They validate renderability and give a convenient audition reference. No subjective listening evaluation is asserted.
+8个8秒/48kHz/立体声PCM16文件包括原始参考、WDF、颗粒、移调/频移、反馈、冻结、FM和音频驱动FM；全部有限、非静音、峰值低于满幅。输出格式和能量检查不代表已做主观听音或增益匹配音质评审。
 
-## Reproducible evidence and limitations
+## 5. 尺寸、依赖与资源
 
-The release `Validation` directory includes CTest, DSP, processor, pluginval, benchmark and binary-dependency logs. Tests run through the real engine/processor and built VST3 loader. No specific commercial DAW, macOS, Linux, ARM64, CLAP or external audio hardware was tested. Source CI configuration is provided but has not been run remotely in this session.
+| 模块 | 实际字节数 |
+|---|---:|
+| AETHER Micro.vst3 | 5,347,840 |
+| AETHER Micro Synth.vst3 | 5,346,816 |
 
-The local external JUCE checkout already contained one `<cstring>` include addition. The source archive includes its exact patch at `third_party/juce-local-cstring.patch`; the untouched upstream dependency archive is SHA-256 checked (`66bcd380ba444da6a9bb98b7471727c542232c27647c1ec22f47158353c186dc`). Apply the patch to the extracted dependency to exactly match the local source used for this build. This modifies header inclusion, not a JUCE algorithm. The existing external SDK checkout was preserved.
+仅统计bundle内二进制，不包含manifest、源码、Standalone和ZIP。Full-preset graph在prepare时为所有类型预分配可变状态；内存随采样率和实例数增长。未宣称满足原始9.2MB/RAM或3.8MB体积目标。
 
-Known design limits: first-order ADAA introduces a fractional phase/time response without host compensation; no lookahead/true-peak limiter. Material/order/bypass changes and space-size integer delay changes are discrete and can click under abrupt automation. Freeze excludes new excitation in the wet feedback path; partial dry mix still passes live audio. Pitch tracking is for monophonic sources. Dither injects TPDF noise but does not integer-quantize the floating-point host stream. See REQUIREMENTS.md for the research roadmap boundary.
+`dumpbin /dependents`只列出Windows系统DLL，静态MSVC运行库；不需要外部DaisySP/Signalsmith/WDF/JUCE DLL或在线模型下载。完整许可证、固定源码与字体随源码交付。
 
-Release audit: the portable package was expanded and all SHA-256 manifest entries and ZIP integrity checked. The install script was exercised twice in an isolated workspace directory; both bundles installed and timestamped backups preserved the first installation. An independent whole-project review and scoped correction review passed after fixing host text units and frozen-tail reporting.
+## 6. 完整性与已知限制
+
+封包工具生成包内SHA-256及ZIP外部校验文件。最终交付流程核对ZIP可解压、文件哈希、源码提交与标签、编译模块与包内模块以及安装后文件一致性。安装脚本保留旧版本目录；第一阶段ZIP和标签独立保存。
+
+尚未覆盖：商业DAW/外部音频硬件、长期负载/内存增长、p99实时耗时、全频抗混叠/THD+N/噪声/真峰值/LUFS、macOS/Linux/ARM64、远程CI、签名分发。Master为采样峰值保护；浮点TPDF不负责整数转换。FM极端相位调制、未全局过采样的非线性FX可混叠；拓扑/部分参数/捕获切换可点击。Resynth仅单音确定性跟踪，不含训练DDSP/NAM/S4D。详见REQUIREMENTS.md及USER_GUIDE.zh-CN.md。
