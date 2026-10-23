@@ -77,6 +77,10 @@ juce::Result AetherAudioProcessor::loadPreset(const juce::File& file) {
 }
 void AetherAudioProcessor::toggleAB() {
     auto current=state.copyState();
-    if(snapshot.isValid()) state.replaceState(snapshot.createCopy());
-    snapshot=current; snapshotB.store(!snapshotB.load()); requestPanic();
+    juce::ValueTree target;
+    { const juce::ScopedLock lock(metadataLock);
+      target=snapshot.createCopy(); snapshot=current; snapshotB.store(!snapshotB.load());
+    }
+    if(target.isValid()) state.replaceState(target);
+    requestPanic();
 }

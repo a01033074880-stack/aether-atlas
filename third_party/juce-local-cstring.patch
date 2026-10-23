@@ -1,0 +1,12 @@
+diff --git a/modules/juce_graphics/native/juce_RenderingHelpers.h b/modules/juce_graphics/native/juce_RenderingHelpers.h
+--- a/modules/juce_graphics/native/juce_RenderingHelpers.h
++++ b/modules/juce_graphics/native/juce_RenderingHelpers.h
+@@ -32,6 +32,8 @@
+   ==============================================================================
+ */
+ 
++#include <cstring>
++
+ namespace juce
+ {
+     struct GraphicsFontHelpers

@@ -70,6 +70,10 @@ int main(int argc,char** argv) {
             AetherAudioProcessor p; set(p,"colour.drive",5); p.toggleAB(); set(p,"colour.drive",19); p.toggleAB();
             require(std::abs(p.state.getRawParameterValue("colour.drive")->load()-5)<0.001f,"A not restored");
             p.toggleAB(); require(std::abs(p.state.getRawParameterValue("colour.drive")->load()-19)<0.001f,"B not restored");
+            juce::MemoryBlock data; p.getStateInformation(data);
+            AetherAudioProcessor q; q.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
+            require(q.isSnapshotB(),"B selection not recalled"); q.toggleAB();
+            require(std::abs(q.state.getRawParameterValue("colour.drive")->load()-5)<0.001f,"alternate snapshot not recalled");
         });
         test("mono layout, repeated prepare and rates",[] {
             AetherAudioProcessor p; auto layout=p.getBusesLayout();
@@ -91,6 +95,23 @@ int main(int argc,char** argv) {
             for(int i=73;i<128;++i) after+=std::abs(b.getSample(0,i));
             require(after>0.0001f,"note did not sound");
         });
+        test("external FX sidechain excites resonance without direct leakage",[] {
+            AetherAudioProcessor p; auto layout=p.getBusesLayout();
+            layout.inputBuses.set(1,juce::AudioChannelSet::mono());
+            require(p.setBusesLayout(layout),"mono sidechain unsupported");
+            set(p,"modal.mix",1); set(p,"space.mix",0); set(p,"spectral.amount",0);
+            p.prepareToPlay(48000,256);
+            juce::AudioBuffer<float> b(3,256); juce::MidiBuffer midi; float energy=0;
+            for(int block=0;block<20;++block) {
+                b.clear(); for(int i=0;i<256;++i) b.setSample(2,i,0.3f*std::sin(0.0144f*static_cast<float>(i+block*256)));
+                p.processBlock(b,midi); for(int i=0;i<256;++i) energy+=std::abs(b.getSample(0,i));
+            }
+            require(energy>0.01f,"sidechain did not excite modal stage");
+            set(p,"modal.enabled",0); p.reset(); b.clear(); b.applyGain(1);
+            for(int i=0;i<256;++i) b.setSample(2,i,0.3f);
+            p.processBlock(b,midi);
+            for(int i=0;i<256;++i) require(std::abs(b.getSample(0,i))<1.e-7f,"sidechain leaked directly to output");
+        });
         test("editor lifecycle and rendered snapshots",[&] {
             AetherAudioProcessor p; p.prepareToPlay(48000,512);
             if(argc>1) {
@@ -108,10 +129,21 @@ int main(int argc,char** argv) {
                     juce::PNGImageFormat png;
                     auto image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
                     auto stream=dir.getChildFile("AetherMicro-main.png").createOutputStream(); require(stream!=nullptr,"snapshot file");
+                    stream->setPosition(0); stream->truncate();
                     require(png.writeImageToStream(image,*stream),"snapshot encode");
                     editor->setSize(1280,900);
                     image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
-                    auto large=dir.getChildFile("AetherMicro-large.png").createOutputStream(); png.writeImageToStream(image,*large);
+                    auto large=dir.getChildFile("AetherMicro-large.png").createOutputStream(); large->setPosition(0); large->truncate(); png.writeImageToStream(image,*large);
+                    editor->setSize(900,680);
+                    image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
+                    auto minimum=dir.getChildFile("AetherMicro-minimum.png").createOutputStream(); minimum->setPosition(0); minimum->truncate(); png.writeImageToStream(image,*minimum);
+                    if(auto* aetherEditor=dynamic_cast<AetherAudioProcessorEditor*>(editor.get())) {
+                        aetherEditor->setMinimalMode(true);
+                        image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);
+                        auto small=dir.getChildFile("AetherMicro-minimal.png").createOutputStream(); small->setPosition(0); small->truncate(); png.writeImageToStream(image,*small);
+                    }
+                    auto presets=dir.getChildFile("presets"); presets.createDirectory();
+                    for(int i=0;i<p.getNumPrograms();++i) { p.loadFactoryPreset(i); p.savePreset(presets.getChildFile(p.getProgramName(i)+".aether")); }
                 }
             }
         });

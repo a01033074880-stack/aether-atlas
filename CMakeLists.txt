@@ -5,9 +5,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 option(AETHER_BUILD_PLUGINS "Build JUCE VST3 and standalone applications" ON)
 option(AETHER_BUILD_TESTS "Build behavioral tests" ON)
-set(JUCE_PATH "" CACHE PATH "Existing JUCE 8.0.12 source checkout")
+set(JUCE_PATH "" CACHE PATH "Existing JUCE source checkout (revision 501c07674e1ad693085a7e7c398f205c2677f5da)")
 add_library(aether_dsp STATIC libs/aether-dsp/src/Engine.cpp)
 target_include_directories(aether_dsp PUBLIC libs/aether-dsp/include)
+add_executable(AetherRender tools/RenderAudio.cpp)
+target_link_libraries(AetherRender PRIVATE aether_dsp)
 if(MSVC)
   target_compile_options(aether_dsp PRIVATE /W4 /permissive- /fp:precise)
 else()
@@ -26,18 +28,26 @@ if(JUCE_PATH AND EXISTS "${JUCE_PATH}/CMakeLists.txt")
   add_subdirectory("${JUCE_PATH}" "${CMAKE_BINARY_DIR}/juce" EXCLUDE_FROM_ALL)
 else()
   include(FetchContent)
-  FetchContent_Declare(JUCE GIT_REPOSITORY https://github.com/juce-framework/JUCE.git GIT_TAG 8.0.12 GIT_SHALLOW TRUE)
+  FetchContent_Declare(JUCE
+    URL https://codeload.github.com/juce-framework/JUCE/zip/501c07674e1ad693085a7e7c398f205c2677f5da
+    URL_HASH SHA256=66bcd380ba444da6a9bb98b7471727c542232c27647c1ec22f47158353c186dc
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
   FetchContent_MakeAvailable(JUCE)
 endif()
 function(aether_plugin target product synth code)
+  if(synth)
+    set(aether_categories Instrument Synth)
+  else()
+    set(aether_categories Fx Tools)
+  endif()
   juce_add_plugin(${target}
-    COMPANY_NAME "Aether Audio" COMPANY_WEBSITE "https://github.com/"
+    COMPANY_NAME "Aether Audio"
     BUNDLE_ID "audio.aether.${target}" PLUGIN_MANUFACTURER_CODE Aeth
     PLUGIN_CODE ${code} PRODUCT_NAME "${product}"
     IS_SYNTH ${synth} NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE FORMATS VST3 Standalone
-    VST3_CATEGORIES $<IF:$<BOOL:${synth}>,Instrument,Fx> Tools)
+    VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
     Source/Parameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
   target_include_directories(${target} PUBLIC Source)

@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 
 namespace {
@@ -161,7 +162,12 @@ void AetherAudioProcessor::setCurrentProgram(int index) { loadFactoryPreset(inde
 const juce::String AetherAudioProcessor::getProgramName(int index) { return factoryPresetNames()[juce::jlimit(0,getNumPrograms()-1,index)]; }
 void AetherAudioProcessor::getStateInformation(juce::MemoryBlock& data) {
     auto tree=state.copyState();
-    { const juce::ScopedLock lock(metadataLock); tree.setProperty("preset",presetName,nullptr); }
+    { const juce::ScopedLock lock(metadataLock);
+      tree.setProperty("preset",presetName,nullptr);
+      tree.setProperty("snapshotB",snapshotB.load(),nullptr);
+      if(snapshot.isValid()) tree.setProperty("alternateSnapshot",snapshot.toXmlString(),nullptr);
+    }
+    tree.setProperty("program",currentProgram.load(),nullptr);
     tree.setProperty("schema",1,nullptr); tree.setProperty("version","1.0.0",nullptr);
     auto xml=tree.createXml(); copyXmlToBinary(*xml,data);
 }
@@ -172,17 +178,31 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     auto tree=juce::ValueTree::fromXml(*xml);
     if(static_cast<int>(tree.getProperty("schema",1))!=1) return;
     // Merge only recognized finite values into the current canonical tree.
-    auto clean=state.copyState();
-    for(const auto& spec:aether::parameterSpecs()) {
-        auto source=tree.getChildWithProperty("id",spec.id);
-        auto dest=clean.getChildWithProperty("id",spec.id);
-        if(source.isValid() && dest.isValid()) {
-            const float value=static_cast<float>(source.getProperty("value",spec.defaultValue));
-            if(std::isfinite(value)) dest.setProperty("value",juce::jlimit(spec.minimum,spec.maximum,value),nullptr);
+    auto canonical=state.copyState();
+    auto merge=[&](const juce::ValueTree& sourceTree) {
+        auto result=canonical.createCopy();
+        for(const auto& spec:aether::parameterSpecs()) {
+            const auto source=sourceTree.getChildWithProperty("id",spec.id);
+            auto dest=result.getChildWithProperty("id",spec.id);
+            if(source.isValid() && dest.isValid()) {
+                const auto value=source.getProperty("value",spec.defaultValue).toString().trim().toStdString();
+                float number=0;
+                const auto parsed=std::from_chars(value.data(),value.data()+value.size(),number);
+                if(parsed.ec==std::errc{} && parsed.ptr==value.data()+value.size() && std::isfinite(number))
+                    dest.setProperty("value",juce::jlimit(spec.minimum,spec.maximum,number),nullptr);
+            }
         }
-    }
+        return result;
+    };
+    auto clean=merge(tree);
     state.replaceState(clean);
-    { const juce::ScopedLock lock(metadataLock); presetName=tree.getProperty("preset","Recalled state").toString().substring(0,128); }
+    { const juce::ScopedLock lock(metadataLock);
+      presetName=tree.getProperty("preset","Recalled state").toString().substring(0,128);
+      const auto alternate=juce::ValueTree::fromXml(tree.getProperty("alternateSnapshot").toString());
+      snapshot=alternate.hasType("AetherState") ? merge(alternate) : clean.createCopy();
+      snapshotB.store(static_cast<bool>(tree.getProperty("snapshotB",false)));
+    }
+    currentProgram.store(juce::jlimit(0,getNumPrograms()-1,static_cast<int>(tree.getProperty("program",0))));
     panic.store(true,std::memory_order_relaxed);
 }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new AetherAudioProcessor(); }
