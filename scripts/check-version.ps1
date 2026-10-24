@@ -99,7 +99,7 @@ foreach ($rel in $pathFiles) {
 # These are NOT silently ignored: they are printed as ALLOWED so the debt stays visible.
 $codeAllow = @(
     @{ File = 'Source/PluginProcessor.cpp'; Line = 'setProperty\("version","2\.0\.0"';
-       Reason = 'host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.' },
+       Reason = 'host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.' },
     @{ File = 'Source/PresetManager.cpp'; Line = 'setProperty\("version","2\.0\.0"';
        Reason = '.aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.' },
     @{ File = 'tools/RenderAtlas.cpp'; Line = '\\"version\\":\s*\\"2\.0\.0\\"';

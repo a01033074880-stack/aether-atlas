@@ -1,4 +1,4 @@
-# Atlas 2.0.1 验证记录
+# Atlas 2.1.0 验证记录
 
 日期：2026-10-23（Asia/Shanghai）。Windows x64；Intel Core i9-13900H，14物理核/20逻辑处理器；MSVC19.44.35229，Windows SDK10.0.26100.0，CMake4.3.2，Ninja；JUCE固定501c076（版本8.0.12），VST3元数据SDK3.8.0。
 

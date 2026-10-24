@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 — 2026-10-24
+
+- Merged Delay::read wrap fix (out-of-bounds read at buffer wrap).
+- Merged source layer (schema 3): Phase Geometry / Chaos engines, Input-gain follow, automatable seed/antialias.
+- Merged Source panel UI and state/preset fixtures; golden renders updated after the delay fix.
+- Schema 1..3 upgrade regression: archived v1 presets and v2.0.1 states load, reset source defaults, and re-save as schema 3.
+
 ## 2.0.1 — 2026-10-24
 
 - Added native Atlas editor zoom control with 50%, 75% and 100% scales.
