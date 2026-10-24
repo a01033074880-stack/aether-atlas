@@ -1,0 +1,12 @@
+# strict-runs postfix-highload-24spinners start 2026-10-24 22:53:41 Asia/Shanghai exe=C:\Users\24168\Documents\Projects\wt-fixfix\build-fixfix\AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe built=10/24/2026 22:03:39 N=10 spinners=24 AETHER_STRICT_RENDER_DETERMINISM=1
+run 1 exit=0 PASS cpu_before=100% secs=111 RESULT 9 tests passed, 0 failed 
+run 2 exit=0 PASS cpu_before=100% secs=98 RESULT 9 tests passed, 0 failed 
+run 3 exit=0 PASS cpu_before=100% secs=104 RESULT 9 tests passed, 0 failed 
+run 4 exit=0 PASS cpu_before=100% secs=113 RESULT 9 tests passed, 0 failed 
+run 5 exit=0 PASS cpu_before=100% secs=103 RESULT 9 tests passed, 0 failed 
+run 6 exit=0 PASS cpu_before=100% secs=95 RESULT 9 tests passed, 0 failed 
+run 7 exit=0 PASS cpu_before=100% secs=87 RESULT 9 tests passed, 0 failed 
+run 8 exit=0 PASS cpu_before=100% secs=114 RESULT 9 tests passed, 0 failed 
+run 9 exit=0 PASS cpu_before=100% secs=109 RESULT 9 tests passed, 0 failed 
+run 10 exit=0 PASS cpu_before=100% secs=90 RESULT 9 tests passed, 0 failed 
+# strict-runs postfix-highload-24spinners end 2026-10-24 23:12:06 SUMMARY processes=10 pass=10 fail=0 spinners=24
