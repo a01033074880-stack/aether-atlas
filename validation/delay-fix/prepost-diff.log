@@ -1,0 +1,23 @@
+# prepost 2026-10-24 22:28:51 Asia/Shanghai pre=C:\Users\24168\Documents\Projects\wt-fixfix-pre\build-fixfix\AetherReproTool_artefacts\Release\AetherReproTool.exe post=C:\Users\24168\Documents\Projects\wt-fixfix\build-fixfix\AetherReproTool_artefacts\Release\AetherReproTool.exe (fill 0x00, block 256, 96000 frames @48k)
+== factory-00 pre:[sha=d8a196988aa2] post:[sha=d8a196988aa2]
+factory-00 | L: identical | R: identical
+== factory-05 pre:[sha=fcf252d2a277] post:[sha=fcf252d2a277]
+factory-05 | L: identical | R: identical
+== factory-11 pre:[sha=11d68b8d631f] post:[sha=11d68b8d631f]
+factory-11 | L: identical | R: identical
+== factory-12 pre:[sha=624b2a0f767d] post:[sha=808be82f22b4]
+factory-12 | L: first_diff=5376 old=-0.130574346 new=-0.130576074 |d|=1.73e-06; max|d| in [first,first+256)=1.73e-06; in [first,first+4800)=1.73e-06; overall max|d|=0.000349 (at 55312); n_diff=76097/96000; peak(old)=0.1757; rms|d| first 4800 = 3.86e-08; rms|d| whole = 4.02e-06 | R: first_diff=5376 old=-0.0768053979 new=-0.0768071115 |d|=1.71e-06; max|d| in [first,first+256)=1.71e-06; in [first,first+4800)=1.71e-06; overall max|d|=0.000346 (at 55312); n_diff=75995/96000; peak(old)=0.1916; rms|d| first 4800 = 3.8e-08; rms|d| whole = 4.05e-06
+== factory-20 pre:[sha=b0ab84fe128c] post:[sha=a6c88885baba]
+factory-20 | L: first_diff=5376 old=-0.092019245 new=-0.0920211449 |d|=1.9e-06; max|d| in [first,first+256)=1.9e-06; in [first,first+4800)=1.9e-06; overall max|d|=0.000253 (at 67796); n_diff=79223/96000; peak(old)=0.129; rms|d| first 4800 = 4.26e-08; rms|d| whole = 3.33e-06 | R: first_diff=5376 old=-0.0260479301 new=-0.0260499418 |d|=2.01e-06; max|d| in [first,first+256)=2.01e-06; in [first,first+4800)=2.01e-06; overall max|d|=0.000261 (at 67796); n_diff=79353/96000; peak(old)=0.1414; rms|d| first 4800 = 4.71e-08; rms|d| whole = 3.36e-06
+== factory-35 pre:[sha=561d678bb008] post:[sha=94d8433b055c]
+factory-35 | L: first_diff=5376 old=-0.0933026299 new=-0.0933050066 |d|=2.38e-06; max|d| in [first,first+256)=2.38e-06; in [first,first+4800)=2.38e-06; overall max|d|=0.000825 (at 55312); n_diff=75287/96000; peak(old)=0.1435; rms|d| first 4800 = 3.94e-08; rms|d| whole = 7.39e-06 | R: first_diff=5376 old=-0.0476070121 new=-0.0476093888 |d|=2.38e-06; max|d| in [first,first+256)=2.38e-06; in [first,first+4800)=2.38e-06; overall max|d|=0.000825 (at 55312); n_diff=75274/96000; peak(old)=0.148; rms|d| first 4800 = 3.94e-08; rms|d| whole = 7.44e-06
+== ab-snapshot-b pre:[sha=812c3d12b504] post:[sha=4fa53a65320d]
+ab-snapshot-b | L: first_diff=5376 old=-0.139627069 new=-0.139628023 |d|=9.54e-07; max|d| in [first,first+256)=9.54e-07; in [first,first+4800)=9.54e-07; overall max|d|=0.000126 (at 67796); n_diff=75070/96000; peak(old)=0.1889; rms|d| first 4800 = 2.13e-08; rms|d| whole = 1.66e-06 | R: first_diff=5376 old=-0.0444100946 new=-0.0444111079 |d|=1.01e-06; max|d| in [first,first+256)=1.01e-06; in [first,first+4800)=1.01e-06; overall max|d|=0.00013 (at 67796); n_diff=75220/96000; peak(old)=0.1955; rms|d| first 4800 = 2.36e-08; rms|d| whole = 1.68e-06
+== custom-graph-fm pre:[sha=d2014e17dbb7] post:[sha=69230a87f965]
+custom-graph-fm | L: first_diff=17860 old=-0.0764434338 new=-0.0761518478 |d|=0.000292; max|d| in [first,first+256)=0.000292; in [first,first+4800)=0.000292; overall max|d|=0.000593 (at 30344); n_diff=77470/96000; peak(old)=0.1585; rms|d| first 4800 = 4.58e-06; rms|d| whole = 3.38e-06 | R: first_diff=17860 old=-0.0592254251 new=-0.0589338392 |d|=0.000292; max|d| in [first,first+256)=0.000292; in [first,first+4800)=0.000292; overall max|d|=0.000593 (at 30344); n_diff=77479/96000; peak(old)=0.1087; rms|d| first 4800 = 4.58e-06; rms|d| whole = 3.39e-06
+== default pre:[sha=0a32225b3487] post:[sha=01aa995e0a3a]
+default | L: first_diff=5376 old=-0.177658081 new=-0.177663416 |d|=5.33e-06; max|d| in [first,first+256)=5.33e-06; in [first,first+4800)=5.33e-06; overall max|d|=0.0014 (at 92764); n_diff=75899/96000; peak(old)=0.2332; rms|d| first 4800 = 8.85e-08; rms|d| whole = 7.95e-06 | R: first_diff=5376 old=-0.114197671 new=-0.114203006 |d|=5.33e-06; max|d| in [first,first+256)=5.33e-06; in [first,first+4800)=5.33e-06; overall max|d|=0.0014 (at 92764); n_diff=75857/96000; peak(old)=0.2488; rms|d| first 4800 = 8.85e-08; rms|d| whole = 8e-06
+== Gentle Orbit pre:[sha=d8a196988aa2] post:[sha=d8a196988aa2]
+Gentle Orbit | L: identical | R: identical
+== Clean Canvas pre:[sha=89c9fd642b8b] post:[sha=89c9fd642b8b]
+Clean Canvas | L: identical | R: identical

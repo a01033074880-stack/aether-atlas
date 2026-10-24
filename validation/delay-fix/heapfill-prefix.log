@@ -1,0 +1,95 @@
+# heapfill-regress prefix-f688c6d start 2026-10-24 22:25:26 Asia/Shanghai exe=C:\Users\24168\Documents\Projects\wt-fixfix-pre\build-fixfix\AetherReproTool_artefacts\Release\AetherReproTool.exe built=10/24/2026 22:20:18
+== factory-12 baseline(fill 0x00, block 256) sha=624b2a0f767d ; no-fill-env run: sha=624b2a0f767d (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=13fabae06038 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.118507 ndiff=181248 maxdiff=0.0470156 at=84698
+   DIFF fill=ff free=1 seed=0 block=256 sha=13fabae06038 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.118507 ndiff=181248 maxdiff=0.0470156 at=84698
+   DIFF fill=cd free=0 seed=0 block=256 sha=f116e375a439 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs 0.676397 ndiff=170490 maxdiff=0.836615 at=30361
+   DIFF fill=cd free=1 seed=0 block=256 sha=f116e375a439 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs 0.676397 ndiff=170490 maxdiff=0.836615 at=30361
+   DIFF fill=rand free=0 seed=0 block=256 sha=a1bc3820ccfa : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.912427 ndiff=174207 maxdiff=0.854502 at=80301
+   DIFF fill=rand free=1 seed=0 block=256 sha=d64771f52ec1 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs 0.676397 ndiff=174521 maxdiff=0.83948 at=92813
+   DIFF fill=rand free=0 seed=1 block=256 sha=78617573dcec : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.912427 ndiff=173210 maxdiff=0.852672 at=17917
+   DIFF fill=rand free=1 seed=1 block=256 sha=b49bc15c06c6 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.130574 ndiff=20924 maxdiff=1.04308e-07 at=5376
+   DIFF fill=rand free=0 seed=2 block=256 sha=22dfd2100ce4 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.912427 ndiff=171484 maxdiff=0.83819 at=30357
+   DIFF fill=rand free=1 seed=3 block=256 sha=fc156ce49df5 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs 0.676397 ndiff=174550 maxdiff=0.840214 at=92813
+   DIFF fill=ff free=0 seed=0 block=17 sha=13fabae06038 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.118507 ndiff=181248 maxdiff=0.0470156 at=84698
+   DIFF fill=ff free=0 seed=0 block=257 sha=13fabae06038 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.118507 ndiff=181248 maxdiff=0.0470156 at=84698
+   DIFF fill=ff free=0 seed=0 block=1000 sha=13fabae06038 : cmp: DIFF first=5376 (112 ms) ch=L values -0.130574 vs -0.118507 ndiff=181248 maxdiff=0.0470156 at=84698
+factory-12 SUMMARY runs=18 differ_from_baseline=13 distinct_hashes=9
+== ab-snapshot-b baseline(fill 0x00, block 256) sha=812c3d12b504 ; no-fill-env run: sha=812c3d12b504 (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=e6a42fb94083 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.132621 ndiff=181248 maxdiff=0.0264951 at=9857
+   DIFF fill=ff free=1 seed=0 block=256 sha=e6a42fb94083 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.132621 ndiff=181248 maxdiff=0.0264951 at=9857
+   DIFF fill=cd free=0 seed=0 block=256 sha=74b18315bcfc : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs 0.142069 ndiff=176428 maxdiff=0.292306 at=30361
+   DIFF fill=cd free=1 seed=0 block=256 sha=74b18315bcfc : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs 0.142069 ndiff=176428 maxdiff=0.292306 at=30361
+   DIFF fill=rand free=0 seed=1 block=256 sha=37c474480691 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs 0.142069 ndiff=175786 maxdiff=0.289352 at=17862
+   DIFF fill=rand free=1 seed=1 block=256 sha=893834cac30b : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs 0.142069 ndiff=179469 maxdiff=0.352283 at=55377
+   DIFF fill=rand free=0 seed=2 block=256 sha=ab40d022a3ec : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.406646 ndiff=179024 maxdiff=0.348686 at=55395
+   DIFF fill=rand free=1 seed=2 block=256 sha=56123a7832fe : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.406646 ndiff=177036 maxdiff=0.294508 at=30370
+   DIFF fill=rand free=0 seed=3 block=256 sha=ec8b6d640662 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.139627 ndiff=19594 maxdiff=9.68575e-08 at=55312
+   DIFF fill=rand free=1 seed=3 block=256 sha=1aab7b9f5794 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs 0.142069 ndiff=179525 maxdiff=0.352521 at=55377
+   DIFF fill=ff free=0 seed=0 block=17 sha=e6a42fb94083 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.132621 ndiff=181248 maxdiff=0.0264951 at=9857
+   DIFF fill=ff free=0 seed=0 block=257 sha=e6a42fb94083 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.132621 ndiff=181248 maxdiff=0.0264951 at=9857
+   DIFF fill=ff free=0 seed=0 block=1000 sha=e6a42fb94083 : cmp: DIFF first=5376 (112 ms) ch=L values -0.139627 vs -0.132621 ndiff=181248 maxdiff=0.0264951 at=9857
+ab-snapshot-b SUMMARY runs=18 differ_from_baseline=13 distinct_hashes=9
+== custom-graph-fm baseline(fill 0x00, block 256) sha=d2014e17dbb7 ; no-fill-env run: sha=d2014e17dbb7 (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=dcaaa5498986 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0 ndiff=181248 maxdiff=0.158545 at=15305
+   DIFF fill=ff free=1 seed=0 block=256 sha=dcaaa5498986 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0 ndiff=181248 maxdiff=0.158545 at=15305
+   DIFF fill=cd free=0 seed=0 block=256 sha=9eeb0291a512 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0.966051 ndiff=181248 maxdiff=1.10383 at=17870
+   DIFF fill=cd free=1 seed=0 block=256 sha=9eeb0291a512 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0.966051 ndiff=181248 maxdiff=1.10383 at=17870
+   DIFF fill=rand free=0 seed=0 block=256 sha=bd19eea03df0 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs -0.966051 ndiff=181248 maxdiff=1.10342 at=17888
+   DIFF fill=rand free=1 seed=0 block=256 sha=f3d678e512ff : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs -0.0254336 ndiff=121424 maxdiff=1.6205e-07 at=42828
+   DIFF fill=rand free=0 seed=1 block=256 sha=e7fec9d3612a : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0.966051 ndiff=181248 maxdiff=1.10383 at=17870
+   DIFF fill=rand free=1 seed=2 block=256 sha=a802f1391bc3 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0.966051 ndiff=181248 maxdiff=1.0502 at=17861
+   DIFF fill=rand free=1 seed=3 block=256 sha=c890ca1925d5 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs -0.966051 ndiff=181248 maxdiff=1.10342 at=17888
+   DIFF fill=ff free=0 seed=0 block=17 sha=dcaaa5498986 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0 ndiff=181248 maxdiff=0.158545 at=15305
+   DIFF fill=ff free=0 seed=0 block=257 sha=dcaaa5498986 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0 ndiff=181248 maxdiff=0.158545 at=15305
+   DIFF fill=ff free=0 seed=0 block=1000 sha=dcaaa5498986 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0254334 vs 0 ndiff=181248 maxdiff=0.158545 at=15305
+custom-graph-fm SUMMARY runs=18 differ_from_baseline=12 distinct_hashes=8
+== default baseline(fill 0x00, block 256) sha=0a32225b3487 ; no-fill-env run: sha=0a32225b3487 (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=0dd5af65efdd : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0 ndiff=181248 maxdiff=0.24876 at=8472
+   DIFF fill=ff free=1 seed=0 block=256 sha=0dd5af65efdd : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0 ndiff=181248 maxdiff=0.24876 at=8472
+   DIFF fill=cd free=0 seed=0 block=256 sha=a095a9bb28ce : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18429 at=30360
+   DIFF fill=cd free=1 seed=0 block=256 sha=a095a9bb28ce : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18429 at=30360
+   DIFF fill=rand free=1 seed=0 block=256 sha=f369b624a49a : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18925 at=30364
+   DIFF fill=rand free=0 seed=1 block=256 sha=e4a61029697e : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18925 at=30364
+   DIFF fill=rand free=1 seed=1 block=256 sha=53db7cc8cf40 : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs -0.966051 ndiff=181248 maxdiff=1.19787 at=5419
+   DIFF fill=rand free=0 seed=2 block=256 sha=cfd335f43a5d : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18925 at=30364
+   DIFF fill=rand free=1 seed=2 block=256 sha=7530a462a63a : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18531 at=30361
+   DIFF fill=rand free=0 seed=3 block=256 sha=e548ded45cfa : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18925 at=30364
+   DIFF fill=rand free=1 seed=3 block=256 sha=017e0574a285 : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0.966051 ndiff=181248 maxdiff=1.18531 at=30361
+   DIFF fill=ff free=0 seed=0 block=17 sha=0dd5af65efdd : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0 ndiff=181248 maxdiff=0.24876 at=8472
+   DIFF fill=ff free=0 seed=0 block=257 sha=0dd5af65efdd : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0 ndiff=181248 maxdiff=0.24876 at=8472
+   DIFF fill=ff free=0 seed=0 block=1000 sha=0dd5af65efdd : cmp: DIFF first=5376 (112 ms) ch=L values -0.177658 vs 0 ndiff=181248 maxdiff=0.24876 at=8472
+default SUMMARY runs=18 differ_from_baseline=14 distinct_hashes=10
+== factory-20 baseline(fill 0x00, block 256) sha=b0ab84fe128c ; no-fill-env run: sha=b0ab84fe128c (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=c382452dead2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0780068 ndiff=181248 maxdiff=0.0529902 at=9857
+   DIFF fill=ff free=1 seed=0 block=256 sha=c382452dead2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0780068 ndiff=181248 maxdiff=0.0529902 at=9857
+   DIFF fill=cd free=0 seed=0 block=256 sha=f238294e1fb4 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs 0.471374 ndiff=176564 maxdiff=0.584612 at=30361
+   DIFF fill=cd free=1 seed=0 block=256 sha=f238294e1fb4 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs 0.471374 ndiff=176564 maxdiff=0.584612 at=30361
+   DIFF fill=rand free=0 seed=0 block=256 sha=e948d819faf9 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.231402 ndiff=174223 maxdiff=0.148303 at=42828
+   DIFF fill=rand free=1 seed=0 block=256 sha=00bb6079845b : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.626058 ndiff=179090 maxdiff=0.695197 at=55391
+   DIFF fill=rand free=0 seed=1 block=256 sha=3f631bdb5e16 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.626058 ndiff=177272 maxdiff=0.589766 at=30357
+   DIFF fill=rand free=0 seed=2 block=256 sha=40d625c275fe : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.626058 ndiff=178825 maxdiff=0.685107 at=55379
+   DIFF fill=rand free=1 seed=2 block=256 sha=1ba0c7389fba : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0920876 ndiff=168750 maxdiff=7.23191e-05 at=80280
+   DIFF fill=rand free=0 seed=3 block=256 sha=1e5f7da9ac06 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs 0.471374 ndiff=177503 maxdiff=0.591452 at=30375
+   DIFF fill=rand free=1 seed=3 block=256 sha=5f09cec07a2f : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0882155 ndiff=172635 maxdiff=0.00398485 at=80280
+   DIFF fill=ff free=0 seed=0 block=17 sha=c382452dead2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0780068 ndiff=181248 maxdiff=0.0529902 at=9857
+   DIFF fill=ff free=0 seed=0 block=257 sha=c382452dead2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0780068 ndiff=181248 maxdiff=0.0529902 at=9857
+   DIFF fill=ff free=0 seed=0 block=1000 sha=c382452dead2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0920192 vs -0.0780068 ndiff=181248 maxdiff=0.0529902 at=9857
+factory-20 SUMMARY runs=18 differ_from_baseline=14 distinct_hashes=10
+== factory-35 baseline(fill 0x00, block 256) sha=561d678bb008 ; no-fill-env run: sha=561d678bb008 (same=True)
+   DIFF fill=ff free=0 seed=0 block=256 sha=f8fb6a4e7762 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.0600613 ndiff=181248 maxdiff=0.0597339 at=56343
+   DIFF fill=ff free=1 seed=0 block=256 sha=f8fb6a4e7762 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.0600613 ndiff=181248 maxdiff=0.0597339 at=56343
+   DIFF fill=cd free=0 seed=0 block=256 sha=83d30f5a3575 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs 0.94054 ndiff=181248 maxdiff=1.05933 at=17862
+   DIFF fill=cd free=1 seed=0 block=256 sha=83d30f5a3575 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs 0.94054 ndiff=181248 maxdiff=1.05933 at=17862
+   DIFF fill=rand free=0 seed=0 block=256 sha=1d6121339cd2 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.464892 ndiff=166274 maxdiff=0.371596 at=17860
+   DIFF fill=rand free=1 seed=0 block=256 sha=f9ae70d0f1c4 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.966051 ndiff=181248 maxdiff=1.04668 at=42829
+   DIFF fill=rand free=0 seed=1 block=256 sha=0d6c88225bb6 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs 0.94054 ndiff=181248 maxdiff=1.05933 at=17862
+   DIFF fill=rand free=1 seed=1 block=256 sha=bd705ac40701 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.966051 ndiff=181248 maxdiff=1.04668 at=42829
+   DIFF fill=rand free=0 seed=2 block=256 sha=9a2dd1756862 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.966051 ndiff=181248 maxdiff=1.04668 at=42829
+   DIFF fill=rand free=1 seed=3 block=256 sha=9858d1c0cd48 : cmp: DIFF first=10145 (211.354 ms) ch=R values -0.0884485 vs -0.0884485 ndiff=13589 maxdiff=2.98023e-08 at=28330
+   DIFF fill=ff free=0 seed=0 block=17 sha=f8fb6a4e7762 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.0600613 ndiff=181248 maxdiff=0.0597339 at=56343
+   DIFF fill=ff free=0 seed=0 block=257 sha=f8fb6a4e7762 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.0600613 ndiff=181248 maxdiff=0.0597339 at=56343
+   DIFF fill=ff free=0 seed=0 block=1000 sha=f8fb6a4e7762 : cmp: DIFF first=5376 (112 ms) ch=L values -0.0933026 vs -0.0600613 ndiff=181248 maxdiff=0.0597339 at=56343
+factory-35 SUMMARY runs=18 differ_from_baseline=13 distinct_hashes=9
+== factory-00 baseline(fill 0x00, block 256) sha=d8a196988aa2 ; no-fill-env run: sha=d8a196988aa2 (same=True)
+factory-00 SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+# heapfill-regress prefix-f688c6d end 2026-10-24 22:27:23 TOTAL runs=126 differ_from_baseline=79
