@@ -1,0 +1,20 @@
+﻿# ctest --test-dir build-fx -C Release --output-on-failure
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:32:39 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+Test project C:/Users/24168/Documents/Projects/wt-fixtures/build-fx
+    Start 1: aether_dsp
+1/5 Test #1: aether_dsp .......................   Passed    2.24 sec
+    Start 2: aether_fm
+2/5 Test #2: aether_fm ........................   Passed   35.65 sec
+    Start 3: aether_modular
+3/5 Test #3: aether_modular ...................   Passed   11.64 sec
+    Start 4: aether_plugin
+4/5 Test #4: aether_plugin ....................   Passed    1.46 sec
+    Start 5: aether_fixtures
+5/5 Test #5: aether_fixtures ..................   Passed   48.83 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  99.85 sec
+CTEST_EXIT=0

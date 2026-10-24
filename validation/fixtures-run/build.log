@@ -1,0 +1,8 @@
+﻿# cmake --build build-fx --config Release --parallel 4 (all targets, incremental over build-fx)
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:24:50 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+[0/2] Re-checking globbed directories...
+[1/3] Building CXX object CMakeFiles\AetherFixtureTests.dir\tests\FixtureTests.cpp.obj
+[2/3] Linking CXX executable AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe
+BUILD_EXIT=0

@@ -1,0 +1,26 @@
+﻿# AetherFixtureTests --generate-golden x2 (cross-process determinism)
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:24:57 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+exit1=0 exit2=0 identical_files=True
+golden preset-v1.0.0:Clean Canvas sha256=89c9fd642b8b76edb27fe0df210cdd618ab40fdb2d04ed9e0145761874f8e56e rms=0.140222
+golden preset-v1.0.0:Copper Strings sha256=11d68b8d631f858361712c2a8a70c78a01888ee9448e5c2d7940347b825d4557 rms=0.0691777
+golden preset-v1.0.0:Ember Guitar sha256=892c94c78bd899cff58dbbc316a86c7524fe81298ba336ddb3d05ba9e80ca38c rms=0.652086
+golden preset-v1.0.0:Gentle Orbit sha256=d8a196988aa22736d9e7a61911f1c248282ea5bc25686a06ff4dc5412d9c7066 rms=0.118738
+golden preset-v1.0.0:Glass Resonator sha256=f88e8dc15040c446a2f9e787329916fa812b06877036e6dad2eaf0a72078248f rms=0.104933
+golden preset-v1.0.0:Iron Drum Room sha256=fcf252d2a277dfb363c6b4886b5fc68930a385b1e68d0dd7fdb84ab375e23563 rms=0.277051
+golden preset-v1.0.0:Nebula Drift sha256=31951552e87d1a0ce0091016cd00963953d96078562228c894ddc08b9049f6e0 rms=0.0341772
+golden preset-v1.0.0:Prism Keys sha256=6fcabec6f7d37a2c4d127936340fafd9a6fb12b6400cfca25a52384fb6ce4723 rms=0.0628259
+golden preset-v1.0.0:Resynth Halo sha256=3e9c0091b9d6ce72d09e4a5cb953c7c5e3042e2156650e7c3b047fdd4e39d01c rms=0.206222
+golden preset-v1.0.0:Vocal Silhouette sha256=64360212eb3d688706e5ce3891dedd7cdeb665664e0f757aa326fc5a8df506d1 rms=0.15584
+golden preset-v1.0.0:Warm Console sha256=d49ae3bfca43842970728e7613d9ac8914bebdb2ea514223a62ea1bbe14f5d20 rms=0.351498
+golden preset-v1.0.0:Wooden Echoes sha256=1b5513aa943ab3ace140ac3175ad8293a54c071e43cc0dfeac7eaf579b77e01c rms=0.0676368
+golden state-v2.0.1:ab-snapshot-b sha256=812c3d12b5046decff32f81c301736193e5dacc8ecd98a9d1ca9ba0104450221 rms=0.103844
+golden state-v2.0.1:custom-graph-fm sha256=d2014e17dbb7472e5715259292b67e7bc0dcdb70954ddc3f7d18495ef254f0d5 rms=0.0311329
+golden state-v2.0.1:default sha256=0a32225b3487e85008474cc46ad67e65f4848b5d340895fe8ebce07a2c186b03 rms=0.125596
+golden state-v2.0.1:factory-00-Gentle-Orbit sha256=d8a196988aa22736d9e7a61911f1c248282ea5bc25686a06ff4dc5412d9c7066 rms=0.118738
+golden state-v2.0.1:factory-05-Iron-Drum-Room sha256=fcf252d2a277dfb363c6b4886b5fc68930a385b1e68d0dd7fdb84ab375e23563 rms=0.277051
+golden state-v2.0.1:factory-11-Copper-Strings sha256=11d68b8d631f858361712c2a8a70c78a01888ee9448e5c2d7940347b825d4557 rms=0.0691777
+golden state-v2.0.1:factory-12-Atlas---Suspended-Paper sha256=624b2a0f767dbd136b76d71b231b6c8b993797ee92ee3131a123d003056bb088 rms=0.0960693
+golden state-v2.0.1:factory-20-Atlas---Frozen-Architecture sha256=b0ab84fe128cbbf0e98a542c286ae2cab80b85b5eea0efc803dc0884015fe8e4 rms=0.0647581
+golden state-v2.0.1:factory-35-Motion---Stochastic-Room sha256=561d678bb0088dab880648203df078d2cf84463168ba90398d463d17f382a049 rms=0.074644

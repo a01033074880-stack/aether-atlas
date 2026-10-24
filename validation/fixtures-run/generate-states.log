@@ -1,0 +1,33 @@
+﻿# AetherFixtureTests --generate-states x2 (cross-process determinism, vs committed)
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:24:51 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+exit1=0 exit2=0
+state default 55383 bytes
+state factory-00-Gentle-Orbit 55383 bytes
+state factory-05-Iron-Drum-Room 55387 bytes
+state factory-11-Copper-Strings 55417 bytes
+state factory-12-Atlas---Suspended-Paper 55215 bytes
+state factory-20-Atlas---Frozen-Architecture 55161 bytes
+state factory-35-Motion---Stochastic-Room 55319 bytes
+state custom-graph-fm 55421 bytes
+state ab-snapshot-b 54980 bytes
+ab-snapshot-b.bin regen==regen2:True regen==committed:True
+ab-snapshot-b.xml regen==regen2:True regen==committed:True
+custom-graph-fm.bin regen==regen2:True regen==committed:True
+custom-graph-fm.xml regen==regen2:True regen==committed:True
+default.bin regen==regen2:True regen==committed:True
+default.xml regen==regen2:True regen==committed:True
+factory-00-Gentle-Orbit.bin regen==regen2:True regen==committed:True
+factory-00-Gentle-Orbit.xml regen==regen2:True regen==committed:True
+factory-05-Iron-Drum-Room.bin regen==regen2:True regen==committed:True
+factory-05-Iron-Drum-Room.xml regen==regen2:True regen==committed:True
+factory-11-Copper-Strings.bin regen==regen2:True regen==committed:True
+factory-11-Copper-Strings.xml regen==regen2:True regen==committed:True
+factory-12-Atlas---Suspended-Paper.bin regen==regen2:True regen==committed:True
+factory-12-Atlas---Suspended-Paper.xml regen==regen2:True regen==committed:True
+factory-20-Atlas---Frozen-Architecture.bin regen==regen2:True regen==committed:True
+factory-20-Atlas---Frozen-Architecture.xml regen==regen2:True regen==committed:True
+factory-35-Motion---Stochastic-Room.bin regen==regen2:True regen==committed:True
+factory-35-Motion---Stochastic-Room.xml regen==regen2:True regen==committed:True
+files regen: 18 committed: 18

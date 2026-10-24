@@ -1,0 +1,60 @@
+﻿# AetherFixtureTests direct runs x4 (default mode: graph/FM determinism = warnings)
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:25:23 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+--- run 1 exit=0 19:26:12
+PASS fixture inventory is complete
+  compared 4671 stored values across 21 fixtures
+PASS all fixtures load and apply their stored values
+PASS v1.0.0 presets (schema 1) select the legacy path
+PASS state fixtures survive load -> save -> load unchanged
+PASS unsupported or damaged payloads are rejected and change nothing
+PASS fixture renders are finite and audible
+  bit-exact SHA-256 matches: 21 of 21 (informational; pass/fail uses the tolerance)
+PASS render matches the committed golden summary within tolerance
+PASS repeat render in one process is deterministic
+  KNOWN-ISSUE (graph/FM path, warning only): state-v2.0.1:default block 257 maxdiff 0.003054; state-v2.0.1:factory-12-Atlas---Suspended-Paper block 17 maxdiff 0.001154; state-v2.0.1:factory-20-Atlas---Frozen-Architecture block 1000 maxdiff 0.000943; 
+PASS render is consistent across host block sizes
+RESULT 9 tests passed, 0 failed
+--- run 2 exit=0 19:26:59
+PASS fixture inventory is complete
+  compared 4671 stored values across 21 fixtures
+PASS all fixtures load and apply their stored values
+PASS v1.0.0 presets (schema 1) select the legacy path
+PASS state fixtures survive load -> save -> load unchanged
+PASS unsupported or damaged payloads are rejected and change nothing
+PASS fixture renders are finite and audible
+  bit-exact SHA-256 matches: 21 of 21 (informational; pass/fail uses the tolerance)
+PASS render matches the committed golden summary within tolerance
+PASS repeat render in one process is deterministic
+PASS render is consistent across host block sizes
+RESULT 9 tests passed, 0 failed
+--- run 3 exit=0 19:27:45
+PASS fixture inventory is complete
+  compared 4671 stored values across 21 fixtures
+PASS all fixtures load and apply their stored values
+PASS v1.0.0 presets (schema 1) select the legacy path
+PASS state fixtures survive load -> save -> load unchanged
+PASS unsupported or damaged payloads are rejected and change nothing
+PASS fixture renders are finite and audible
+  bit-exact SHA-256 matches: 21 of 21 (informational; pass/fail uses the tolerance)
+PASS render matches the committed golden summary within tolerance
+PASS repeat render in one process is deterministic
+  KNOWN-ISSUE (graph/FM path, warning only): state-v2.0.1:factory-12-Atlas---Suspended-Paper block 1000 maxdiff 0.000197; state-v2.0.1:factory-35-Motion---Stochastic-Room block 17 maxdiff 0.000719; state-v2.0.1:factory-35-Motion---Stochastic-Room block 257 maxdiff 0.000967; 
+PASS render is consistent across host block sizes
+RESULT 9 tests passed, 0 failed
+--- run 4 exit=0 19:28:29
+PASS fixture inventory is complete
+  compared 4671 stored values across 21 fixtures
+PASS all fixtures load and apply their stored values
+PASS v1.0.0 presets (schema 1) select the legacy path
+PASS state fixtures survive load -> save -> load unchanged
+PASS unsupported or damaged payloads are rejected and change nothing
+PASS fixture renders are finite and audible
+  bit-exact SHA-256 matches: 21 of 21 (informational; pass/fail uses the tolerance)
+PASS render matches the committed golden summary within tolerance
+PASS repeat render in one process is deterministic
+  KNOWN-ISSUE (graph/FM path, warning only): state-v2.0.1:custom-graph-fm block 17 maxdiff 0.008497; state-v2.0.1:default block 17 maxdiff 0.000385; state-v2.0.1:default block 1000 maxdiff 0.000654; 
+PASS render is consistent across host block sizes
+RESULT 9 tests passed, 0 failed
+

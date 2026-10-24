@@ -1,0 +1,85 @@
+﻿poison preset-v1.0.0:Clean Canvas fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Clean Canvas fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Clean Canvas fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Clean Canvas fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Copper Strings fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Copper Strings fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Copper Strings fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Copper Strings fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Ember Guitar fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Ember Guitar fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Ember Guitar fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Ember Guitar fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Gentle Orbit fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Gentle Orbit fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Gentle Orbit fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Gentle Orbit fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Glass Resonator fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Glass Resonator fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Glass Resonator fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Glass Resonator fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Iron Drum Room fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Iron Drum Room fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Iron Drum Room fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Iron Drum Room fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Nebula Drift fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Nebula Drift fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Nebula Drift fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Nebula Drift fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Prism Keys fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Prism Keys fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Prism Keys fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Prism Keys fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Resynth Halo fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Resynth Halo fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Resynth Halo fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Resynth Halo fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Vocal Silhouette fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Vocal Silhouette fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Vocal Silhouette fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Vocal Silhouette fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Warm Console fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Warm Console fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Warm Console fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Warm Console fill 0x3c maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Wooden Echoes fill 0xcd maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Wooden Echoes fill 0x7f maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Wooden Echoes fill 0xff maxdiff vs fill 0x00: 0
+poison preset-v1.0.0:Wooden Echoes fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:ab-snapshot-b fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:ab-snapshot-b fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:ab-snapshot-b fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:ab-snapshot-b fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:custom-graph-fm fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:custom-graph-fm fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:custom-graph-fm fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:custom-graph-fm fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:default fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:default fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:default fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:default fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-00-Gentle-Orbit fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-00-Gentle-Orbit fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-00-Gentle-Orbit fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-00-Gentle-Orbit fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-05-Iron-Drum-Room fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-05-Iron-Drum-Room fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-05-Iron-Drum-Room fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-05-Iron-Drum-Room fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-11-Copper-Strings fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-11-Copper-Strings fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-11-Copper-Strings fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-11-Copper-Strings fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-12-Atlas---Suspended-Paper fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-12-Atlas---Suspended-Paper fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-12-Atlas---Suspended-Paper fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-12-Atlas---Suspended-Paper fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-20-Atlas---Frozen-Architecture fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-20-Atlas---Frozen-Architecture fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-20-Atlas---Frozen-Architecture fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-20-Atlas---Frozen-Architecture fill 0x3c maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-35-Motion---Stochastic-Room fill 0xcd maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-35-Motion---Stochastic-Room fill 0x7f maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-35-Motion---Stochastic-Room fill 0xff maxdiff vs fill 0x00: 0
+poison state-v2.0.1:factory-35-Motion---Stochastic-Room fill 0x3c maxdiff vs fill 0x00: 0
+poison: 84 renders compared, 0 differed
