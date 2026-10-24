@@ -319,6 +319,35 @@ int main(int argc,char** argv) {
             require(editor->getWidth()==1440 && editor->getHeight()==900,"100 percent zoom size incorrect");
             capture("Atlas-zoom-100.png");
         });
+        test("Atlas content fits the window at minimum, default and maximum sizes",[&] {
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+            const int sizes[][2]={{1180,780},{1440,900},{2200,1500},{1180,1500},{2200,780}};
+            for(int workspace=0;workspace<4;++workspace) for(const auto& size:sizes) {
+                editor->setMinimalMode(workspace==3);if(workspace<3)editor->setWorkspace(workspace);editor->setSize(size[0],size[1]);
+                const float fit=std::min(float(size[0])/1440.f,float(size[1])/900.f);
+                require(std::abs(content->getTransform().getScaleFactor()-fit)<0.001f,"content scale is not the fit scale");
+                require(content->getWidth()>=1440 && content->getHeight()>=900,"logical canvas smaller than 1440x900");
+                const auto shown=content->getBoundsInParent().toFloat();
+                require(shown.getX()<=0.01f && shown.getY()<=0.01f && shown.getRight()>=float(size[0])-1.01f && shown.getBottom()>=float(size[1])-1.01f,"content does not cover the editor");
+                require(shown.getRight()<=float(size[0])+1.01f && shown.getBottom()<=float(size[1])+1.01f,"content overflows the editor and would be clipped");
+                for(auto* child:content->getChildren()) if(child->isVisible())
+                    require(content->getLocalBounds().contains(child->getBounds()),"visible Atlas control lies outside the content area");
+            }
+            editor->setMinimalMode(false);editor->setWorkspace(0);
+        });
+        test("Atlas zoom presets keep content scale equal to the zoom",[&] {
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+            const std::pair<const char*,float> zooms[]={{"zoom.50",.5f},{"zoom.75",.75f},{"zoom.100",1.f}};
+            for(const auto& [action,scale]:zooms) {
+                require(editor->performUiAction(action),"zoom action missing");
+                require(std::abs(content->getTransform().getScaleFactor()-scale)<0.001f,"zoom did not set content scale");
+                require(content->getWidth()==1440 && content->getHeight()==900,"zoom content canvas changed");
+            }
+        });
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
 }
