@@ -37,6 +37,9 @@ void AetherAudioProcessor::prepareToPlay(double rate,int block) {
     outputStage.prepare(currentRate,juce::jmax(block,scratchSize));
     graph.prepare(currentRate,juce::jmax(block,scratchSize));
     fmEngine.prepare(currentRate,juce::jmax(block,scratchSize));
+    phaseGeometry.prepare(currentRate,juce::jmax(block,scratchSize));
+    chaosSource.prepare(currentRate,juce::jmax(block,scratchSize));
+    activeSourceEngine=0;
     engine.setParameters(parameters());
     graph.setParameters(graphParameters()); fmEngine.setParameters(fmParameters());
     fmInputGain=1; inputGainSmoothing=static_cast<float>(1-std::exp(-1/(currentRate*0.005)));
@@ -48,7 +51,7 @@ void AetherAudioProcessor::prepareToPlay(double rate,int block) {
 }
 void AetherAudioProcessor::releaseResources() { reset(); prepared=false; }
 void AetherAudioProcessor::reset() {
-    engine.reset(); outputStage.reset(); graph.reset(); fmEngine.reset();
+    engine.reset(); outputStage.reset(); graph.reset(); fmEngine.reset(); phaseGeometry.reset(); chaosSource.reset();
     lastVelocity=lastNoteHz=0; fmVoiceCount.store(0);
     excitationEnvelope=excitationLow=excitationPrevious=excitationPitch=0;excitationCrossing=-1;excitationClock=0;
     for(auto& value:nodeMeters) value.store(0); for(auto& value:modulationMeters) value.store(0);
@@ -114,15 +117,16 @@ void AetherAudioProcessor::handleMidi(const juce::MidiMessage& msg) noexcept {
     const int channel=msg.getChannel();
     if(msg.isNoteOn()) {
         engine.noteOn(msg.getNoteNumber(),msg.getFloatVelocity(),channel); fmEngine.noteOn(msg.getNoteNumber(),msg.getFloatVelocity(),channel);
+        if(auto* src=activeSource()) src->noteOn(msg.getNoteNumber(),msg.getFloatVelocity(),channel);
         lastVelocity=msg.getFloatVelocity(); lastNoteHz=static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(msg.getNoteNumber()));
     }
-    else if(msg.isNoteOff()) { engine.noteOff(msg.getNoteNumber(),channel); fmEngine.noteOff(msg.getNoteNumber(),channel); }
-    else if(msg.isAllNotesOff()||msg.isAllSoundOff()) { engine.allNotesOff();fmEngine.allNotesOff();lastVelocity=lastNoteHz=0; }
+    else if(msg.isNoteOff()) { engine.noteOff(msg.getNoteNumber(),channel); fmEngine.noteOff(msg.getNoteNumber(),channel); if(auto* src=activeSource()) src->noteOff(msg.getNoteNumber(),channel); }
+    else if(msg.isAllNotesOff()||msg.isAllSoundOff()) { engine.allNotesOff();fmEngine.allNotesOff();if(auto* src=activeSource()) src->allNotesOff();lastVelocity=lastNoteHz=0; }
     else if(msg.isPitchWheel()) {
         const float semitones=(static_cast<float>(msg.getPitchWheelValue())-8192.f)/8192.f*2.f;
-        engine.pitchBend(semitones,channel); fmEngine.pitchBend(semitones,channel);
+        engine.pitchBend(semitones,channel); fmEngine.pitchBend(semitones,channel); if(auto* src=activeSource()) src->pitchBend(semitones,channel);
     }
-    else if(msg.isController() && msg.getControllerNumber()==64) { engine.sustain(msg.getControllerValue()>=64,channel);fmEngine.sustain(msg.getControllerValue()>=64,channel); }
+    else if(msg.isController() && msg.getControllerNumber()==64) { engine.sustain(msg.getControllerValue()>=64,channel);fmEngine.sustain(msg.getControllerValue()>=64,channel); if(auto* src=activeSource()) src->sustain(msg.getControllerValue()>=64,channel); }
 }
 void AetherAudioProcessor::analyseExcitation(float sample) noexcept {
     const float magnitude=std::abs(sample);
@@ -220,9 +224,19 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
                     for(int i=0;i<n;++i) { fmInputGain+=inputGainSmoothing*(target-fmInputGain);left[static_cast<size_t>(i)]*=fmInputGain;right[static_cast<size_t>(i)]*=fmInputGain; }
                 }
             }
+            if(auto* src=activeSource()) {
+                // Source layer (mode 2 only). It replaces the buffer when FM is not rendering, otherwise it is added to FM.
+                src->process(sourceLeft.data(),sourceRight.data(),n);
+                const bool replace=!(fmActive&&p.mode!=0);
+                for(size_t i=0;i<static_cast<size_t>(n);++i) {
+                    left[i]=(replace?0.f:left[i])+sourceLeft[i]; right[i]=(replace?0.f:right[i])+sourceRight[i];
+                }
+            }
             if(graphActive&&!graphRendered) {
               if(p.mode==2) {
-                graph.setPerformance(fmEngine.activeVoices()>0?lastVelocity:0.f,lastNoteHz);
+                float performanceVelocity=fmEngine.activeVoices()>0?lastVelocity:0.f,performanceHz=lastNoteHz;
+                if(auto* src=activeSource()) if(fmEngine.activeVoices()==0 && src->activeVoices()>0) { performanceVelocity=src->lastVelocity(); performanceHz=src->lastPitchHz(); }
+                graph.setPerformance(performanceVelocity,performanceHz);
                 graph.process(left.data(),right.data(),
 #if JucePlugin_IsSynth
                 nullptr,
@@ -275,7 +289,13 @@ void AetherAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::M
     if(auto* playhead=getPlayHead()) if(auto pos=playhead->getPosition()) if(auto bpm=pos->getBpm()) p.tempo=*bpm;
     graphActive=allRaw[aether::graphOffset]->load(std::memory_order_relaxed)>0.5f;
     fmActive=allRaw[aether::fmOffset]->load(std::memory_order_relaxed)>0.5f;
-    atlasSourceActive=graphActive||(fmActive&&p.mode!=0);
+    // Source layer: only in Synth mode (2). Switching engine resets both so no voice leaks across engines.
+    const float engineRaw=allRaw[static_cast<size_t>(aether::sourceOffset+aether::sourceEngine)]->load(std::memory_order_relaxed);
+    const int engineChoice=std::isfinite(engineRaw)?juce::jlimit(0,2,static_cast<int>(std::lround(engineRaw))):0;
+    const bool sourceEnabledNow=allRaw[static_cast<size_t>(aether::sourceOffset+aether::sourceEnabled)]->load(std::memory_order_relaxed)>0.5f;
+    const int wantedSource=(sourceEnabledNow && engineChoice>0 && p.mode==2) ? engineChoice:0;
+    if(wantedSource!=activeSourceEngine) { phaseGeometry.reset(); chaosSource.reset(); activeSourceEngine=wantedSource; }
+    atlasSourceActive=graphActive||((fmActive||wantedSource>0)&&p.mode!=0);
     if(atlasSourceActive) {
         auto source=p; for(auto& enabled:source.enabled) enabled=false;
         source.outputDb=0;source.mix=1;engine.setParameters(source);
@@ -283,6 +303,8 @@ void AetherAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::M
         output.inputDb=0;output.mode=0;output.mix=1;outputStage.setParameters(output);
         auto configuration=graphParameters();configuration.tempo=p.tempo;graph.setParameters(configuration);
         fmEngine.setParameters(fmParameters());
+        if(wantedSource==1) phaseGeometry.setParameters(phaseGeometryParameters());
+        else if(wantedSource==2) chaosSource.setParameters(chaosParameters());
     } else engine.setParameters(p);
     int offset=0; const int total=buffer.getNumSamples();
     for(const auto metadata:midi) {

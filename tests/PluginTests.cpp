@@ -3,6 +3,7 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <cmath>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 
 namespace {
@@ -132,6 +133,82 @@ int main(int argc,char** argv) {
             p.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
             require(p.parameterValue("graph.enabled")==0,"v1 state unexpectedly enabled a new graph");
             require(p.parameterValue("fm.enabled")==0,"v1 state unexpectedly enabled six-operator sound");
+        });
+        test("source layer: parameter contract (ids, versions, defaults, old order)",[] {
+            const auto& specs=aether::parameterSpecs();
+            require(aether::sourceParameterCount==28 && aether::totalParameterCount==aether::legacyParameterCount+28,"source parameter block size changed");
+            std::set<juce::String> ids;
+            for(const auto& spec:specs) require(ids.insert(spec.id).second,"duplicate parameter id "+spec.id);
+            AetherAudioProcessor p;
+            for(size_t i=0;i<specs.size();++i) {
+                const bool source=static_cast<int>(i)>=aether::sourceOffset;
+                require(specs[i].version==(source?2:1),"parameter version "+specs[i].id);
+                require(source==specs[i].id.startsWith("source."),"source id prefix "+specs[i].id);
+                auto* withId=dynamic_cast<juce::AudioProcessorParameterWithID*>(p.getParameters()[static_cast<int>(i)]);
+                require(withId && withId->paramID==specs[i].id && withId->getVersionHint()==specs[i].version,"host parameter id/version/order "+specs[i].id);
+            }
+            require(specs[aether::sourceOffset+aether::sourceEngine].choices==aether::sourceEngineNames() && aether::sourceEngineNames()[0]=="Off","engine choice list");
+            require(specs[aether::sourceOffset+aether::sourceEngine].defaultValue==0,"source engine must default to Off");
+            require(p.parameterValue("source.engine")==0,"source engine not Off in a new instance");
+            require(!p.state.getParameter("source.seed")->isAutomatable() && !p.state.getParameter("source.antialias")->isAutomatable(),"seed/antialias should not be automatable");
+            require(p.state.getParameter("source.pg.sequency")->isAutomatable(),"sequency should be automatable");
+            // the legacy block must still end with the last FM edge
+            require(specs[static_cast<size_t>(aether::legacyParameterCount-1)].id=="fm.edge.6.6","legacy block no longer ends with the last FM edge");
+        });
+        test("source layer: schema 3 round trip; schema 1/2 saves return to source Off",[] {
+            AetherAudioProcessor p,q;
+            p.setParameterValue("source.engine",2);p.setParameterValue("source.pg.sequency",33);p.setParameterValue("source.seed",7);
+            p.setParameterValue("source.chaos.segments",19);p.setParameterValue("source.antialias",0);p.setParameterValue("source.chaos.distribution",4);
+            juce::MemoryBlock data;p.getStateInformation(data);q.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
+            for(const char* id:{"source.engine","source.pg.sequency","source.seed","source.chaos.segments","source.antialias","source.chaos.distribution"})
+                require(std::abs(q.parameterValue(id)-p.parameterValue(id))<1.e-4f,juce::String("schema 3 lost ")+id);
+            for(const int schema:{1,2}) {
+                AetherAudioProcessor r; r.setParameterValue("source.engine",1);r.setParameterValue("source.pg.sequency",50);r.setParameterValue("source.seed",99);
+                juce::ValueTree old("AetherState");old.setProperty("schema",schema,nullptr);old.setProperty("version","1.0.0",nullptr);
+                const int count=schema==1?aether::parameterCount:aether::legacyParameterCount;
+                for(int i=0;i<count;++i) {
+                    const auto& spec=aether::parameterSpecs()[static_cast<size_t>(i)];
+                    juce::ValueTree item("PARAM");item.setProperty("id",spec.id,nullptr);item.setProperty("value",spec.defaultValue,nullptr);old.addChild(item,-1,nullptr);
+                }
+                juce::MemoryBlock block;auto xml=old.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,block);
+                r.setStateInformation(block.getData(),static_cast<int>(block.getSize()));
+                for(int i=aether::sourceOffset;i<aether::totalParameterCount;++i) {
+                    const auto& spec=aether::parameterSpecs()[static_cast<size_t>(i)];
+                    require(std::abs(r.parameterValue(spec.id)-spec.defaultValue)<1.e-4f,"old schema did not restore default for "+spec.id);
+                }
+            }
+        });
+        test("source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path",[] {
+            auto render=[](int engine,int mode,int block,bool setSourceParameters) {
+                AetherAudioProcessor p;p.setParameterValue("global.mode",static_cast<float>(mode));p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
+                p.setParameterValue("source.engine",static_cast<float>(engine));
+                if(setSourceParameters) { p.setParameterValue("source.pg.sequency",33);p.setParameterValue("source.pg.walshmix",0.6f);p.setParameterValue("source.chaos.segments",9); }
+                p.prepareToPlay(48000,block);
+                const int total=48000;std::vector<float> out(static_cast<size_t>(total)*2);
+                for(int offset=0;offset<total;offset+=block) {
+                    const int count=juce::jmin(block,total-offset);juce::AudioBuffer<float> audio(2,count);audio.clear();juce::MidiBuffer midi;
+                    if(offset==0) midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),0);
+                    if(offset<=24000 && 24000<offset+count) midi.addEvent(juce::MidiMessage::noteOff(1,60),24000-offset);
+                    p.processBlock(audio,midi);
+                    for(int i=0;i<count;++i) { out[static_cast<size_t>(offset+i)*2]=audio.getSample(0,i);out[static_cast<size_t>(offset+i)*2+1]=audio.getSample(1,i); }
+                }
+                return out;
+            };
+            auto energy=[](const std::vector<float>& v) { double e=0;for(float x:v) { require(std::isfinite(x),"non-finite source output");e+=static_cast<double>(x)*x; } return e; };
+            auto maxDiff=[](const std::vector<float>& a,const std::vector<float>& b) { float d=0;for(size_t i=0;i<a.size();++i) d=juce::jmax(d,std::abs(a[i]-b[i]));return d; };
+            for(const int engine:{1,2}) {
+                const auto a=render(engine,2,480,true),b=render(engine,2,480,true),c=render(engine,2,64,true);
+                require(energy(a)>1.0,"source engine produced silence");
+                require(maxDiff(a,b)==0.f,"source path is not reproducible between identical runs");
+                require(maxDiff(a,c)<1.e-5f,"source path depends on host block size");
+            }
+            // Engine Off in Synth mode is the old modal path: source parameter values must not change it by a single bit.
+            const auto off=render(0,2,480,false),offWithParameters=render(0,2,480,true);
+            require(energy(off)>0.0 && maxDiff(off,offWithParameters)==0.f,"source parameters leaked into the old path while engine is Off");
+            for(const int engine:{1,2}) for(const int mode:{0,1}) {
+                const auto selected=render(engine,mode,480,true),reference=render(0,mode,480,true);
+                require(maxDiff(selected,reference)==0.f,"source selection changed the output outside Synth mode");
+            }
         });
         test("module assignment and custom cabling drive stable parameters",[] {
             AetherAudioProcessor p;p.assignModule(5,static_cast<int>(aether::modular::ModuleType::WdfDiode));
