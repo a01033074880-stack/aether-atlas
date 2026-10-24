@@ -1,0 +1,16 @@
+﻿build-integ-210\AetherAtlasRender.exe | 2026-10-24 21:51:50 | 494592
+build-integ-210\AetherDspTests.exe | 2026-10-24 21:51:50 | 379904
+build-integ-210\AetherFmTests.exe | 2026-10-24 21:51:50 | 338432
+build-integ-210\AetherMicroSynth_vst3_helper.exe | 2026-10-24 21:33:04 | 555520
+build-integ-210\AetherMicro_vst3_helper.exe | 2026-10-24 21:30:18 | 555520
+build-integ-210\AetherModularTests.exe | 2026-10-24 21:51:51 | 461824
+build-integ-210\AetherRender.exe | 2026-10-24 21:51:50 | 371712
+build-integ-210\AetherSourceBench.exe | 2026-10-24 21:51:51 | 215552
+build-integ-210\AetherSourceTests.exe | 2026-10-24 21:51:51 | 478208
+build-integ-210\AetherMicroSynth_artefacts\Release\Standalone\AETHER Micro Synth.exe | 2026-10-24 21:51:56 | 5633024
+build-integ-210\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3 | 2026-10-24 21:51:56 | 5430272
+build-integ-210\AetherMicro_artefacts\Release\Standalone\AETHER Micro.exe | 2026-10-24 21:51:53 | 5635072
+build-integ-210\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3 | 2026-10-24 21:51:53 | 5431808
+build-integ-210\AetherPluginTests_artefacts\Release\AetherPluginTests.exe | 2026-10-24 21:51:57 | 5340160
+build-integ-210\AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe | 2026-10-24 21:51:57 | 5259264
+build-integ-210\AetherUiSnapshots_artefacts\Release\AetherUiSnapshots.exe | 2026-10-24 21:51:57 | 5271040

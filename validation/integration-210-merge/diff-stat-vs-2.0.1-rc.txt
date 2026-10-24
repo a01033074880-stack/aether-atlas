@@ -1,0 +1,24 @@
+﻿ CMakeLists.txt                                    |  17 +-
+ Source/AtlasParameters.cpp                        |  32 ++
+ Source/Parameters.cpp                             |  54 +-
+ Source/Parameters.h                               |  22 +-
+ Source/PluginEditor.cpp                           | 141 ++++-
+ Source/PluginEditor.h                             |   5 +
+ Source/PluginProcessor.cpp                        |  47 +-
+ Source/PluginProcessor.h                          |  11 +
+ Source/PresetManager.cpp                          |  11 +-
+ THIRD_PARTY_NOTICES.md                            |   4 +
+ libs/aether-source/LICENSE                        |  21 +
+ libs/aether-source/README.md                      |  32 ++
+ libs/aether-source/include/aether/Chaos.h         | 147 +++++
+ libs/aether-source/include/aether/PhaseGeometry.h | 212 ++++++++
+ libs/aether-source/include/aether/Source.h        | 208 ++++++++
+ libs/aether-source/include/aether/VoiceEngine.h   | 211 ++++++++
+ libs/aether-source/src/Source.cpp                 |  50 ++
+ tests/PluginTests.cpp                             | 222 +++++++-
+ tests/SourceTests.cpp                             | 621 ++++++++++++++++++++++
+ tools/BenchSource.cpp                             |  63 +++
+ tools/RenderPresets.cpp                           |  62 +++
+ tools/RenderUiSnapshots.cpp                       |  51 +-
+ tools/zero_diff_report.py                         |  84 +++
+ 23 files changed, 2278 insertions(+), 50 deletions(-)

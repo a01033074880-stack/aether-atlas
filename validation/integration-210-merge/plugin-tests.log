@@ -1,0 +1,35 @@
+﻿### plugin-tests | 2026-10-24 21:56:04 (Asia/Shanghai) | commit 6db0ddfcaea0a49877fc557efa4027813a3ece34
+cmd: C:\Users\24168\Documents\Projects\wt-integration-210\build-integ-210\AetherPluginTests_artefacts\Release\AetherPluginTests.exe atlas-screenshots
+PASS stable parameter contract
+PASS host bypass is transparent, including odd blocks
+PASS host parameter display and text entry round trip units
+PASS active space freeze reports infinite host tail
+PASS Atlas freeze modulation and cyclic routing advertise persistent tails
+PASS host tail covers the longest legal six-operator release
+PASS all-parameter keyboard edits activate custom graph and FM routing
+PASS DAW state round trip and invalid payload
+PASS Atlas schema 2 stores custom routing FM and modulation
+PASS v1 schema restores the legacy sound path
+PASS source layer: parameter contract (ids, versions, defaults, old order)
+PASS source layer: schema 3 round trip; schema 1/2 saves return to source Off
+PASS source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path
+PASS module assignment and custom cabling drive stable parameters
+PASS first custom FM edit preserves the current algorithm morph
+PASS FM remains enabled when the Atlas effects graph is bypassed
+PASS audio-driven FM and pitch modulation do not depend on host block cuts
+PASS all factory presets render finite stereo
+PASS user preset JSON roundtrip and validation
+PASS A/B snapshots restore independent values
+PASS mono layout, repeated prepare and rates
+PASS sample-offset MIDI starts only at its timestamp
+PASS external FX sidechain excites resonance without direct leakage
+PASS editor lifecycle and rendered snapshots
+PASS Atlas editor zoom switches between 50, 75 and 100 percent
+PASS Atlas content fits the window at minimum, default and maximum sizes
+PASS Atlas zoom presets keep content scale equal to the zoom
+PASS Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+PASS Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice
+RESULT 29 tests passed, 0 failed
+### exit 0

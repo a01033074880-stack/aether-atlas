@@ -1,0 +1,722 @@
+ï»¿### build | start 2026-10-24 21:26:40 (Asia/Shanghai) | commit 6db0ddfcaea0a49877fc557efa4027813a3ece34 | cwd C:\Users\24168\Documents\Projects\wt-integration-210
+Authoritative version (CMakeLists.txt): 2.0.1
+ALLOWED  Source/PluginProcessor.cpp:27: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:355: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:387: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:118: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+OK: all checked files are consistent with version 2.0.1 (5 allowlisted code literal(s)).
+-- The C compiler identification is MSVC 19.44.35229.0
+-- The CXX compiler identification is MSVC 19.44.35229.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/SDKs/AetherBuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/SDKs/AetherBuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring juceaide
+-- Building juceaide
+-- Exporting juceaide
+-- Testing juceaide
+-- Finished setting up juceaide
+-- Configuring done (65.2s)
+-- Generating done (0.5s)
+-- Build files have been written to: C:/Users/24168/Documents/Projects/wt-integration-210/build-integ-210
+[0/2] Re-checking globbed directories...
+[1/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\wavefolder.cpp.obj
+[2/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\decimator.cpp.obj
+[3/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Sampling\granularplayer.cpp.obj
+[4/269] Building CXX object CMakeFiles\aether_dsp.dir\libs\aether-dsp\src\Engine.cpp.obj
+[5/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Control\phasor.cpp.obj
+[6/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\chorus.cpp.obj
+[7/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Filters\ladder.cpp.obj
+[8/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Utility\dcblock.cpp.obj
+[9/269] Generating juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData1.cpp, juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData2.cpp, juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData.h
+[10/269] Linking CXX static library aether_dsp.lib
+[11/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\resonator.cpp.obj
+[12/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\KarplusString.cpp.obj
+[13/269] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Dynamics\crossfade.cpp.obj
+[14/269] Linking CXX static library atlas_daisy.lib
+[15/269] Building CXX object CMakeFiles\aether_fm.dir\libs\aether-fm\src\FmSynth.cpp.obj
+[16/269] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData1.cpp.obj
+[17/269] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData2.cpp.obj
+[18/269] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Metadata.cpp.obj
+[19/269] Building CXX object CMakeFiles\aether_source.dir\libs\aether-source\src\Source.cpp.obj
+[20/269] Linking CXX static library aether_fm.lib
+[21/269] Linking CXX static library aether_source.lib
+[22/269] Linking CXX static library AetherAssets.lib
+[23/269] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Modular.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: ¡°=¡±: ´Ó¡°const _Ty¡±×ª»»µ½¡°float¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\Users\24168\Documents\Projects\wt-integration-210\libs\aether-modular\src\ModuleState.h(70): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)¡±µÄÒıÓÃ
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[24/269] Linking CXX static library aether_modular.lib
+[25/269] Building CXX object CMakeFiles\AetherMicro_vst3_helper.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\VST3\juce_VST3ManifestHelper.cpp.obj
+[26/269] Building CXX object CMakeFiles\AetherMicroSynth_vst3_helper.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\VST3\juce_VST3ManifestHelper.cpp.obj
+[27/269] Building CXX object CMakeFiles\AetherMicro.dir\Source\AtlasParameters.cpp.obj
+[28/269] Building CXX object CMakeFiles\AetherMicro.dir\Source\Parameters.cpp.obj
+[29/269] Building CXX object CMakeFiles\AetherMicro.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: ¡°³õÊ¼»¯¡±: ´Ó¡°_Ty¡±×ª»»µ½¡°_Ty2¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PresetManager.cpp(9): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept¡±µÄÒıÓÃ
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PresetManager.cpp(7): note: Çë²ÎÔÄ "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" ÖĞ¶Ô "std::pair<const char *,float>::pair" µÄµÚÒ»¸öÒıÓÃ
+[30/269] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginProcessor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginProcessor.cpp(335): warning C4100: 'buffer': Î´ÒıÓÃµÄ²ÎÊı
+[31/269] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(21): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(361): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::Line<float>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: Çë²ÎÔÄ "juce::RenderingHelpers::closestPointOnInfiniteLine" ÖĞ¶Ô "juce::Line<float>::getIntersection" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: Çë²ÎÔÄ "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" ÖĞ¶Ô "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: Çë²ÎÔÄ "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" ÖĞ¶Ô "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>¡±µÄÒıÓÃ
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const¡±Ê±
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const¡±µÄÒıÓÃ
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)¡±µÄÒıÓÃ
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const¡±µÄÒıÓÃ
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[32/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[33/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[34/269] Building C object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[35/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[36/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+[37/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[38/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[39/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+[40/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[41/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[42/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[43/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[44/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[45/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[46/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[47/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+[48/269] Linking CXX executable AetherMicro_vst3_helper.exe
+[49/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[50/269] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[51/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\AtlasParameters.cpp.obj
+[52/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\Parameters.cpp.obj
+[53/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: ¡°³õÊ¼»¯¡±: ´Ó¡°_Ty¡±×ª»»µ½¡°_Ty2¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PresetManager.cpp(9): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept¡±µÄÒıÓÃ
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PresetManager.cpp(7): note: Çë²ÎÔÄ "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" ÖĞ¶Ô "std::pair<const char *,float>::pair" µÄµÚÒ»¸öÒıÓÃ
+[54/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginProcessor.cpp.obj
+[55/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(21): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(361): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::Line<float>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: Çë²ÎÔÄ "juce::RenderingHelpers::closestPointOnInfiniteLine" ÖĞ¶Ô "juce::Line<float>::getIntersection" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>¡±µÄÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: Çë²ÎÔÄ "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" ÖĞ¶Ô "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: ¡°line¡±µÄÉùÃ÷Òş²ØÁËÈ«¾ÖÉùÃ÷
+C:\Users\24168\Documents\Projects\wt-integration-210\Source\PluginEditor.cpp(22): note: ²Î¼û¡°`anonymous-namespace'::line¡±µÄÉùÃ÷
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)¡±Ê±
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: Çë²ÎÔÄ "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" ÖĞ¶Ô "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" µÄµÚÒ»¸öÒıÓÃ
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄ Àà Ä£°å ÊµÀı»¯¡°juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>¡±µÄÒıÓÃ
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: ÔÚ±àÒë Àà Ä£°å ³ÉÔ±º¯Êı¡°void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const¡±Ê±
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const¡±µÄÒıÓÃ
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)¡±µÄÒıÓÃ
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const¡±µÄÒıÓÃ
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[56/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[57/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[58/269] Building C object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[59/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[60/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+[61/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[62/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[63/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+[64/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[65/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[66/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[67/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+[68/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[69/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[70/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[71/269] Linking CXX executable AetherMicroSynth_vst3_helper.exe
+[72/269] Generating AetherMicro_artefacts/JuceLibraryCode/AetherMicro_resources.rc
+[73/269] Generating AetherMicroSynth_artefacts/JuceLibraryCode/AetherMicroSynth_resources.rc
+[74/269] Generating AetherPluginTests_artefacts/JuceLibraryCode/AetherPluginTests_resources.rc
+[75/269] Generating AetherUiSnapshots_artefacts/JuceLibraryCode/AetherUiSnapshots_resources.rc
+[76/269] Generating AetherRenderPresets_artefacts/JuceLibraryCode/AetherRenderPresets_resources.rc
+[77/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[78/269] Building CXX object CMakeFiles\AetherAtlasRender.dir\tools\RenderAtlas.cpp.obj
+[79/269] Building CXX object CMakeFiles\AetherRender.dir\tools\RenderAudio.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: ¡°=¡±: ´Ó¡°const _Ty¡±×ª»»µ½¡°float¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\Users\24168\Documents\Projects\wt-integration-210\tools\RenderAudio.cpp(36): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)¡±µÄÒıÓÃ
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[80/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[81/269] Building CXX object CMakeFiles\AetherModularTests.dir\tests\ModularTests.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: ¡°=¡±: ´Ó¡°const _Ty¡±×ª»»µ½¡°float¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: Ä£°åÊµÀı»¯ÉÏÏÂÎÄ(×îÔçµÄÊµÀı»¯ÉÏÏÂÎÄ)Îª
+C:\Users\24168\Documents\Projects\wt-integration-210\tests\ModularTests.cpp(263): note: ²é¿´¶ÔÕıÔÚ±àÒëµÄº¯Êı Ä£°å ÊµÀı»¯¡°void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)¡±µÄÒıÓÃ
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[82/269] Building CXX object CMakeFiles\AetherSourceTests.dir\tests\SourceTests.cpp.obj
+[83/269] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[84/269] Linking CXX static library "AetherMicro_artefacts\Release\AETHER Micro_SharedCode.lib"
+[85/269] Building CXX object CMakeFiles\AetherFmTests.dir\tests\FmTests.cpp.obj
+[86/269] Building CXX object CMakeFiles\AetherSourceBench.dir\tools\BenchSource.cpp.obj
+[87/269] Building CXX object CMakeFiles\AetherDspTests.dir\tests\DspTests.cpp.obj
+[88/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[89/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[90/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[91/269] Building C object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[92/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[93/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[94/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[95/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[96/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[97/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[98/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[99/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[100/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[101/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[102/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[103/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[104/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[105/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[106/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[107/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[108/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[109/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[110/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[111/269] Building RC object CMakeFiles\AetherMicro_rc_lib.dir\AetherMicro_artefacts\JuceLibraryCode\AetherMicro_resources.rc.res
+[112/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[113/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[114/269] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[115/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[116/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[117/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[118/269] Building C object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[119/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[120/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[121/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[122/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[123/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[124/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[125/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[126/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[127/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[128/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[129/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[130/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[131/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[132/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[133/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[134/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[135/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[136/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[137/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[138/269] Linking CXX static library "AetherMicroSynth_artefacts\Release\AETHER Micro Synth_SharedCode.lib"
+[139/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[140/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[141/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[142/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[143/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[144/269] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[145/269] Building C object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[146/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[147/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[148/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[149/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[150/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[151/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[152/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[153/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[154/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[155/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[156/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[157/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[158/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[159/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[160/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[161/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[162/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[163/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[164/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[165/269] Building RC object CMakeFiles\AetherMicroSynth_rc_lib.dir\AetherMicroSynth_artefacts\JuceLibraryCode\AetherMicroSynth_resources.rc.res
+[166/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[167/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[168/269] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[169/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[170/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[171/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[172/269] Building C object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[173/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[174/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[175/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[176/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[177/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[178/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[179/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[180/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[181/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[182/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[183/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[184/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[185/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[186/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[187/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[188/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[189/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[190/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[191/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[192/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[193/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[194/269] Building CXX object CMakeFiles\AetherPluginTests.dir\tests\PluginTests.cpp.obj
+[195/269] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[196/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[197/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[198/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[199/269] Building C object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[200/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[201/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[202/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[203/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[204/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[205/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[206/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[207/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[208/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[209/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[210/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[211/269] Building RC object CMakeFiles\AetherPluginTests_rc_lib.dir\AetherPluginTests_artefacts\JuceLibraryCode\AetherPluginTests_resources.rc.res
+[212/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[213/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[214/269] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[215/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\tools\RenderUiSnapshots.cpp.obj
+[216/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[217/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[218/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[219/269] Building C object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[220/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[221/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[222/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[223/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[224/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[225/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[226/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[227/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[228/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[229/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[230/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[231/269] Building RC object CMakeFiles\AetherUiSnapshots_rc_lib.dir\AetherUiSnapshots_artefacts\JuceLibraryCode\AetherUiSnapshots_resources.rc.res
+[232/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[233/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[234/269] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[235/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\tools\RenderPresets.cpp.obj
+[236/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[237/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[238/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[239/269] Building C object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[240/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[241/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[242/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[243/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[244/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[245/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[246/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[247/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[248/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[249/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: ¸ÃÎÄ¼ş°üº¬²»ÄÜÔÚµ±Ç°´úÂëÒ³(936)ÖĞ±íÊ¾µÄ×Ö·û¡£Çë½«¸ÃÎÄ¼ş±£´æÎª Unicode ¸ñÊ½ÒÔ·ÀÖ¹Êı¾İ¶ªÊ§
+[250/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[251/269] Building RC object CMakeFiles\AetherRenderPresets_rc_lib.dir\AetherRenderPresets_artefacts\JuceLibraryCode\AetherRenderPresets_resources.rc.res
+[252/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[253/269] Linking CXX executable AetherAtlasRender.exe
+[254/269] Linking CXX executable AetherRender.exe
+[255/269] Linking CXX executable AetherDspTests.exe
+[256/269] Linking CXX executable AetherFmTests.exe
+[257/269] Linking CXX executable AetherModularTests.exe
+[258/269] Linking CXX executable AetherSourceTests.exe
+[259/269] Linking CXX executable AetherSourceBench.exe
+[260/269] Linking CXX executable "AetherMicro_artefacts\Release\Standalone\AETHER Micro.exe"
+[261/269] Linking CXX shared module "AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-210/build-integ-210/AetherMicro_artefacts/Release/VST3/AETHER Micro.vst3
+[262/269] Linking CXX executable "AetherMicroSynth_artefacts\Release\Standalone\AETHER Micro Synth.exe"
+[263/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[264/269] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[265/269] Linking CXX shared module "AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-210/build-integ-210/AetherMicroSynth_artefacts/Release/VST3/AETHER Micro Synth.vst3
+[266/269] Linking CXX executable AetherPluginTests_artefacts\Release\AetherPluginTests.exe
+[267/269] Linking CXX executable AetherUiSnapshots_artefacts\Release\AetherUiSnapshots.exe
+[268/269] Linking CXX executable AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe
+Test project C:/Users/24168/Documents/Projects/wt-integration-210/build-integ-210
+    Start 1: aether_dsp
+1/5 Test #1: aether_dsp .......................   Passed    2.22 sec
+    Start 2: aether_fm
+2/5 Test #2: aether_fm ........................   Passed   18.61 sec
+    Start 3: aether_modular
+3/5 Test #3: aether_modular ...................   Passed    6.25 sec
+    Start 4: aether_source
+4/5 Test #4: aether_source ....................   Passed    6.17 sec
+    Start 5: aether_plugin
+5/5 Test #5: aether_plugin ....................   Passed    5.90 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  39.18 sec
+### exit 0
+### end 2026-10-24 21:52:37
