@@ -185,7 +185,10 @@ double energy(const std::vector<float>& x) {
 double hzOf(int note) { return 440 * std::pow(2.0, (note - 69) / 12.0); }
 
 // Ratio (dB) of non-harmonic ("alias") power to harmonic power for a held note.
-template <class E, class P> double aliasDb(P p, bool antiAlias, int noteNumber, double rate = 48000) {
+// ratio = non-harmonic / harmonic power in dB; aliasAbs / harmAbs = the same powers in dB relative to a +/-1 square
+// wave (mean square 1), so a ratio computed from almost no harmonic energy can be told apart from a real problem.
+struct AliasStat { double ratio, aliasAbs, harmAbs; };
+template <class E, class P> AliasStat aliasStat(P p, bool antiAlias, int noteNumber, double rate = 48000) {
   constexpr std::size_t n = 65536;
   p.antiAlias = antiAlias;
   p.attack = .001f; p.sustain = 1; p.decay = .01f; p.spread = 0; p.gain = 1;
@@ -204,12 +207,19 @@ template <class E, class P> double aliasDb(P p, bool antiAlias, int noteNumber, 
     for (long b = c - 6; b <= c + 6; ++b)
       if (b >= 0 && b < static_cast<long>(spectrum.size())) harmonic[static_cast<std::size_t>(b)] = 1;
   }
-  double h = 0, a = 0;
+  double h = 0, a = 0, total = 0, ms = 0;
+  for (double v : spectrum) total += v;
+  for (std::size_t i = 0; i < n; ++i) ms += static_cast<double>(l[20000 + i]) * l[20000 + i];
+  ms /= static_cast<double>(n);
   for (std::size_t i = 12; i < spectrum.size(); ++i) {
     if (harmonic[i]) h += spectrum[i];
     else if (!guard[i]) a += spectrum[i];
   }
-  return 10 * std::log10(std::max(a, 1e-30) / std::max(h, 1e-30));
+  const auto db = [&](double x) { return 10 * std::log10(std::max(x * ms / total, 1e-30)); };
+  return {10 * std::log10(std::max(a, 1e-30) / std::max(h, 1e-30)), db(a), db(h)};
+}
+template <class E, class P> double aliasDb(P p, bool antiAlias, int noteNumber, double rate = 48000) {
+  return aliasStat<E, P>(p, antiAlias, noteNumber, rate).ratio;
 }
 
 template <class E, class P> void suite(const char* label, std::vector<P> variants, std::function<P(P)> aliasPrep) {
@@ -380,6 +390,10 @@ template <class E, class P> void suite(const char* label, std::vector<P> variant
     note(fmt("worst improvement: typical settings %.1f dB, harsh settings %.1f dB", worstTypical, worstHarsh));
     require(worstTypical >= 10.0, fmt("anti-aliasing improvement below 10 dB for typical settings (%.1f)", worstTypical));
     require(worstHarsh >= 3.0, fmt("anti-aliasing improvement below 3 dB for harsh settings (%.1f)", worstHarsh));
+    if (std::string(label) == "Phase Geometry") { // band-limited Walsh is the default; it is what these margins protect
+      require(worstTypical >= 14.0, fmt("Phase Geometry typical improvement below 14 dB (%.1f)", worstTypical));
+      require(worstHarsh >= 18.0, fmt("Phase Geometry harsh improvement below 18 dB (%.1f)", worstHarsh));
+    }
   });
 }
 } // namespace
@@ -524,6 +538,46 @@ int main() {
     suite<PhaseGeometrySource, PhaseGeometryParameters>("Phase Geometry", pgVariants(), [](PhaseGeometryParameters p) { return p; });
     suite<ChaosSource, ChaosParameters>("Chaos", chaosVariants(), [](ChaosParameters p) { p.ampStep = 0; p.durStep = 0; return p; });
 
+  test("Phase Geometry: typical/harsh settings, plain table (mode 0) vs ADAA (mode 2), notes 84/96/103", [] {
+    for (std::size_t v = 0; v < 2; ++v)
+      for (int noteNumber : {84, 96, 103}) {
+        auto p = pgVariants()[v];
+        auto q = p; q.walshBandLimit = 0;
+        const auto b = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(q, false, noteNumber), bo = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(q, true, noteNumber);
+        const auto a = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, false, noteNumber), ao = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, true, noteNumber);
+        note(std::string(v == 0 ? "typical" : "harsh") + fmt(" note %.0f: ", noteNumber) + fmt("BEFORE AAoff %.1f AAon %.1f | ", b.ratio, bo.ratio) + fmt("AFTER AAoff %.1f AAon %.1f dB (alias/harmonic)", a.ratio, ao.ratio));
+      }
+  });
+  test("Phase Geometry: Walsh band-limiting modes (0 table, 1 polyBLEP, 2 ADAA), sequency 33/47/63 (FFT alias)", [] {
+    // "plain": undistorted phase, pure Walsh. "harsh": the harsh variant with Walsh only. Walsh sequency s has its lowest
+    // partial near s/2 * f0; when that is above Nyquist the note cannot be represented at all, so the ratio to harmonic
+    // power is meaningless there and absolute alias power (dB re a +/-1 square wave) is reported as well.
+    for (int kind = 0; kind < 2; ++kind) {
+      for (float seq : {33.f, 47.f, 63.f}) {
+        for (int noteNumber : {84, 96, 103}) {
+          PhaseGeometryParameters p = kind == 0 ? PhaseGeometryParameters{} : pgVariants()[1];
+          if (kind == 0) { p.czDepth = 0; p.vpsD = .5f; p.vpsV = .5f; }
+          p.walshMix = 1; p.walshSequency = seq;
+          auto s = [](const AliasStat& a) { return fmt("%.1f (", a.ratio) + fmt("alias %.1f / harm ", a.aliasAbs) + fmt("%.1f)", a.harmAbs); };
+          std::string line = std::string(kind == 0 ? "plain" : "harsh") + fmt(" seq %.0f note %.0f (low partial ", seq, noteNumber) + fmt("%.1f kHz):", seq / 2 * hzOf(noteNumber) / 1000);
+          AliasStat on[3];
+          for (int mode = 0; mode < 3; ++mode) {
+            p.walshBandLimit = mode;
+            on[mode] = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, true, noteNumber);
+            line += fmt(" | mode %.0f ", mode) + "AAon " + s(on[mode]) + " AAoff " + s(aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, false, noteNumber));
+          }
+          note(line);
+          // Thresholds for the shipped mode (2, ADAA) with 4x oversampling: absolute alias power below -38 dB re a
+          // full-scale square, at least 12 dB below the plain table, and where the note is representable (the table
+          // path has real harmonic energy above -45 dB) alias stays 15 dB below the harmonics.
+          const std::string where = std::string(kind == 0 ? "plain" : "harsh") + fmt(" seq %.0f note %.0f", seq, noteNumber);
+          require(on[2].aliasAbs <= -38.0, where + fmt(": absolute alias %.1f dB above -38", on[2].aliasAbs));
+          require(on[0].aliasAbs - on[2].aliasAbs >= 12.0, where + fmt(": alias only %.1f dB below the plain table", on[0].aliasAbs - on[2].aliasAbs));
+          if (on[0].harmAbs > -45.0) require(on[2].ratio <= -15.0, where + fmt(": alias/harmonic %.1f dB above -15", on[2].ratio));
+        }
+      }
+    }
+  });
     test("both sources feed aether::modular::GraphEngine and drive its performance modulation sources", [] {
       namespace m = aether::modular;
       auto run = [](Source& src, float velocity) {

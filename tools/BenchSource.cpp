@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cstdio>
 #include <memory>
+#include <string>
 #include <vector>
 
 using namespace aether::source;
@@ -30,7 +31,10 @@ template <class E, class P> void bench(const char* label, P p, int lowNote, int 
               label, voiceCount, e->activeVoices(), rate, block, p.antiAlias ? "4x" : "off", audio, best, audio / best, best / audio * 100);
 }
 } // namespace
-int main() {
+// usage: AetherSourceBench [table]   ("table" = pre-ADAA plain Walsh lookup, for before/after on the same machine state)
+int main(int argc, char** argv) {
+  const int walshMode = (argc > 1 && std::string(argv[1]) == "table") ? 0 : 2;
+  std::printf("walshBandLimit=%d\n", walshMode);
 #if defined(_MSC_VER)
   std::printf("compiler: MSVC %d, ", _MSC_FULL_VER);
 #endif
@@ -42,7 +46,7 @@ int main() {
   for (int block : {64, 480}) {
     for (bool aa : {true, false}) {
       PhaseGeometryParameters pg;
-      pg.sustain = 1; pg.czDepth = .7f; pg.walshMix = .3f; pg.walshSequency = 5.5f; pg.vpsD = .3f; pg.vpsV = .6f; pg.antiAlias = aa;
+      pg.sustain = 1; pg.czDepth = .7f; pg.walshMix = .3f; pg.walshSequency = 5.5f; pg.vpsD = .3f; pg.vpsV = .6f; pg.antiAlias = aa; pg.walshBandLimit = walshMode;
       bench<PhaseGeometrySource>("PhaseGeometry notes 36..111", pg, 36, 5, 48000, block);
       ChaosParameters ch;
       ch.sustain = 1; ch.antiAlias = aa;
@@ -53,7 +57,7 @@ int main() {
   hard.sustain = 1; hard.segments = 32; hard.ampStep = .5f; hard.durStep = .5f;
   bench<ChaosSource>("Chaos seg32 notes 84..99 (stress)", hard, 84, 1, 48000, 480);
   PhaseGeometryParameters pgHard;
-  pgHard.sustain = 1; pgHard.czShape = 4; pgHard.czDepth = 1; pgHard.walshMix = 1; pgHard.walshSequency = 40.5f; pgHard.vpsRatio = 8; pgHard.vpsD = .2f; pgHard.vpsV = .9f;
+  pgHard.walshBandLimit = walshMode; pgHard.sustain = 1; pgHard.czShape = 4; pgHard.czDepth = 1; pgHard.walshMix = 1; pgHard.walshSequency = 40.5f; pgHard.vpsRatio = 8; pgHard.vpsD = .2f; pgHard.vpsV = .9f;
   bench<PhaseGeometrySource>("PhaseGeometry heavy notes 84..99", pgHard, 84, 1, 48000, 480);
   return 0;
 }

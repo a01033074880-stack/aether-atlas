@@ -60,7 +60,6 @@ inline float czPhase(int shape, float x, float depth, float& window) noexcept {
   default: return x;
   }
 }
-
 struct PhaseGeometryParameters : CommonParameters {
   float walshSequency = 0; // 0..63, fractional = cross-fade between rows
   float walshMix = 0;      // 0 = cosine only, 1 = Walsh only
@@ -71,12 +70,18 @@ struct PhaseGeometryParameters : CommonParameters {
   float vpsD = 0.5f, vpsV = 0.5f; // VPS breakpoint (d == v: identity)
   float vpsRatio = 1;      // 1..16 phase multiplier before the VPS map
   float phaseRandom = 0;   // 0..1 random start phase per note
+  // Internal: how the Walsh steps are rendered. 0 = plain table lookup (kept for A/B measurement),
+  // 1 = 2-point polyBLEP corrections (one oversampled sample of latency), 2 = first order ADAA (box average of the
+  // Walsh function over the phase travelled in one oversampled tick, no latency).
+  int walshBandLimit = 2;
 };
 
 struct PhaseGeometryTraits {
   using Params = PhaseGeometryParameters;
   struct Voice : VoiceBase {
-    double phase = 0;
+    double phase = 0, previousX = 0;
+    float pending = 0; // previous output sample, waiting for its polyBLEP correction
+    bool primed = false;
   };
   static constexpr const char* name = "Phase Geometry";
   static constexpr std::array<float Params::*, 8> smoothed{
@@ -93,6 +98,7 @@ struct PhaseGeometryTraits {
     p.vpsV = bound(p.vpsV, 0, 1, .5f);
     p.vpsRatio = bound(p.vpsRatio, 1, 16, 1);
     p.phaseRandom = bound(p.phaseRandom, 0, 1);
+    p.walshBandLimit = std::clamp(p.walshBandLimit, 0, 2);
   }
   static void start(Voice& v, const Params& p) noexcept {
     v.phase = p.phaseRandom > 0 ? static_cast<double>(p.phaseRandom) * v.rng.uniform() : 0.0;
@@ -120,19 +126,85 @@ struct PhaseGeometryTraits {
       out = (1 - p.walshMix) * (t.cosine[static_cast<std::size_t>(i)] +
                                 f * (t.cosine[static_cast<std::size_t>(i) + 1] - t.cosine[static_cast<std::size_t>(i)]));
     }
-    if (p.walshMix > 0) {
+    const int row = std::min(static_cast<int>(p.walshSequency), walshOrder - 1);
+    const float blend = p.walshSequency - static_cast<float>(row);
+    const auto& a = t.walsh[static_cast<std::size_t>(row)];
+    const auto& b = t.walsh[static_cast<std::size_t>(std::min(row + 1, walshOrder - 1))];
+    if (p.walshMix > 0 && p.walshBandLimit == 0) {
       const float pos = x * walshTableSize;
       const int i = std::min(static_cast<int>(pos), walshTableSize - 1);
       const float f = pos - static_cast<float>(i);
-      const int row = std::min(static_cast<int>(p.walshSequency), walshOrder - 1);
-      const float blend = p.walshSequency - static_cast<float>(row);
-      const auto& a = t.walsh[static_cast<std::size_t>(row)];
-      const auto& b = t.walsh[static_cast<std::size_t>(std::min(row + 1, walshOrder - 1))];
       const float wa = a[static_cast<std::size_t>(i)] + f * (a[static_cast<std::size_t>(i) + 1] - a[static_cast<std::size_t>(i)]);
       const float wb = b[static_cast<std::size_t>(i)] + f * (b[static_cast<std::size_t>(i) + 1] - b[static_cast<std::size_t>(i)]);
       out += p.walshMix * (wa + blend * (wb - wa));
     }
-    return out * window;
+    if (p.walshBandLimit == 0 || p.walshMix <= 0) return out * window;
+
+    // ---- band-limited Walsh: ideal step function plus polyBLEP corrections ----
+    constexpr int stride = walshTableSize / walshOrder;
+    auto level = [&](int cell) { // blended value of one Walsh cell
+      const auto k = static_cast<std::size_t>(cell * stride);
+      return a[k] + blend * (b[k] - a[k]);
+    };
+    const int cell = std::min(static_cast<int>(x * walshOrder), walshOrder - 1);
+    if (p.walshBandLimit == 2) {
+      // G(x) = integral of the (blended) Walsh function from 0 to x, in units of one cell.
+      const auto& ca = t.walshCum[static_cast<std::size_t>(row)];
+      const auto& cb = t.walshCum[static_cast<std::size_t>(std::min(row + 1, walshOrder - 1))];
+      auto G = [&](double xx) {
+        const int c = std::clamp(static_cast<int>(xx * walshOrder), 0, walshOrder - 1);
+        const auto fr = static_cast<float>(xx * walshOrder - c);
+        const auto k = static_cast<std::size_t>(c);
+        const float ga = ca[k] + fr * a[k * stride], gb = cb[k] + fr * b[k * stride];
+        return static_cast<double>(ga + blend * (gb - ga));
+      };
+      double avg = level(cell);
+      if (v.primed) {
+        const double from = v.previousX, to = x;
+        double len = std::abs(to - from), area = G(std::max(from, to)) - G(std::min(from, to));
+        if (to < from && from - to > .25) { // wrapped
+          const double total = ca[walshOrder] + blend * (cb[walshOrder] - ca[walshOrder]);
+          len = (1 - from) + to;
+          area = total - G(from) + G(to);
+        }
+        if (len > 1e-7) avg = area / (len * walshOrder);
+      }
+      v.previousX = x;
+      v.primed = true;
+      return (out + p.walshMix * static_cast<float>(avg)) * window;
+    }
+    out = (out + p.walshMix * level(cell)) * window;
+    float before = 0, after = 0; // corrections for the previous / current sample
+    if (v.primed) {
+      const double from = v.previousX, to = x;
+      const float scale = .5f * p.walshMix * window;
+      int budget = 6; // beyond this the steps are denser than the sample rate: aliasing is unavoidable
+      auto step = [&](float height, double when) { // `when` = fraction of this tick elapsed at the step
+        const auto tau = static_cast<float>(when);
+        before += scale * height * (1 - tau) * (1 - tau);
+        after -= scale * height * tau * tau;
+      };
+      auto sweep = [&](double x0, double x1, double t0, double t1) {
+        if (x1 <= x0) return;
+        const int first = static_cast<int>(std::floor(x0 * walshOrder)) + 1;
+        const int last = std::min(static_cast<int>(std::floor(x1 * walshOrder)), walshOrder - 1);
+        for (int j = first; j <= last && budget > 0; ++j, --budget)
+          step(level(j) - level(j - 1), t0 + (t1 - t0) * (j / static_cast<double>(walshOrder) - x0) / (x1 - x0));
+      };
+      if (to >= from) {
+        sweep(from, to, 0, 1);
+      } else if (from - to > .25) { // the phase map wrapped from ~1 back to ~0
+        const double total = (1 - from) + to, wrapAt = total > 0 ? (1 - from) / total : 0.5;
+        sweep(from, 1, 0, wrapAt);
+        if (budget > 0) { step(level(0) - level(walshOrder - 1), wrapAt); --budget; }
+        sweep(0, to, wrapAt, 1);
+      }
+    }
+    v.previousX = x;
+    const float emit = v.primed ? v.pending + before : out;
+    v.pending = out + after;
+    v.primed = true;
+    return emit;
   }
 };
 

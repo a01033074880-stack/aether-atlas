@@ -19,6 +19,7 @@ All parameters are sanitised (NaN/inf/out of range -> clamped or defaulted).
 * Deterministic: PCG32, seeded from `CommonParameters::seed` and the voice age. No clocks, no global state.
 * Output does not depend on the host block size: all smoothing, envelopes and oscillator state advance per sample.
 * `antiAlias = true` runs each voice at 4x and decimates with a 12th order Butterworth low-pass (RBJ biquads, corner 0.40 of the host rate).
+* Walsh steps are band-limited with first order ADAA (`PhaseGeometryParameters::walshBandLimit = 2`, default): the Walsh function is replaced by its box average over the phase travelled in one oversampled tick, using a precomputed running-sum table (`Tables::walshCum`). Mode 0 is the plain table lookup and mode 1 a 2-point polyBLEP; both stay available for A/B measurement. Sequencies whose lowest partial (about sequency/2 x f0) lies above Nyquist cannot be represented; ADAA lowpasses them instead of letting them fold back. Measured numbers are in `tests/SourceTests.cpp` output.
 * `process` writes stereo into `left`/`right`; connect it to `GraphEngine::process` and call
   `GraphEngine::setPerformance(source.lastVelocity(), source.lastPitchHz())` for the velocity and pitch modulation sources.
 

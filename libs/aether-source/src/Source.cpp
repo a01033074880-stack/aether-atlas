@@ -39,6 +39,9 @@ const Tables& tables() noexcept {
         dst[static_cast<std::size_t>(i)] =
             static_cast<float>(row[static_cast<std::size_t>(i * walshOrder / walshTableSize)]);
       dst[walshTableSize] = dst[0]; // periodic guard point
+      auto& cum = t.walshCum[static_cast<std::size_t>(s)];
+      for (int j = 0; j < walshOrder; ++j)
+        cum[static_cast<std::size_t>(j) + 1] = cum[static_cast<std::size_t>(j)] + static_cast<float>(row[static_cast<std::size_t>(j)]);
     }
     return t;
   }();

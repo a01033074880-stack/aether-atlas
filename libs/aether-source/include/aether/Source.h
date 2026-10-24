@@ -74,6 +74,7 @@ inline constexpr int walshTableSize = 1024; // samples per period in the oscilla
 struct Tables {
   std::array<float, cosTableSize + 1> cosine{};                                  // cos(2*pi*x), guard point
   std::array<std::array<float, walshTableSize + 1>, walshOrder> walsh{};         // sequency ordered
+  std::array<std::array<float, walshOrder + 1>, walshOrder> walshCum{};          // running sum of the cell values, for ADAA
 };
 const Tables& tables() noexcept;
 
