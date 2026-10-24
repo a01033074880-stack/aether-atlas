@@ -102,8 +102,6 @@ $codeAllow = @(
        Reason = 'host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.' },
     @{ File = 'Source/PresetManager.cpp'; Line = 'setProperty\("version","2\.0\.0"';
        Reason = '.aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.' },
-    @{ File = 'Source/PluginEditor.cpp'; Line = '"2\.0\.0\s+/\s+"';
-       Reason = 'editor footer DISPLAY text. File is owned by the UI branch (ui/min-size-fix); change it there, not in this docs/scripts patch.' },
     @{ File = 'tools/RenderAtlas.cpp'; Line = '\\"version\\":\s*\\"2\.0\.0\\"';
        Reason = 'version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.' }
 )
@@ -124,6 +122,19 @@ foreach ($f in $codeFiles) {
     }
 }
 
+# Short "major.minor" family label in the editor header (e.g. "AETHER / 2.0") is not a full
+# version, so the x.y.z scan above cannot see it. It must at least match major.minor of the
+# authoritative version, otherwise a minor bump would leave a stale header on screen.
+$majorMinor = ($version.Split('.')[0..1]) -join '.'
+foreach ($f in $codeFiles) {
+    $rel = $f.FullName.Substring($rootFull.Length + 1).Replace('\', '/')
+    $lines = [IO.File]::ReadAllLines($f.FullName, $utf8)
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        foreach ($t in [regex]::Matches($lines[$i], '"AETHER\s*/\s*(\d+\.\d+)(?![\d.])')) {
+            if ($t.Groups[1].Value -ne $majorMinor) { Add-Problem $rel ($i + 1) "header label '$($t.Groups[1].Value)' does not match major.minor $majorMinor of version $version (hard-coded in code; derive it from JucePlugin_VersionString)" }
+        }
+    }
+}
 # ---- report ----------------------------------------------------------------
 foreach ($a in ($allowed | Select-Object -Unique)) { Write-Host "ALLOWED  $a" }
 if ($errorsFound.Count -gt 0) {
