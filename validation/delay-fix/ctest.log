@@ -1,0 +1,17 @@
+# ctest 2026-10-24 22:05:54 Asia/Shanghai commit d87e411 (AETHER_STRICT_RENDER_DETERMINISM unset: strict is default)
+Test project C:/Users/24168/Documents/Projects/wt-fixfix/build-fixfix
+    Start 1: aether_dsp
+1/5 Test #1: aether_dsp .......................   Passed    1.72 sec
+    Start 2: aether_fm
+2/5 Test #2: aether_fm ........................   Passed   16.30 sec
+    Start 3: aether_modular
+3/5 Test #3: aether_modular ...................   Passed    6.37 sec
+    Start 4: aether_plugin
+4/5 Test #4: aether_plugin ....................   Passed    1.50 sec
+    Start 5: aether_fixtures
+5/5 Test #5: aether_fixtures ..................   Passed   22.67 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  48.57 sec
+CTEST_EXIT=0

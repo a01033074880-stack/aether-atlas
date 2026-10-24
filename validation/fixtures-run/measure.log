@@ -1,0 +1,27 @@
+﻿# AetherFixtureTests --measure
+# base commit: 912ab2b (+uncommitted working tree)
+# date: 2026-10-24 19:24:57 Asia/Shanghai
+# exe built: 10/24/2026 19:24:49
+sample | repeat maxdiff | block 17/257/1000 maxdiff vs 256 | rms | exact-sha-repeat
+preset-v1.0.0:Clean Canvas | 0 | 0 0 0 | 0.140222 | same
+preset-v1.0.0:Copper Strings | 0 | 0 0 0 | 0.0691777 | same
+preset-v1.0.0:Ember Guitar | 0 | 0 0 0 | 0.652086 | same
+preset-v1.0.0:Gentle Orbit | 0 | 0 0 0 | 0.118738 | same
+preset-v1.0.0:Glass Resonator | 0 | 0 0 0 | 0.104933 | same
+preset-v1.0.0:Iron Drum Room | 0 | 0 0 0 | 0.277051 | same
+preset-v1.0.0:Nebula Drift | 0 | 0 0 0 | 0.0341772 | same
+preset-v1.0.0:Prism Keys | 0 | 0 0 0 | 0.0628259 | same
+preset-v1.0.0:Resynth Halo | 0 | 0 0 0 | 0.206222 | same
+preset-v1.0.0:Vocal Silhouette | 0 | 0 0 0 | 0.15584 | same
+preset-v1.0.0:Warm Console | 0 | 0 0 0 | 0.351498 | same
+preset-v1.0.0:Wooden Echoes | 0 | 0 0 0 | 0.0676368 | same
+state-v2.0.1:ab-snapshot-b | 0 | 0 0 0 | 0.103844 | same
+state-v2.0.1:custom-graph-fm | 0 | 0 0 0 | 0.0311329 | same
+state-v2.0.1:default | 0 | 0 0 0 | 0.125596 | same
+state-v2.0.1:factory-00-Gentle-Orbit | 0 | 0 0 0 | 0.118738 | same
+state-v2.0.1:factory-05-Iron-Drum-Room | 0 | 0 0 0 | 0.277051 | same
+state-v2.0.1:factory-11-Copper-Strings | 0 | 0 0 0 | 0.0691777 | same
+state-v2.0.1:factory-12-Atlas---Suspended-Paper | 0 | 0 0 0 | 0.0960693 | same
+state-v2.0.1:factory-20-Atlas---Frozen-Architecture | 0 | 0 0 0 | 0.0647581 | same
+state-v2.0.1:factory-35-Motion---Stochastic-Room | 0 | 0 0 0 | 0.074644 | same
+EXIT=0

@@ -1,0 +1,186 @@
+# delay-scan start 2026-10-24 22:23:17 Asia/Shanghai commit 9d69543 args=[--quick --bruteforce]
+# OLD Delay::read extracted from integration/2.0.1-rc, NEW from working tree (diff old->new below)
+=>     // p + size can round up to exactly size when p is a tiny negative value
+=>     // (float32); wrap it like any other ring-buffer index instead of reading
+=>     // data[size].
+=>     if (p >= float(data.size()))
+=>       p -= float(data.size());
+# DelayScan: exhaustive over all float32 macro values m in [0,1] (1065353217 values) unless noted
+# 'old_hits' = macro values for which the OLD index math reads data[size]; 'new_bad_index' = NEW index outside [0,size)
+# extracted-real-code check: old.read == new.read on 10703 (write,delay) pairs where old index is in range: mismatches=0
+Space reverb[0]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[1]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[2]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[3]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[4]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[5]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[6]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[7]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[8]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[9]                    sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[10]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[11]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[12]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[13]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[14]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[15]                   sr=44100    size=11470  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=882.000061
+== Space reverb all 16 lines sr=44100: old_hits=1 new_bad=0
+Space allpass ch0 stage0           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch0 stage1           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch0 stage2           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch0 stage3           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage0           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=882.000061
+Space allpass ch1 stage1           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage2           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage3           sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.00 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.00 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.10 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.10 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.25 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.25 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.50 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.50 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.65 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.65 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.75 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=0.75 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=1.00 ch0 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage0        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=1323.00012
+Diffuser m3=1.00 ch1 stage1        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage2        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage3        sr=44100    size=13234  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Comb                               sr=44100    size=52924  floats_in_[0,1]=1065353217 old_hits=2 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=3528.00024
+Space reverb[0]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=5916.00049
+Space reverb[1]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=6324.00049
+Space reverb[2]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[3]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=7212.00049
+Space reverb[4]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=7716.00049
+Space reverb[5]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=8124.00049
+Space reverb[6]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[7]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[8]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[9]                    sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[10]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[11]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[12]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[13]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[14]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space reverb[15]                   sr=48000    size=12484  floats_in_[0,1]=1065353217 old_hits=1 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=960.000061
+== Space reverb all 16 lines sr=48000: old_hits=6 new_bad=0
+Space allpass ch0 stage0           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=9 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=864.000061
+Space allpass ch0 stage1           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch0 stage2           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch0 stage3           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage0           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=7 (0.0000%) new_bad_index=0 first m=1 (bits 0x00000001) d=960.000061
+Space allpass ch1 stage1           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage2           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Space allpass ch1 stage3           sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.00 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.00 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.00 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.10 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.10 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.10 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.25 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.25 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.25 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.50 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.50 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.50 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.65 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.65 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.65 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.75 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=0.75 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=0.75 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=1.00 ch0 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch0 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage0        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=5 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=48.0000038
+Diffuser m3=1.00 ch1 stage1        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage2        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Diffuser m3=1.00 ch1 stage3        sr=48000    size=14404  floats_in_[0,1]=1065353217 old_hits=0 (0.0000%) new_bad_index=0
+Comb                               sr=48000    size=57604  floats_in_[0,1]=1065353217 old_hits=8 (0.0000%) new_bad_index=0 first m=0 (bits 0x00000000) d=96.0000076
+# bruteforce shortcut check: 140815 (size,d) pairs, all writes vs write==floor(d) only: disagreements=0
+Tape (one channel)  sr=44100   size=52924  Wow macro=0.00 (v1=0.00 ms): samples=26460000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=1984.50012
+Tape (one channel)  sr=44100   size=52924  Wow macro=0.10 (v1=0.30 ms): samples=26460000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=1984.50012
+Tape (one channel)  sr=44100   size=52924  Wow macro=0.30 (v1=0.90 ms): samples=26460000 (600 s audio) old_hits=1 new_bad_index=0; constant part sr*.045f=1984.50012
+Tape (one channel)  sr=44100   size=52924  Wow macro=0.50 (v1=1.50 ms): samples=26460000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=1984.50012
+Tape (one channel)  sr=44100   size=52924  Wow macro=1.00 (v1=3.00 ms): samples=26460000 (600 s audio) old_hits=1 new_bad_index=0; constant part sr*.045f=1984.50012
+Tape (one channel)  sr=48000   size=57604  Wow macro=0.00 (v1=0.00 ms): samples=28800000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=2160
+Tape (one channel)  sr=48000   size=57604  Wow macro=0.10 (v1=0.30 ms): samples=28800000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=2160
+Tape (one channel)  sr=48000   size=57604  Wow macro=0.30 (v1=0.90 ms): samples=28800000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=2160
+Tape (one channel)  sr=48000   size=57604  Wow macro=0.50 (v1=1.50 ms): samples=28800000 (600 s audio) old_hits=1 new_bad_index=0; constant part sr*.045f=2160
+Tape (one channel)  sr=48000   size=57604  Wow macro=1.00 (v1=3.00 ms): samples=28800000 (600 s audio) old_hits=0 new_bad_index=0; constant part sr*.045f=2160
+# delay-scan end 2026-10-24 22:36:10 exit=0

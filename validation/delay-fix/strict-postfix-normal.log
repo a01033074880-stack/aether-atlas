@@ -1,0 +1,22 @@
+# strict-runs postfix-normal start 2026-10-24 22:42:56 Asia/Shanghai exe=C:\Users\24168\Documents\Projects\wt-fixfix\build-fixfix\AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe built=10/24/2026 22:03:39 N=20 spinners=0 AETHER_STRICT_RENDER_DETERMINISM=1
+run 1 exit=0 PASS cpu_before=36% secs=47 RESULT 9 tests passed, 0 failed 
+run 2 exit=0 PASS cpu_before=25% secs=45 RESULT 9 tests passed, 0 failed 
+run 3 exit=0 PASS cpu_before=17% secs=43 RESULT 9 tests passed, 0 failed 
+run 4 exit=0 PASS cpu_before=26% secs=46 RESULT 9 tests passed, 0 failed 
+run 5 exit=0 PASS cpu_before=20% secs=47 RESULT 9 tests passed, 0 failed 
+run 6 exit=0 PASS cpu_before=12% secs=25 RESULT 9 tests passed, 0 failed 
+run 7 exit=0 PASS cpu_before=36% secs=27 RESULT 9 tests passed, 0 failed 
+run 8 exit=0 PASS cpu_before=36% secs=26 RESULT 9 tests passed, 0 failed 
+run 9 exit=0 PASS cpu_before=28% secs=24 RESULT 9 tests passed, 0 failed 
+run 10 exit=0 PASS cpu_before=36% secs=28 RESULT 9 tests passed, 0 failed 
+run 11 exit=0 PASS cpu_before=27% secs=34 RESULT 9 tests passed, 0 failed 
+run 12 exit=0 PASS cpu_before=25% secs=28 RESULT 9 tests passed, 0 failed 
+run 13 exit=0 PASS cpu_before=34% secs=27 RESULT 9 tests passed, 0 failed 
+run 14 exit=0 PASS cpu_before=39% secs=25 RESULT 9 tests passed, 0 failed 
+run 15 exit=0 PASS cpu_before=26% secs=25 RESULT 9 tests passed, 0 failed 
+run 16 exit=0 PASS cpu_before=25% secs=26 RESULT 9 tests passed, 0 failed 
+run 17 exit=0 PASS cpu_before=25% secs=27 RESULT 9 tests passed, 0 failed 
+run 18 exit=0 PASS cpu_before=24% secs=25 RESULT 9 tests passed, 0 failed 
+run 19 exit=0 PASS cpu_before=24% secs=25 RESULT 9 tests passed, 0 failed 
+run 20 exit=0 PASS cpu_before=20% secs=26 RESULT 9 tests passed, 0 failed 
+# strict-runs postfix-normal end 2026-10-24 22:53:41 SUMMARY processes=20 pass=20 fail=0 spinners=0
