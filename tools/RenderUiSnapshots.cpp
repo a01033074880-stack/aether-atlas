@@ -33,6 +33,28 @@ int main(int argc,char** argv) {
     std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
     auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());
     if(editor==nullptr) return 3;
+    // "v2" mode: compact 50% layout set plus regression shots. Usage: AetherUiSnapshots <dir> v2
+    if(argc>2&&juce::String(argv[2])=="v2") {
+        bool good=true;
+        auto shot=[&](const juce::String& name) {
+            for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-v2-"+name+"-"+juce::String(int(scale))+"x.png"),editor->createComponentSnapshot(editor->getLocalBounds(),true,scale))&&good;
+        };
+        const char* names[]={"patch","fm","motion","all"};
+        editor->performUiAction("zoom.50");
+        for(int ws=0;ws<4;++ws) { editor->setMinimalMode(ws==3); if(ws<3) editor->setWorkspace(ws); shot(juce::String(names[ws])+"-zoom.50-720x450"); }
+        editor->setMinimalMode(false); editor->setWorkspace(0);
+        setParam(p,"global.bypass",1); setParam(p,"node.3.on",0); shot("patch-zoom.50-bypass-disabled-node"); setParam(p,"global.bypass",0); setParam(p,"node.3.on",1);
+        editor->setSize(1100,750); shot("patch-zoom.50-max-1100x750");
+        editor->setSize(1000,625); shot("patch-compact-1000x625");
+        editor->setSize(1030,640); shot("patch-compact-edge-1030x640");
+        editor->setSize(1040,650); shot("patch-default-layout-edge-1040x650");
+        editor->performUiAction("zoom.75"); shot("patch-zoom.75-1080x675");
+        editor->performUiAction("zoom.100");
+        for(const auto& size:{std::pair<int,int>{1180,780},{1440,900},{2200,1500}}) { editor->setSize(size.first,size.second); shot("patch-"+juce::String(size.first)+"x"+juce::String(size.second)); }
+        editor->performUiAction("zoom.50"); editor->performUiAction("slot.6"); editor->performUiAction("module.5"); shot("patch-zoom.50-slot6-module5");
+        editor->performUiAction("slot.1"); editor->performUiAction("route.1.2"); shot("patch-zoom.50-cable-selected");
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
     const char* workspaces[]={"patch","fm","motion","all"};

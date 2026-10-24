@@ -8,6 +8,7 @@
 namespace {
 int passed=0,failed=0;
 void require(bool ok,const char* why) { if(!ok) throw std::runtime_error(why); }
+void require(bool ok,const juce::String& why) { if(!ok) throw std::runtime_error(why.toStdString()); }
 void set(AetherAudioProcessor& p,const char* id,float value) {
     auto* param=p.state.getParameter(id); require(param!=nullptr,"parameter missing");
     param->setValueNotifyingHost(param->convertTo0to1(value));
@@ -341,12 +342,73 @@ int main(int argc,char** argv) {
             AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
             auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
             auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
-            const std::pair<const char*,float> zooms[]={{"zoom.50",.5f},{"zoom.75",.75f},{"zoom.100",1.f}};
-            for(const auto& [action,scale]:zooms) {
-                require(editor->performUiAction(action),"zoom action missing");
-                require(std::abs(content->getTransform().getScaleFactor()-scale)<0.001f,"zoom did not set content scale");
-                require(content->getWidth()==1440 && content->getHeight()==900,"zoom content canvas changed");
+            // 50% uses the compact 1000x625 canvas (scale 0.72, so text stays >=10 effective px); 75% and 100% keep the 1440x900 canvas at scale == zoom.
+            struct Preset{const char* action;float scale;int w,h;};
+            const Preset zooms[]={{"zoom.50",.72f,1000,625},{"zoom.75",.75f,1440,900},{"zoom.100",1.f,1440,900}};
+            for(const auto& z:zooms) {
+                require(editor->performUiAction(z.action),"zoom action missing");
+                require(std::abs(content->getTransform().getScaleFactor()-z.scale)<0.001f,"zoom did not set content scale");
+                require(content->getWidth()==z.w && content->getHeight()==z.h,"zoom content canvas changed");
             }
+        });
+        test("Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size",[&] {
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+            // 50% and the small 75% windows use the compact canvas (fit scale < 0.72); larger windows keep the 1440x900 canvas.
+            struct Case{const char* zoom;std::vector<std::pair<int,int>> sizes;};
+            const std::vector<Case> cases={{"zoom.50",{{720,450},{800,450},{720,620},{1000,625},{1030,640},{1100,750}}},{"zoom.75",{{885,585},{1080,675},{1500,900}}},{"zoom.100",{{1180,780},{1440,900},{2200,1500}}}};
+            for(const auto& testCase:cases) {
+            require(editor->performUiAction(testCase.zoom),"zoom action missing");
+            for(int workspace=0;workspace<4;++workspace) for(const auto& sizePair:testCase.sizes) {
+                const int size[2]={sizePair.first,sizePair.second};
+                editor->setMinimalMode(workspace==3);if(workspace<3)editor->setWorkspace(workspace);editor->setSize(size[0],size[1]);
+                const float scale=content->getTransform().getScaleFactor();
+                const bool expectCompact=std::min(float(size[0])/1440.f,float(size[1])/900.f)<.72f;
+                require((content->getWidth()<1440)==expectCompact,"compact canvas selection wrong");
+                require(scale>=.62f,"compact scale too small for 10 effective px text");
+                require(juce::jlimit(11.f,16.f,10.f/scale)*scale>=9.99f,"effective text floor below 10px");
+                const auto shown=content->getBoundsInParent().toFloat();
+                require(shown.getX()<=0.01f && shown.getY()<=0.01f && shown.getRight()>=float(size[0])-1.01f && shown.getBottom()>=float(size[1])-1.01f,"compact content does not cover the editor");
+                require(shown.getRight()<=float(size[0])+1.01f && shown.getBottom()<=float(size[1])+1.01f,"compact content overflows the editor");
+                std::vector<juce::Component*> visible;
+                for(auto* child:content->getChildren()) if(child->isVisible()&&!child->getBounds().isEmpty()&&dynamic_cast<juce::TooltipWindow*>(child)==nullptr) {
+                    require(content->getLocalBounds().contains(child->getBounds()),"compact control lies outside the content area");
+                    visible.push_back(child);
+                }
+                for(size_t i=0;i<visible.size();++i) for(size_t j=i+1;j<visible.size();++j)
+                    require(!visible[i]->getBounds().intersects(visible[j]->getBounds()),"compact controls overlap: "+visible[i]->getComponentID()+" / "+visible[j]->getComponentID()+" workspace "+juce::String(workspace)+" size "+juce::String(size[0])+"x"+juce::String(size[1]));
+                // Text must fit its widget at the font the look-and-feel really uses.
+                juce::TextButton* reference=nullptr;
+                std::function<void(juce::Component&)> find=[&](juce::Component& c){if(reference==nullptr)reference=dynamic_cast<juce::TextButton*>(&c);for(auto* k:c.getChildren())find(*k);};find(*content);
+                require(reference!=nullptr,"no reference button");
+                const auto buttonFont=reference->getLookAndFeel().getTextButtonFont(*reference,28);
+                std::function<void(juce::Component&)> check=[&](juce::Component& c){
+                    if(!c.isVisible())return;
+                    const auto where=c.getComponentID()+" workspace "+juce::String(workspace)+" size "+juce::String(size[0])+"x"+juce::String(size[1]);
+                    if(auto* b=dynamic_cast<juce::TextButton*>(&c))
+                        require(juce::GlyphArrangement::getStringWidthInt(buttonFont,b->getButtonText())<=b->getWidth()-10,"button text truncated: "+where);
+                    else if(auto* t=dynamic_cast<juce::ToggleButton*>(&c)) {
+                        require(juce::GlyphArrangement::getStringWidthInt(buttonFont,t->getButtonText())<=t->getWidth()-18,"toggle text truncated: "+where);
+                        if(t->getComponentID()=="global.bypass")require(juce::GlyphArrangement::getStringWidthInt(buttonFont,"BYPASS ON")<=t->getWidth()-16,"bypass chip text truncated: "+where);
+                    } else if(auto* cb=dynamic_cast<juce::ComboBox*>(&c)) {
+                        const auto font=cb->getLookAndFeel().getComboBoxFont(*cb);
+                        // Compact layout: every entry must fit the closed box. Default layout: only the current selection (popup menus widen themselves; very long FM algorithm names in the 260px default-layout box are a known pre-existing limit).
+                        for(int i=0;i<cb->getNumItems();++i) if(expectCompact||cb->getSelectedItemIndex()==i)
+                            require(juce::GlyphArrangement::getStringWidthInt(font,cb->getItemText(i))<=cb->getWidth()-40,"combo text truncated: "+where+" / "+cb->getItemText(i));
+                    } else if(auto* s=dynamic_cast<juce::Slider*>(&c)) {
+                        for(auto* k:s->getChildren()) if(auto* label=dynamic_cast<juce::Label*>(k)) {
+                            const auto font=label->getLookAndFeel().getLabelFont(*label);
+                            for(double v:{expectCompact?s->getMinimum():s->getValue(),expectCompact?s->getMaximum():s->getValue(),s->getValue()})
+                                require(juce::GlyphArrangement::getStringWidthInt(font,s->getTextFromValue(v))<=label->getWidth()-10,"slider value truncated: "+where+" / "+s->getTextFromValue(v));
+                        }
+                    }
+                    for(auto* k:c.getChildren())check(*k);
+                };
+                check(*content);
+            }
+            }
+            editor->performUiAction("zoom.100");editor->setMinimalMode(false);editor->setWorkspace(0);
         });
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
