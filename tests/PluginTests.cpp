@@ -689,7 +689,7 @@ int main(int argc,char** argv) {
                 // host-visible names / automation flags
                 for(const auto& spec:aether::parameterSpecs()) if(spec.id.startsWith("source.")) {
                     auto* param=p.state.getParameter(spec.id);require(param!=nullptr&&param->getName(100)==juce::String(spec.name),"host name differs from UI name: "+spec.id);
-                    require(param->isAutomatable()==(spec.id!="source.seed"&&spec.id!="source.antialias"),"automation flag: "+spec.id);
+                    require(param->isAutomatable(),"automation flag (all source params automatable, incl. seed/antialias): "+spec.id);
                 }
                 // extreme value texts are what the fit tests measure; show them explicitly
                 p.setParameterValue("source.engine",1);(void)editor->sourceStatus();
