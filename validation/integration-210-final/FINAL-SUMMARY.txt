@@ -1,0 +1,31 @@
+﻿INTEGRATION 2.1.0-rc FINAL SUMMARY
+date: 2026-10-25 00:11:08 Asia/Shanghai
+worktree: C:\Users\24168\Documents\Projects\wt-integration-210
+branch: integration/2.1.0-rc
+pre_merge_tip: 830ce576463b2e9579b3d592b936ef7234bffab5
+final_HEAD: c2e21df4ceabe4f515171165319b19f3b5626edc
+
+MERGES:
+1. a84b1cb583c26a723c7eea68a57b58a6ddc56b2c -> 73a588f21483fb11f56da5e6b0e61c74b2e5d996 (ok)
+2. 2d259b4c2fd47629eeea24cbda009099ce202ad8 -> d0be31197392d5d739d1a56ea225a6504fe177c0 (CMakeLists union resolve authorized)
+3. 44348314720040b872ecdfd198df1a9545f4ff65 -> cc0add98d1483c349f27b96242c246fe96a5a7cc (ok, auto-merge)
+
+FOLLOW-UP COMMITS:
+- ff3d836eaada34aa2e2483cb8b2262eb8f8cad58 schema tests + version 2.1.0
+- f9cf4de3b434c59e443d860056bba47e74ccdf63 PluginTests automatable assert
+- c2e21df4ceabe4f515171165319b19f3b5626edc package schema metadata 3
+
+VALIDATION:
+- check-version: exit 0 (2.1.0, schema 1..3 allowlist text)
+- first build.ps1: compile OK 315/315; ctest 5/6 (aether_plugin failed stale antialias assert)
+- after fix rebuild + ctest: exit 0, 6/6
+- pluginval micro: exit 0, v2.1.0, SUCCESS (strictness 5)
+- pluginval synth: exit 0, v2.1.0, SUCCESS (strictness 5)
+- package: exit 0
+
+PACKAGE (worktree dist only; main repo dist untouched):
+- C:\Users\24168\Documents\Projects\wt-integration-210\dist\AetherAtlas-2.1.0-Windows-x64.zip
+- bytes=42043220
+- 69a141e1923f3aea466a7fae59147a7a48f2e320441b6916223baea63f8fdb05  AetherAtlas-2.1.0-Windows-x64.zip
+- release_files=44
+- RELEASE.json version=2.1.0 schema=3 sourceCommit=c2e21df4ceabe4f515171165319b19f3b5626edc

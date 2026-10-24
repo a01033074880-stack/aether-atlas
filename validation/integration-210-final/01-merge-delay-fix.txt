@@ -1,0 +1,13 @@
+﻿MERGE 1: fix/delay-read-wrap
+source: a84b1cb583c26a723c7eea68a57b58a6ddc56b2c
+exit: 0
+result_HEAD: 73a588f21483fb11f56da5e6b0e61c74b2e5d996
+conflicts: 
+status:
+?? validation/integration-210-final/
+
+log:
+73a588f Merge fix/delay-read-wrap (a84b1cb) into integration/2.1.0-rc
+830ce57 test: drop flag/empty files from 2.1.0-rc validation dir
+dcd155c test: 2.1.0-rc merge validation logs (check-version, fresh build, ctest 5/5, pluginval x2, plugin tests 29)
+

@@ -1,0 +1,25 @@
+﻿MERGE 2 CONFLICT DETAIL
+date: 2026-10-24 23:29:37 A37ia/S11an公元11ai
+ours_HEAD_after_merge1: 73a588f21483fb11f56da5e6b0e61c74b2e5d996
+ours_branch: integration/2.1.0-rc (includes merge of a84b1cb)
+theirs: 2d259b4c2fd47629eeea24cbda009099ce202ad8 (test/fixtures-after-delay-fix)
+merge_base: 912ab2b577406955bebe6f06c9c3d2134f622bce
+conflict_files: CMakeLists.txt
+MERGE_HEAD: 2d259b4c2fd47629eeea24cbda009099ce202ad8
+
+Instruction followed: STOPPED. Did not resolve. Did not abort yet (left in conflicted state for parent decision). No semantic edits applied.
+
+OURS CMakeLists changes vs base:
+ CMakeLists.txt | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+
+THEIRS CMakeLists changes vs base:
+ CMakeLists.txt | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+
+Conflict marker line numbers:
+111:<<<<<<< HEAD
+118:=======
+128:>>>>>>> 2d259b4c2fd47629eeea24cbda009099ce202ad8

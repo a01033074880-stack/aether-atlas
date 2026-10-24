@@ -1,0 +1,5 @@
+﻿PACKAGE_EXIT=0
+zip=C:\Users\24168\Documents\Projects\wt-integration-210\dist\AetherAtlas-2.1.0-Windows-x64.zip
+zip_bytes=42043220
+sha256_file=69a141e1923f3aea466a7fae59147a7a48f2e320441b6916223baea63f8fdb05  AetherAtlas-2.1.0-Windows-x64.zip
+release_file_count=44

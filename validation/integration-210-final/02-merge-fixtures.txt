@@ -1,0 +1,88 @@
+﻿MERGE 2: test/fixtures-after-delay-fix
+source: 2d259b4c2fd47629eeea24cbda009099ce202ad8
+exit: 1
+result_HEAD: 73a588f21483fb11f56da5e6b0e61c74b2e5d996
+conflicts: CMakeLists.txt
+status:
+A  .gitattributes
+UU CMakeLists.txt
+A  tests/FixtureTests.cpp
+A  tests/fixtures/README.md
+A  tests/fixtures/golden/render-48000.json
+A  "tests/fixtures/presets-v1.0.0/Clean Canvas.aether"
+A  "tests/fixtures/presets-v1.0.0/Copper Strings.aether"
+A  "tests/fixtures/presets-v1.0.0/Ember Guitar.aether"
+A  "tests/fixtures/presets-v1.0.0/Gentle Orbit.aether"
+A  "tests/fixtures/presets-v1.0.0/Glass Resonator.aether"
+A  "tests/fixtures/presets-v1.0.0/Iron Drum Room.aether"
+A  "tests/fixtures/presets-v1.0.0/Nebula Drift.aether"
+A  "tests/fixtures/presets-v1.0.0/Prism Keys.aether"
+A  "tests/fixtures/presets-v1.0.0/Resynth Halo.aether"
+A  "tests/fixtures/presets-v1.0.0/Vocal Silhouette.aether"
+A  "tests/fixtures/presets-v1.0.0/Warm Console.aether"
+A  "tests/fixtures/presets-v1.0.0/Wooden Echoes.aether"
+A  tests/fixtures/state-v2.0.1/ab-snapshot-b.bin
+A  tests/fixtures/state-v2.0.1/ab-snapshot-b.xml
+A  tests/fixtures/state-v2.0.1/custom-graph-fm.bin
+A  tests/fixtures/state-v2.0.1/custom-graph-fm.xml
+A  tests/fixtures/state-v2.0.1/default.bin
+A  tests/fixtures/state-v2.0.1/default.xml
+A  tests/fixtures/state-v2.0.1/factory-00-Gentle-Orbit.bin
+A  tests/fixtures/state-v2.0.1/factory-00-Gentle-Orbit.xml
+A  tests/fixtures/state-v2.0.1/factory-05-Iron-Drum-Room.bin
+A  tests/fixtures/state-v2.0.1/factory-05-Iron-Drum-Room.xml
+A  tests/fixtures/state-v2.0.1/factory-11-Copper-Strings.bin
+A  tests/fixtures/state-v2.0.1/factory-11-Copper-Strings.xml
+A  tests/fixtures/state-v2.0.1/factory-12-Atlas---Suspended-Paper.bin
+A  tests/fixtures/state-v2.0.1/factory-12-Atlas---Suspended-Paper.xml
+A  tests/fixtures/state-v2.0.1/factory-20-Atlas---Frozen-Architecture.bin
+A  tests/fixtures/state-v2.0.1/factory-20-Atlas---Frozen-Architecture.xml
+A  tests/fixtures/state-v2.0.1/factory-35-Motion---Stochastic-Room.bin
+A  tests/fixtures/state-v2.0.1/factory-35-Motion---Stochastic-Room.xml
+A  tests/repro/DelayScan.cpp
+A  tests/repro/ReproTool.cpp
+A  validation/delay-fix/build-all.ps1
+A  validation/delay-fix/build.log
+A  validation/delay-fix/build.ps1
+A  validation/delay-fix/compare_golden.py
+A  validation/delay-fix/ctest.log
+A  validation/delay-fix/delay-scan.log
+A  validation/delay-fix/env.ps1
+A  validation/delay-fix/fixtures-after-fix-with-OLD-golden.log
+A  validation/delay-fix/fresh.ps1
+A  validation/delay-fix/generate-golden.log
+A  validation/delay-fix/golden-change-proof.log
+A  validation/delay-fix/golden-old-f688c6d.json
+A  validation/delay-fix/heapfill-postfix.log
+A  validation/delay-fix/heapfill-prefix.log
+A  validation/delay-fix/heapfill-regress.ps1
+A  validation/delay-fix/prepost-diff.log
+A  validation/delay-fix/prepost.ps1
+A  validation/delay-fix/prepost.py
+A  validation/delay-fix/scan-delay.ps1
+A  validation/delay-fix/strict-all.ps1
+A  validation/delay-fix/strict-postfix-highload.log
+A  validation/delay-fix/strict-postfix-normal.log
+A  validation/delay-fix/strict-prefix-highload.log
+A  validation/delay-fix/strict-prefix-normal.log
+A  validation/delay-fix/strict-runs.ps1
+A  validation/fixtures-run/PROGRESS.txt
+A  validation/fixtures-run/build.log
+A  validation/fixtures-run/ctest.log
+A  validation/fixtures-run/fixture-tests-strict.log
+A  validation/fixtures-run/fixture-tests.log
+A  validation/fixtures-run/generate-golden.log
+A  validation/fixtures-run/generate-states.log
+A  validation/fixtures-run/investigation/README.txt
+A  validation/fixtures-run/investigation/direct-runs-before-fix-6x.log
+A  validation/fixtures-run/investigation/direct-runs-srand-experiment-6x.log
+A  validation/fixtures-run/investigation/poison-stack-scribble.log
+A  validation/fixtures-run/investigation/stress-all-fresh-process.log
+A  validation/fixtures-run/measure.log
+?? validation/integration-210-final/
+
+log:
+73a588f Merge fix/delay-read-wrap (a84b1cb) into integration/2.1.0-rc
+830ce57 test: drop flag/empty files from 2.1.0-rc validation dir
+dcd155c test: 2.1.0-rc merge validation logs (check-version, fresh build, ctest 5/5, pluginval x2, plugin tests 29)
+

@@ -1,0 +1,53 @@
+﻿MERGE 2 STOPPED ON CONFLICT — no resolution applied
+date: 2026-10-24 23:29:58 Asia/Shanghai
+worktree: C:\Users\24168\Documents\Projects\wt-integration-210
+branch: integration/2.1.0-rc
+
+MERGE 1 OK:
+  source: a84b1cb583c26a723c7eea68a57b58a6ddc56b2c
+  result: 73a588f21483fb11f56da5e6b0e61c74b2e5d996
+  strategy: ort, 1 file (ModuleState.h +5)
+
+MERGE 2 CONFLICT:
+  source: 2d259b4c2fd47629eeea24cbda009099ce202ad8
+  MERGE_HEAD: 2d259b4c2fd47629eeea24cbda009099ce202ad8
+  ours_HEAD: 73a588f21483fb11f56da5e6b0e61c74b2e5d996
+  merge_base: 912ab2b577406955bebe6f06c9c3d2134f622bce
+  conflict_files: CMakeLists.txt ONLY
+  other files staged cleanly (fixtures, golden, repro tools, validation/delay-fix, etc.)
+
+CONFLICT REGION (lines 111-128): both sides ADDED different console apps after aether_plugin test.
+  OURS keeps: AetherUiSnapshots, AetherRenderPresets (from ui/source-panel lineage)
+  THEIRS adds: AetherFixtureTests (+ aether_fixtures ctest), AetherReproTool
+
+EXACT MARKERS:
+<<<<<<< HEAD (ours = integration/2.1.0-rc @ 73a588f after merge1 a84b1cb)
+  juce_add_console_app(AetherUiSnapshots PRODUCT_NAME "Aether UI Snapshots")
+  target_sources(AetherUiSnapshots PRIVATE tools/RenderUiSnapshots.cpp)
+  target_link_libraries(AetherUiSnapshots PRIVATE AetherMicro)
+  juce_add_console_app(AetherRenderPresets PRODUCT_NAME "Aether Render Presets")
+  target_sources(AetherRenderPresets PRIVATE tools/RenderPresets.cpp)
+  target_link_libraries(AetherRenderPresets PRIVATE AetherMicro)
+=======
+  juce_add_console_app(AetherFixtureTests PRODUCT_NAME "Aether Fixture Tests")
+  target_sources(AetherFixtureTests PRIVATE tests/FixtureTests.cpp)
+  target_link_libraries(AetherFixtureTests PRIVATE AetherMicro juce::juce_cryptography)
+  target_compile_definitions(AetherFixtureTests PRIVATE AETHER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  add_test(NAME aether_fixtures COMMAND AetherFixtureTests)
+  juce_add_console_app(AetherReproTool PRODUCT_NAME "Aether Repro Tool")
+  target_sources(AetherReproTool PRIVATE tests/repro/ReproTool.cpp)
+  target_link_libraries(AetherReproTool PRIVATE AetherMicro juce::juce_cryptography)
+  target_compile_definitions(AetherReproTool PRIVATE AETHER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+>>>>>>> 2d259b4 (test/fixtures-after-delay-fix)
+
+STATE LEFT AS-IS: merge in progress, UU CMakeLists.txt, not aborted, not resolved.
+NOT DONE: merge3 feat/source-layer, schema tests, version 2.1.0, build/ctest/pluginval/check-version, package.
+
+Artifacts under validation\integration-210-final\:
+  00-pre-merge.txt, 00-pre-merge-log.txt
+  01-merge-delay-fix.txt
+  02-merge-fixtures.txt, 02-merge-fixtures-CONFLICT.txt
+  CMakeLists.CONFLICTED.txt, CMakeLists.ours-after-merge1.txt,
+  CMakeLists.theirs-fixtures.txt, CMakeLists.pre-merge.txt
+
+NOTE for parent: conflict is additive-only. A union keeping ALL four targets would preserve both sides' semantics without rewriting either. Per hard constraint this executor did NOT apply that union — awaiting parent instruction.

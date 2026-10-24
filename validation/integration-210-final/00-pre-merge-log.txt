@@ -1,0 +1,5 @@
+﻿830ce57 test: drop flag/empty files from 2.1.0-rc validation dir
+dcd155c test: 2.1.0-rc merge validation logs (check-version, fresh build, ctest 5/5, pluginval x2, plugin tests 29)
+6db0ddf Merge ui/source-panel (334bc9f) into integration/2.1.0-rc
+334bc9f tools(ui): add v5 Source panel snapshot mode to RenderUiSnapshots
+d7f2863 test(ui): cover the Source panel layouts, bindings and engine/mode states

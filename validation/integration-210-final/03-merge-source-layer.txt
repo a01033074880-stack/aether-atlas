@@ -1,0 +1,16 @@
+﻿MERGE 3: feat/source-layer
+source: 44348314720040b872ecdfd198df1a9545f4ff65
+exit: 0
+result_HEAD: cc0add98d1483c349f27b96242c246fe96a5a7cc
+conflicts: 
+status:
+?? validation/integration-210-final/
+
+log:
+cc0add9 Merge feat/source-layer (4434831) into integration/2.1.0-rc
+d0be311 Merge test/fixtures-after-delay-fix (2d259b4) into integration/2.1.0-rc
+73a588f Merge fix/delay-read-wrap (a84b1cb) into integration/2.1.0-rc
+2d259b4 validation: strict fresh-process runs (post-fix 20/20 normal, 10/10 under 24 spinners; pre-fix 1/10 normal, 0/4 under load)
+1d19aaf docs(fixtures): README - known issue replaced by root cause + fix, new golden SHA
+9341e92 validation: Delay::read call-site numeric scan log (quick: 44.1k/48k, bruteforce shortcut check)
+

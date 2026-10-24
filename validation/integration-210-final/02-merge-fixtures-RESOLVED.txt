@@ -1,0 +1,4 @@
+﻿MERGE 2 COMPLETED (union resolve)
+exit: 0
+result_HEAD: b11028c3f42d4e4577c8450690dc29e5a3c1ebd1
+union: AetherUiSnapshots, AetherRenderPresets, AetherFixtureTests, AetherReproTool

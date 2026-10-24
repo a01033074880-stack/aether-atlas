@@ -1,0 +1,45 @@
+﻿BUILD_EXIT=1
+elapsed_sec=1268
+build_dir=build-integ-210-final
+log=C:\Users\24168\Documents\Projects\wt-integration-210\validation\integration-210-final\build.log
+tail:
+PASS first custom FM edit preserves the current algorithm morph
+PASS FM remains enabled when the Atlas effects graph is bypassed
+PASS audio-driven FM and pitch modulation do not depend on host block cuts
+PASS all factory presets render finite stereo
+PASS user preset JSON roundtrip and validation
+PASS A/B snapshots restore independent values
+PASS mono layout, repeated prepare and rates
+PASS sample-offset MIDI starts only at its timestamp
+PASS external FX sidechain excites resonance without direct leakage
+PASS editor lifecycle and rendered snapshots
+PASS Atlas editor zoom switches between 50, 75 and 100 percent
+PASS Atlas content fits the window at minimum, default and maximum sizes
+PASS Atlas zoom presets keep content scale equal to the zoom
+PASS Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size
+FAIL Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice: automation flag: source.antialias
+RESULT 30 tests passed, 1 failed
+
+    Start 6: aether_fixtures
+6/6 Test #6: aether_fixtures ..................   Passed   24.95 sec
+
+83% tests passed, 1 tests failed out of 6
+
+Total Test time (real) =  66.77 sec
+
+The following tests FAILED:
+	  5 - aether_plugin (Failed)
+powershell.exe : Errors while running CTest
+所在位置 C:\Users\24168\AppData\Local\Temp\ps-script-178093e2-71ba-4e9a-8cc4-213b1b4dcd05.ps1:127 字符: 1
++ & powershell -NoProfile -File scripts\build.ps1 `
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Errors while running CTest:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Tests failed.
+所在位置 C:\Users\24168\Documents\Projects\wt-integration-210\scripts\build.ps1:35 字符: 32
++     if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
++                                ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Tests failed.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Tests failed.
+ 
