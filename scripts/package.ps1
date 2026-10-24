@@ -5,12 +5,15 @@ param(
     [string]$JucePath = '',
     [string]$ValidationDirectory = 'tmp/validation-v2',
     [string]$ScreenshotsDirectory = 'out/atlas-screenshots',
-    [string]$AudioDirectory = 'out/atlas-audio'
+    [string]$AudioDirectory = 'out/atlas-audio',
+    [switch]$AllowDirty
 )
 $ErrorActionPreference = 'Stop'
 $aetherRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $aetherRoot
 try {
+    # RELEASE.json records sourceCommit and the source archive is taken from HEAD: refuse to package uncommitted tracked changes.
+    if (-not $AllowDirty -and (((& git status --porcelain --untracked-files=no) | Out-String).Trim())) { throw 'Working tree has uncommitted tracked changes; commit them first (or pass -AllowDirty).' }
     $aetherVersion = '2.0.1'
     $aetherName = "AetherAtlas-$aetherVersion-Windows-x64"
     $aetherRelease = Join-Path $aetherRoot "dist/$aetherName"
@@ -44,7 +47,7 @@ try {
     if (Test-Path -LiteralPath $AudioDirectory) { Get-ChildItem -LiteralPath $AudioDirectory -Filter '*.wav' | Copy-Item -Destination (Join-Path $aetherRelease 'Audio') }
     if (Test-Path -LiteralPath "$AudioDirectory/Atlas-module-catalog.json") { Copy-Item -LiteralPath "$AudioDirectory/Atlas-module-catalog.json" -Destination (Join-Path $aetherRelease 'docs') }
     if (Test-Path -LiteralPath $ValidationDirectory) {
-        foreach ($aetherEvidence in @('ctest-final.log','dsp-tests-final.log','fm-tests-final.log','modular-tests-final.log','plugin-tests.log','render-benchmark.log','dependencies-fx.log','pluginval-fx','pluginval-synth')) {
+        foreach ($aetherEvidence in @('ctest-final.log','dsp-tests-final.log','fm-tests-final.log','modular-tests-final.log','plugin-tests.log','render-benchmark.log','dependencies-fx.log','pluginval-fx','pluginval-synth','README.md','check-version.log','build.log','ctest.log','pluginval-fx.log','pluginval-synth.log')) {
             $aetherEvidencePath = Join-Path $ValidationDirectory $aetherEvidence
             if (Test-Path -LiteralPath $aetherEvidencePath) { Copy-Item -LiteralPath $aetherEvidencePath -Destination (Join-Path $aetherRelease 'Validation') -Recurse }
         }
