@@ -8,13 +8,16 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+      - name: Check version consistency
+        shell: pwsh
+        run: ./scripts/check-version.ps1
       - name: Configure and build pinned JUCE
         shell: pwsh
         run: ./scripts/build.ps1 -BuildDirectory build -Jobs 4
       - name: Upload VST3 and standalone
         uses: actions/upload-artifact@v4
         with:
-          name: AetherAtlas-2.0.0-Windows-x64
+          name: AetherAtlas-2.0.1-Windows-x64
           path: |
             build/AetherMicro_artefacts/Release/VST3
             build/AetherMicro_artefacts/Release/Standalone

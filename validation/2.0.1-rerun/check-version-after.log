@@ -1,0 +1,13 @@
+# check-version.ps1 AFTER doc fixes
+# date: 2026-10-24 15:52:42 (Asia/Shanghai)
+# base commit: c7e081b + uncommitted working-tree changes of branch chore/version-2.0.1
+# cmd: powershell -NoProfile -File scripts\check-version.ps1
+Authoritative version (CMakeLists.txt): 2.0.1
+ALLOWED  Source/PluginEditor.cpp:179: literal '2.0.0' allowed: editor footer DISPLAY text. File is owned by the UI branch (ui/min-size-fix); change it there, not in this docs/scripts patch.
+ALLOWED  Source/PluginProcessor.cpp:27: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:333: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:362: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:118: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+OK: all checked files are consistent with version 2.0.1 (6 allowlisted code literal(s)).
+# exit code: 0
