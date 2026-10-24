@@ -115,7 +115,7 @@ void AetherAudioProcessor::loadFactoryPreset(int index) {
     currentProgram.store(index); requestPanic();
 }
 juce::var AetherAudioProcessor::presetObject(const juce::String& name) const {
-    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","2.0.0"); root->setProperty("schema",2); root->setProperty("name",name);
+    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","2.0.0"); root->setProperty("schema",aether::stateSchema); root->setProperty("name",name);
     auto* values=new juce::DynamicObject();
     for(const auto& spec:aether::parameterSpecs()) values->setProperty(spec.id,state.getRawParameterValue(spec.id)->load());
     root->setProperty("parameters",juce::var(values)); return juce::var(root);
@@ -129,8 +129,11 @@ juce::Result AetherAudioProcessor::savePreset(const juce::File& file) {
 }
 void AetherAudioProcessor::applyValues(const juce::var& values) {
     auto* object=values.getDynamicObject(); if(object==nullptr) return;
-    for(const auto& spec:aether::parameterSpecs()) if(object->hasProperty(spec.id)) {
-        const float value=static_cast<float>(object->getProperty(spec.id));
+    for(const auto& spec:aether::parameterSpecs()) {
+        // Presets from before the source layer do not mention its parameters: they return to their defaults (layer off).
+        const bool present=object->hasProperty(spec.id);
+        if(!present && spec.version<2) continue;
+        const float value=present ? static_cast<float>(object->getProperty(spec.id)) : spec.defaultValue;
         if(auto* param=state.getParameter(spec.id)) { param->beginChangeGesture(); param->setValueNotifyingHost(param->convertTo0to1(juce::jlimit(spec.minimum,spec.maximum,value))); param->endChangeGesture(); }
     }
 }
@@ -139,7 +142,7 @@ juce::Result AetherAudioProcessor::loadPreset(const juce::File& file) {
     juce::var root; auto result=juce::JSON::parse(file.loadFileAsString(),root);
     if(result.failed()) return juce::Result::fail("Invalid preset JSON.");
     const int schema=static_cast<int>(root["schema"]);
-    if(root["product"].toString()!="AetherMicro" || schema<1 || schema>2 || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
+    if(root["product"].toString()!="AetherMicro" || schema<1 || schema>aether::stateSchema || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
     auto values=root["parameters"];
     for(const auto& spec:aether::parameterSpecs()) if(values.hasProperty(spec.id)) {
         auto value=values.getProperty(juce::Identifier(spec.id),{});

@@ -96,12 +96,57 @@ int main(int argc,char** argv) {
         editor->setWorkspace(0); editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("patch-default-1440x900");
         return good?0:1;
     }
+    // "v5" mode: Source workspace (Off empty state, Phase Geometry, Chaos) at every size / zoom, Mode=FX notice, extreme values, All params and patch/fm/motion regression. Usage: AetherUiSnapshots <dir> v5
+    if(argc>2&&juce::String(argv[2])=="v5") {
+        bool good=true;
+        auto shot=[&](const juce::String& name) {
+            for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-v5-"+name+"-"+juce::String(int(scale))+"x.png"),editor->createComponentSnapshot(editor->getLocalBounds(),true,scale))&&good;
+        };
+        struct Size { const char* name; int w,h; };
+        const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
+        auto allSizes=[&](const juce::String& prefix) {
+            editor->performUiAction("zoom.100");
+            for(const auto& size:sizes) { editor->setSize(size.w,size.h); shot(prefix+"-"+size.name); }
+            editor->performUiAction("zoom.75"); shot(prefix+"-zoom.75-1080x675");
+            editor->performUiAction("zoom.50"); shot(prefix+"-zoom.50-720x450");
+            editor->performUiAction("zoom.100");
+        };
+        setParam(p,"global.mode",2);
+        editor->setMinimalMode(false); editor->setWorkspace(3);
+        setParam(p,"source.engine",0); (void)editor->sourceStatus(); allSizes("source-off");
+        setParam(p,"source.engine",1); (void)editor->sourceStatus(); allSizes("source-pg");
+        setParam(p,"source.engine",2); (void)editor->sourceStatus(); allSizes("source-chaos");
+        // Extreme value texts: transpose -24 st, release 12 s, VPS ratio 16x, longest choice names, seed 65535.
+        setParam(p,"source.transpose",-24.f); setParam(p,"source.release",12.f); setParam(p,"source.attack",5.f); setParam(p,"source.seed",65535.f); setParam(p,"source.spread",1.f); setParam(p,"source.gain",1.f);
+        setParam(p,"source.pg.vpsratio",16.f); setParam(p,"source.pg.czshape",5.f); setParam(p,"source.pg.sequency",63.f); setParam(p,"source.pg.vpsd",.999f);
+        setParam(p,"source.engine",1); (void)editor->sourceStatus(); allSizes("source-pg-extremes");
+        setParam(p,"source.chaos.segments",32.f); setParam(p,"source.chaos.distribution",2.f); setParam(p,"source.chaos.momentum",.95f);
+        setParam(p,"source.engine",2); (void)editor->sourceStatus(); allSizes("source-chaos-extremes");
+        // Engine selected but Mode is not Synth (idle notice), and engine selected, Synth, but Source switched off.
+        setParam(p,"global.mode",0); (void)editor->sourceStatus();
+        editor->performUiAction("zoom.100"); editor->setSize(1180,780); shot("source-mode-fx-notice-min-1180x780");
+        editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("source-mode-fx-notice-default-1440x900");
+        editor->performUiAction("zoom.50"); shot("source-mode-fx-notice-zoom.50-720x450");
+        setParam(p,"global.mode",2); setParam(p,"source.enabled",0); (void)editor->sourceStatus();
+        editor->performUiAction("zoom.100"); editor->setSize(1180,780); shot("source-switched-off-min-1180x780");
+        editor->performUiAction("zoom.50"); shot("source-switched-off-zoom.50-720x450");
+        setParam(p,"source.enabled",1); setParam(p,"source.engine",0); (void)editor->sourceStatus();
+        // All params page with the 28 new parameters (scroll to the end to show them).
+        editor->performUiAction("zoom.100"); editor->setSize(1440,900); editor->setMinimalMode(true); shot("all-default-1440x900");
+        editor->setSize(1180,780); shot("all-min-1180x780");
+        editor->performUiAction("zoom.50"); shot("all-zoom.50-720x450");
+        // Regression: the three existing workspaces at default size.
+        editor->setMinimalMode(false);
+        const char* names[]={"patch","fm","motion"};
+        for(int ws=0;ws<3;++ws) { editor->setWorkspace(ws); editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot(juce::String(names[ws])+"-default-1440x900"); editor->performUiAction("zoom.50"); shot(juce::String(names[ws])+"-zoom.50-720x450"); }
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
-    const char* workspaces[]={"patch","fm","motion","all"};
+    const char* workspaces[]={"patch","fm","motion","source","all"};
     bool ok=true;
-    for(int ws=0;ws<4;++ws) for(const auto& size:sizes) for(float scale:{1.f,2.f}) {
-        editor->setMinimalMode(ws==3); if(ws<3) editor->setWorkspace(ws);
+    for(int ws=0;ws<5;++ws) for(const auto& size:sizes) for(float scale:{1.f,2.f}) {
+        editor->setMinimalMode(ws==4); if(ws<4) editor->setWorkspace(ws);
         editor->setSize(size.w,size.h);
         const auto image=editor->createComponentSnapshot(editor->getLocalBounds(),true,scale);
         ok=writePng(dir.getChildFile(juce::String("Atlas-")+workspaces[ws]+"-"+size.name+"-"+juce::String(int(scale))+"x.png"),image)&&ok;
