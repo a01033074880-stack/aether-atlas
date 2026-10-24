@@ -74,6 +74,11 @@ struct Delay {
     float p = float(write) - std::clamp(delay, 1.f, float(data.size() - 2));
     if (p < 0)
       p += float(data.size());
+    // p + size can round up to exactly size when p is a tiny negative value
+    // (float32); wrap it like any other ring-buffer index instead of reading
+    // data[size].
+    if (p >= float(data.size()))
+      p -= float(data.size());
     int i = int(p), j = (i + 1) % int(data.size());
     return data[i] + (data[j] - data[i]) * (p - i);
   }
