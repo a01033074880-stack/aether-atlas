@@ -19,7 +19,7 @@ See the [Chinese guide](docs/USER_GUIDE.zh-CN.md), [feature/provenance matrix](d
 
 ## Install
 
-Extract `dist/AetherAtlas-2.0.0-Windows-x64.zip`. Run the extracted `install.ps1`, or copy both complete `.vst3` directories from `VST3/` to `%LOCALAPPDATA%\Programs\Common\VST3`. Add this location to your DAW search paths if needed, then rescan. Close the DAW before upgrading. The script preserves old bundles as timestamped backups. A system-wide location is `C:\Program Files\Common Files\VST3`, with suitable permissions.
+Extract `dist/AetherAtlas-2.0.1-Windows-x64.zip`. Run the extracted `install.ps1`, or copy both complete `.vst3` directories from `VST3/` to `%LOCALAPPDATA%\Programs\Common\VST3`. Add this location to your DAW search paths if needed, then rescan. Close the DAW before upgrading. The script preserves old bundles as timestamped backups. A system-wide location is `C:\Program Files\Common Files\VST3`, with suitable permissions.
 
 **AETHER Micro** goes on an audio/FX track; choose FX or Resynth and feed audio/sidechain. **AETHER Micro Synth** goes on a MIDI/instrument track and has no main audio input. Standalones are under `Standalone/`; configure their device selector. JUCE initially mutes input in the FX standalone to avoid immediate microphone feedback.
 

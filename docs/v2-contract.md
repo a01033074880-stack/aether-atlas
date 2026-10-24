@@ -1,6 +1,6 @@
 # Atlas v2 shared contracts
 
-Workspace C:/Users/24168/Documents/ChatGPT/vst3development. Version2.0.0. These interfaces permit independent work. Read publicheaders Modular.h/FmSynth.h for exact C++ fields; do not change them without coordinating controller.
+Workspace: the repository root (all paths in this document are repository-relative). Version 2.0.1. These interfaces permit independent work. Read publicheaders Modular.h/FmSynth.h for exact C++ fields; do not change them without coordinating controller.
 
 ## Host parameters
 

@@ -65,7 +65,7 @@ try {
         Copy-Item -LiteralPath $aetherNotice -Destination (Join-Path $aetherRelease "licenses/$aetherNoticeName")
     }
     [IO.File]::WriteAllText((Join-Path $aetherRelease 'licenses/README.txt'),
-        "Upstream license documents retain their original text and source-relative links. For JUCE-LICENSE.md links, extract Source/JUCE-501c076-source.zip and read the same LICENSE.md at that source root. For Atlas DSP/font licenses, the complete original source and notices are in Source/AetherMicro-2.0.0-source.zip. These archives are part of this distribution.`n",[Text.UTF8Encoding]::new($false))
+        "Upstream license documents retain their original text and source-relative links. For JUCE-LICENSE.md links, extract Source/JUCE-501c076-source.zip and read the same LICENSE.md at that source root. For Atlas DSP/font licenses, the complete original source and notices are in Source/AetherMicro-$aetherVersion-source.zip. These archives are part of this distribution.`n",[Text.UTF8Encoding]::new($false))
     $aetherReleaseMetadata = [ordered]@{
         product = 'AETHER Micro - Atlas'
         version = $aetherVersion
