@@ -80,6 +80,22 @@ int main(int argc,char** argv) {
         editor->setMinimalMode(false); editor->setWorkspace(2); editor->setSize(1100,750); shot("motion-1100x750");
         return good?0:1;
     }
+    // "v4" mode: FM workspace hint row / operator divider spacing, plus one patch regression shot. Usage: AetherUiSnapshots <dir> v4
+    if(argc>2&&juce::String(argv[2])=="v4") {
+        bool good=true;
+        auto shot=[&](const juce::String& name) {
+            for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-v4-"+name+"-"+juce::String(int(scale))+"x.png"),editor->createComponentSnapshot(editor->getLocalBounds(),true,scale))&&good;
+        };
+        editor->setMinimalMode(false); editor->setWorkspace(1);
+        editor->performUiAction("fm.algorithm.24"); // item "25  Triangular Courtyard / Three Cycle"
+        for(int op=1;op<=6;++op) setParam(p,("fm.op."+juce::String(op)+".detune").toRawUTF8(),-100.f);
+        editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("fm-default-1440x900");
+        editor->setSize(1180,780); shot("fm-min-1180x780");
+        editor->performUiAction("zoom.75"); shot("fm-zoom.75-1080x675");
+        editor->performUiAction("zoom.50"); shot("fm-zoom.50-720x450");
+        editor->setWorkspace(0); editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("patch-default-1440x900");
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
     const char* workspaces[]={"patch","fm","motion","all"};
