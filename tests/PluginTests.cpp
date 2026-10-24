@@ -115,7 +115,7 @@ int main(int argc,char** argv) {
             p.setParameterValue("modulation.4.source",3);p.setParameterValue("modulation.4.target",82);p.setParameterValue("modulation.4.depth",-0.37f);
             juce::MemoryBlock data;p.getStateInformation(data);
             const auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),static_cast<int>(data.getSize()));
-            require(xml && xml->getIntAttribute("schema")==2,"new state did not use schema 2");
+            require(xml && xml->getIntAttribute("schema")==3,"new state did not use schema 3");
             q.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
             require(std::abs(q.parameterValue("route.12.1")+0.4f)<0.0001f,"custom graph cable lost");
             require(std::abs(q.parameterValue("fm.edge.6.1")-0.73f)<0.0001f,"custom FM cable lost");

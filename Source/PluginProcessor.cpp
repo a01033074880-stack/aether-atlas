@@ -23,7 +23,7 @@ AetherAudioProcessor::AetherAudioProcessor()
     allRaw.reserve(specs.size());
     for(const auto& spec:specs) allRaw.push_back(state.getRawParameterValue(spec.id));
     for(size_t i=0;i<raw.size();++i) raw[i]=allRaw[i];
-    state.state.setProperty("schema",2,nullptr);
+    state.state.setProperty("schema",aether::stateSchema,nullptr);
     state.state.setProperty("version","2.0.0",nullptr);
 #if JucePlugin_IsSynth
     state.getParameter("global.mode")->setValueNotifyingHost(1.f);
@@ -330,7 +330,7 @@ void AetherAudioProcessor::getStateInformation(juce::MemoryBlock& data) {
       if(snapshot.isValid()) tree.setProperty("alternateSnapshot",snapshot.toXmlString(),nullptr);
     }
     tree.setProperty("program",currentProgram.load(),nullptr);
-    tree.setProperty("schema",2,nullptr); tree.setProperty("version","2.0.0",nullptr);
+    tree.setProperty("schema",aether::stateSchema,nullptr); tree.setProperty("version","2.0.0",nullptr);
     auto xml=tree.createXml(); copyXmlToBinary(*xml,data);
 }
 void AetherAudioProcessor::setStateInformation(const void* data,int size) {
@@ -339,7 +339,7 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     if(!xml || !xml->hasTagName("AetherState")) return;
     auto tree=juce::ValueTree::fromXml(*xml);
     const int schema=static_cast<int>(tree.getProperty("schema",1));
-    if(schema<1||schema>2) return;
+    if(schema<1||schema>aether::stateSchema) return;
     // Merge only recognized finite values into the current canonical tree.
     auto canonical=state.copyState();
     auto merge=[&](const juce::ValueTree& sourceTree) {
@@ -354,12 +354,15 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
                 if(parsed.ec==std::errc{} && parsed.ptr==value.data()+value.size() && std::isfinite(number))
                     dest.setProperty("value",juce::jlimit(spec.minimum,spec.maximum,number),nullptr);
             }
+            // A save that predates a parameter (schema 1/2 never contain the source layer) must not inherit whatever
+            // the running instance holds: such parameters return to their defaults, which keep the source layer off.
+            else if(dest.isValid() && spec.version>=2) dest.setProperty("value",spec.defaultValue,nullptr);
         }
         if(schema==1) {
             result.getChildWithProperty("id","graph.enabled").setProperty("value",0,nullptr);
             result.getChildWithProperty("id","fm.enabled").setProperty("value",0,nullptr);
         }
-        result.setProperty("schema",2,nullptr);result.setProperty("version","2.0.0",nullptr);
+        result.setProperty("schema",aether::stateSchema,nullptr);result.setProperty("version","2.0.0",nullptr);
         return result;
     };
     auto clean=merge(tree);
