@@ -13,13 +13,13 @@ Release成功构建FX/Synth两款VST3、两个Standalone、四个测试套件和
 | aether_dsp | 原始46项声音/状态/无分配/采样率/分块行为 | PASS |
 | aether_fm | 215项：全部32算法、36边方向、自定义/Morph、16声部、声道MIDI、包络、音频激励、4×处理、极端参数、无分配、分块一致性 | PASS |
 | aether_modular | 全20效果四宏、32不同模板、有符号延迟反馈、84目的地、12重复实例、全部类型多率重置/分块、冻结和实际频率/延迟、无分配、供应商回归 | PASS |
-| aether_plugin | 21场景：467参数、旁通/单位、普通/冻结/FM尾音、schema1/2、两矩阵、A/B、全36预设、总线/MIDI/侧链、独立图/FM开关、音频FM分块、GUI生产路径和宿主手势 | PASS |
+| aether_plugin | 22场景：467参数、旁通/单位、普通/冻结/FM尾音、schema1/2、两矩阵、A/B、全36预设、总线/MIDI/侧链、独立图/FM开关、音频FM分块、GUI生产路径和宿主手势 | PASS |
 
 最终CTest日志包含全部四套件输出。主机测试还运行了真实编辑器组件：节点/模块选择、算法、端口接线、FM矩阵点击，以及All params真实Slider箭头编辑；监听参数通知检查begin/end不嵌套且数值发生在手势中。它不是仅调用DSP内部方法的界面假测试。
 
 GCC14.3.0和MSVC分别验证FM；纯FM构建启用严格告警，215项均通过。模块引擎也完成独立MinGW运行及集成MSVC运行。编译器通过并不构成任意宿主环境下的形式化实时证明。
 
-新增缩放回归：真实编辑器通过生产 `performUiAction("zoom.50")`、`zoom.75`、`zoom.100` 分别切换到 720×450、1080×675、1440×900，并生成 `Atlas-zoom-50.png`、`Atlas-zoom-75.png`、`Atlas-zoom-100.png`。
+新增Zoom 50/75/100缩放回归：真实编辑器通过生产 `performUiAction("zoom.50")`、`zoom.75`、`zoom.100` 分别切换到 720×450、1080×675、1440×900，并生成 `Atlas-zoom-50.png`、`Atlas-zoom-75.png`、`Atlas-zoom-100.png`。
 
 ## 2. 独立审查与修复
 
