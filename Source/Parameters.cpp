@@ -158,6 +158,9 @@ const std::vector<ParameterSpec>& parameterSpecs() {
                 0,1,fm::algorithm(0).matrix[static_cast<size_t>(destination)][static_cast<size_t>(source)],1,"%","FM matrix");
         jassert(p.size() == legacyParameterCount);
         // ---- source layer: ParameterID version 2, appended after every legacy parameter ----
+        // Every source parameter is automatable. Semantics (also in libs/aether-source/README.md): source.seed is read
+        // when a note starts (held voices keep their seed); source.antialias is applied at the next block boundary
+        // and clears the decimation filters (voice phase and envelope continue).
         auto sf = [&](juce::String id, juce::String name, float lo, float hi, float value, float skew, juce::String unit, juce::String group,
                       float step = 0, bool automatable = true) {
             ParameterSpec s{id,name,lo,hi,value,skew,unit,group,{},false}; s.version=2; s.step=step; s.automatable=automatable; p.push_back(s);
@@ -171,8 +174,8 @@ const std::vector<ParameterSpec>& parameterSpecs() {
         };
         sc("source.engine","Engine",sourceEngineNames(),0,"Source");
         sb("source.enabled","On",true,"Source");
-        sb("source.antialias","Anti-alias 4x",true,"Source",false);
-        sf("source.seed","Seed",0,65535,0,1,"","Source",1,false);
+        sb("source.antialias","Anti-alias 4x",true,"Source");
+        sf("source.seed","Seed",0,65535,0,1,"","Source",1);
         sf("source.attack","Attack",0.001f,5,0.005f,0.3f,"s","Source");
         sf("source.decay","Decay",0.01f,5,0.3f,0.4f,"s","Source");
         sf("source.sustain","Sustain",0,1,0.7f,1,"%","Source");
