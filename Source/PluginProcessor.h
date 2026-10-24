@@ -84,7 +84,7 @@ private:
     double currentRate=48000;
     bool prepared=false,wasBypassed=false;
     bool graphActive=true,fmActive=true,atlasSourceActive=true;
-    float lastVelocity=0,lastNoteHz=0,fmInputGain=1,inputGainSmoothing=0.004f;
+    float lastVelocity=0,lastNoteHz=0,fmInputGain=1,sourceInputGain=1,inputGainSmoothing=0.004f;
     float excitationEnvelope=0,excitationLow=0,excitationPrevious=0,excitationPitch=0;
     float excitationAttack=0.005f,excitationRelease=0.0003f,excitationLowpass=0.2f;
     double excitationCrossing=-1;

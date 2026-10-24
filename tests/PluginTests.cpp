@@ -164,8 +164,12 @@ int main(int argc,char** argv) {
             require(specs[aether::sourceOffset+aether::sourceEngine].choices==aether::sourceEngineNames() && aether::sourceEngineNames()[0]=="Off","engine choice list");
             require(specs[aether::sourceOffset+aether::sourceEngine].defaultValue==0,"source engine must default to Off");
             require(p.parameterValue("source.engine")==0,"source engine not Off in a new instance");
-            require(!p.state.getParameter("source.seed")->isAutomatable() && !p.state.getParameter("source.antialias")->isAutomatable(),"seed/antialias should not be automatable");
-            require(p.state.getParameter("source.pg.sequency")->isAutomatable(),"sequency should be automatable");
+            // Every source parameter is automatable, including seed and antialias (decision of the owner).
+            for(int i=aether::sourceOffset;i<aether::totalParameterCount;++i) {
+                const auto& spec=specs[static_cast<size_t>(i)];
+                require(p.state.getParameter(spec.id)->isAutomatable(),"source parameter not automatable: "+spec.id);
+            }
+            require(p.state.getParameter("source.seed")->isAutomatable() && p.state.getParameter("source.antialias")->isAutomatable(),"seed/antialias must be automatable");
             // the legacy block must still end with the last FM edge
             require(specs[static_cast<size_t>(aether::legacyParameterCount-1)].id=="fm.edge.6.6","legacy block no longer ends with the last FM edge");
         });
@@ -222,6 +226,76 @@ int main(int argc,char** argv) {
             for(const int engine:{1,2}) for(const int mode:{0,1}) {
                 const auto selected=render(engine,mode,480,true),reference=render(0,mode,480,true);
                 require(maxDiff(selected,reference)==0.f,"source selection changed the output outside Synth mode");
+            }
+        });
+        test("source layer: Input gain scales the source like the FM path",[] {
+            auto rms=[](int engine,bool fm,float inputDb) {
+                AetherAudioProcessor p;p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);
+                p.setParameterValue("fm.enabled",fm?1.f:0.f);p.setParameterValue("fm.gain",0.2f);p.setParameterValue("fm.sustain",1);
+                p.setParameterValue("source.engine",fm?0.f:static_cast<float>(engine));p.setParameterValue("source.gain",0.2f);p.setParameterValue("source.sustain",1);
+                p.setParameterValue("global.input",inputDb);
+                p.prepareToPlay(48000,480);
+                double sum=0;int count=0;
+                for(int offset=0;offset<48000;offset+=480) {
+                    juce::AudioBuffer<float> audio(2,480);audio.clear();juce::MidiBuffer midi;
+                    if(offset==0) midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),0);
+                    p.processBlock(audio,midi);
+                    if(offset>=24000) for(int i=0;i<480;++i) for(int c=0;c<2;++c) { const double v=audio.getSample(c,i);sum+=v*v;++count; }
+                }
+                return std::sqrt(sum/count);
+            };
+            for(const float db:{-6.0206f,-12.0412f,6.0206f}) {
+                const double expected=std::pow(10.0,db/20.0);
+                const double fmRatio=rms(0,true,db)/rms(0,true,0);
+                for(const int engine:{1,2}) {
+                    const double ratio=rms(engine,false,db)/rms(engine,false,0);
+                    std::cout<<"  Input "<<db<<" dB, engine "<<engine<<": source rms ratio "<<ratio<<" (FM path "<<fmRatio<<", expected "<<expected<<")\n";
+                    require(rms(engine,false,0)>1.e-3,"source output is silent in the gain test");
+                    require(std::abs(ratio/expected-1)<0.02,"Input gain does not scale the source output as expected");
+                    require(std::abs(ratio/fmRatio-1)<0.02,"source Input scaling differs from the FM path");
+                }
+            }
+        });
+        test("source layer: automating seed, antialias and sound parameters is finite, deterministic and block-size independent",[] {
+            auto render=[](int engine,int block) {
+                AetherAudioProcessor p;p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
+                p.setParameterValue("source.engine",static_cast<float>(engine));p.setParameterValue("source.pg.phaserandom",1);
+                p.prepareToPlay(48000,block);
+                const int total=96000;std::vector<float> out(static_cast<size_t>(total)*2);
+                struct Note { int sample;bool on;int note; };
+                const Note notes[]={{0,true,60},{7000,true,67},{19000,false,60},{31000,true,72},{43000,false,67},{55000,true,48},{67000,false,72},{79000,false,48}};
+                for(int offset=0;offset<total;offset+=block) {
+                    const int count=juce::jmin(block,total-offset);
+                    if(offset%960==0) { // automation tick, always at a block start for every tested block size
+                        const int k=offset/960;
+                        p.setParameterValue("source.seed",static_cast<float>(k%11));
+                        p.setParameterValue("source.antialias",(k%3)!=0?1.f:0.f);
+                        p.setParameterValue("source.pg.sequency",static_cast<float>((k*7)%64));
+                        p.setParameterValue("source.pg.walshmix",static_cast<float>(k%5)/4.f);
+                        p.setParameterValue("source.chaos.segments",static_cast<float>(2+(k*5)%31));
+                        p.setParameterValue("source.chaos.momentum",static_cast<float>(k%4)*0.3f);
+                        p.setParameterValue("source.gain",0.2f+0.1f*static_cast<float>(k%4));
+                        p.setParameterValue("global.input",static_cast<float>((k%5)-2)*3.f);
+                    }
+                    juce::AudioBuffer<float> audio(2,count);audio.clear();juce::MidiBuffer midi;
+                    for(const auto& n:notes) if(n.sample>=offset && n.sample<offset+count)
+                        midi.addEvent(n.on?juce::MidiMessage::noteOn(1,n.note,0.8f):juce::MidiMessage::noteOff(1,n.note),n.sample-offset);
+                    p.processBlock(audio,midi);
+                    for(int i=0;i<count;++i) for(int c=0;c<2;++c) {
+                        const float v=audio.getSample(c,i);require(std::isfinite(v),"NaN/Inf while automating source parameters");
+                        out[static_cast<size_t>(offset+i)*2+static_cast<size_t>(c)]=v;
+                    }
+                }
+                return out;
+            };
+            auto maxDiff=[](const std::vector<float>& a,const std::vector<float>& b) { float d=0;for(size_t i=0;i<a.size();++i) d=juce::jmax(d,std::abs(a[i]-b[i]));return d; };
+            for(const int engine:{1,2}) {
+                const auto a=render(engine,480),b=render(engine,480),c=render(engine,64),d=render(engine,192);
+                double energy=0,peak=0;for(float v:a) { energy+=static_cast<double>(v)*v;peak=juce::jmax(peak,static_cast<double>(std::abs(v))); }
+                std::cout<<"  engine "<<engine<<": energy "<<energy<<" peak "<<peak<<", repeat diff "<<maxDiff(a,b)<<", block 64 diff "<<maxDiff(a,c)<<", block 192 diff "<<maxDiff(a,d)<<"\n";
+                require(energy>1.0 && peak<8.0,"automated source render is silent or runaway");
+                require(maxDiff(a,b)==0.f,"automated source render is not reproducible");
+                require(maxDiff(a,c)<1.e-5f && maxDiff(a,d)<1.e-5f,"automated source render depends on block size");
             }
         });
         test("module assignment and custom cabling drive stable parameters",[] {

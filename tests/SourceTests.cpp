@@ -251,6 +251,94 @@ template <class E, class P> void suite(const char* label, std::vector<P> variant
     note(fmt("allocations during noteOn/noteOff/setParameters/process/reset window: %.0f", static_cast<double>(g_allocations.load())));
     require(g_allocations.load() == 0, "heap allocation after prepare");
   });
+  test(L + ": seed and antiAlias changes between blocks (allocation, seed semantics, antiAlias transient)", [&] {
+    auto base = variants[0];
+    base.attack = .001f; base.sustain = 1; base.decay = .01f; base.spread = 0;
+    if constexpr (std::is_same_v<P, PhaseGeometryParameters>) base.phaseRandom = 1; // make the seed audible for Phase Geometry
+    // 1) no heap allocation while seed and antiAlias change on every block, with notes starting
+    {
+      auto e = make<E>();
+      e->setParameters(base);
+      std::vector<float> l(64), r(64);
+      bool allFinite = true;
+      g_allocations = 0;
+      g_tracking = true;
+      for (int b = 0; b < 400; ++b) {
+        auto q = base;
+        q.seed = defaultSeed + static_cast<std::uint32_t>(b % 7);
+        q.antiAlias = (b % 2) == 0;
+        e->setParameters(q);
+        if (b % 5 == 0) e->noteOn(48 + (b / 5) % 30, .7f);
+        e->process(l.data(), r.data(), 64);
+        for (float v : l) allFinite = allFinite && std::isfinite(v); // no std::string/require inside the tracked window
+      }
+      g_tracking = false;
+      require(allFinite, "non-finite output while automating seed/antiAlias");
+      note(fmt("allocations over 400 blocks with seed and antiAlias changing every block: %.0f", static_cast<double>(g_allocations.load())));
+      require(g_allocations.load() == 0, "heap allocation while changing seed/antiAlias");
+    }
+    // 2) seed only affects notes started afterwards
+    {
+      auto run = [&](bool changeSeed, std::vector<float>& out) {
+        auto e = make<E>();
+        e->setParameters(base);
+        out.assign(14400, 0);
+        std::vector<float> r(14400);
+        e->noteOn(60, .8f);
+        e->process(out.data(), r.data(), 4800);
+        if (changeSeed) { auto q = base; q.seed = defaultSeed + 777; e->setParameters(q); }
+        e->process(out.data() + 4800, r.data() + 4800, 4800);
+        e->noteOn(64, .8f);
+        e->process(out.data() + 9600, r.data() + 9600, 4800);
+      };
+      std::vector<float> a, b;
+      run(false, a); run(true, b);
+      const std::vector<float> a1(a.begin(), a.begin() + 9600), b1(b.begin(), b.begin() + 9600);
+      require(sameBits(a1, b1), "changing seed altered an already sounding voice");
+      std::size_t differing = 0;
+      const std::vector<float> a2(a.begin() + 9600, a.end()), b2(b.begin() + 9600, b.end());
+      const double d = maxDiff(a2, b2, differing);
+      note(fmt("seed change with a held note: first 9600 samples bit-identical; after the next note on, %.0f samples differ (max %.3g)", static_cast<double>(differing), d));
+      require(differing > 0, "seed has no effect on a note started after the change");
+    }
+    // 3) antiAlias toggled at a block boundary: size and length of the transient against the steady state of the new mode
+    for (const bool toOn : {false, true}) {
+      constexpr int total = 48000, S = 24000;
+      auto steady = [&](bool aa, std::vector<float>& out) {
+        auto e = make<E>();
+        auto q = base; q.antiAlias = aa;
+        e->setParameters(q);
+        out.assign(total, 0);
+        std::vector<float> r(total);
+        e->noteOn(72, .8f);
+        for (int p = 0; p < total; p += 480) e->process(out.data() + p, r.data() + p, 480);
+      };
+      std::vector<float> oldMode, newMode, sw(total, 0), r(total);
+      steady(!toOn, oldMode); steady(toOn, newMode);
+      {
+        auto e = make<E>();
+        auto q = base; q.antiAlias = !toOn;
+        e->setParameters(q);
+        e->noteOn(72, .8f);
+        for (int p = 0; p < total; p += 480) {
+          if (p == S) { q.antiAlias = toOn; e->setParameters(q); }
+          e->process(sw.data() + p, r.data() + p, 480);
+        }
+      }
+      double peak = 0, steadyStep = 0, switchStep = 0;
+      for (int i = S - 4800; i < S; ++i) { peak = std::max(peak, static_cast<double>(std::abs(oldMode[static_cast<std::size_t>(i)]))); steadyStep = std::max(steadyStep, static_cast<double>(std::abs(oldMode[static_cast<std::size_t>(i)] - oldMode[static_cast<std::size_t>(i) - 1]))); }
+      for (int i = S; i < S + 8; ++i) switchStep = std::max(switchStep, static_cast<double>(std::abs(sw[static_cast<std::size_t>(i)] - sw[static_cast<std::size_t>(i) - 1])));
+      double e0 = 0, e1 = 0, e2 = 0;
+      for (int i = S; i < S + 64; ++i) e0 = std::max(e0, static_cast<double>(std::abs(sw[static_cast<std::size_t>(i)] - newMode[static_cast<std::size_t>(i)])));
+      for (int i = S + 64; i < S + 480; ++i) e1 = std::max(e1, static_cast<double>(std::abs(sw[static_cast<std::size_t>(i)] - newMode[static_cast<std::size_t>(i)])));
+      for (int i = S + 480; i < S + 4800; ++i) e2 = std::max(e2, static_cast<double>(std::abs(sw[static_cast<std::size_t>(i)] - newMode[static_cast<std::size_t>(i)])));
+      for (float v : sw) require(std::isfinite(v), "non-finite output after antiAlias toggle");
+      note(fmt(toOn ? "AA off->on: peak %.3f, steady max step %.4f, max step in first 8 samples after switch %.4f" : "AA on->off: peak %.3f, steady max step %.4f, max step in first 8 samples after switch %.4f", peak, steadyStep, switchStep));
+      note(fmt("   |switched - steady new mode| max: first 64 samples %.4f, samples 64..480 %.5f, 480..4800 %.6f", e0, e1, e2));
+      require(e2 < 1e-3 * std::max(peak, 1e-3), "output did not converge to the new mode's steady state within 100 ms");
+      require(switchStep < 4 * std::max(peak, 1e-3), "antiAlias toggle produced an out-of-range step");
+    }
+  });
   test(L + ": deterministic, same seed/params render bit-identical twice", [&] {
     std::vector<float> l1, r1, l2, r2;
     auto a = make<E>();
