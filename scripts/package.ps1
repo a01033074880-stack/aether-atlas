@@ -84,7 +84,7 @@ try {
         modulationRows = 16
         modulationDestinations = 84
         factoryPresets = 36
-        schema = 2
+        schema = 3
     }
     [IO.File]::WriteAllText((Join-Path $aetherRelease 'RELEASE.json'),($aetherReleaseMetadata | ConvertTo-Json),[Text.UTF8Encoding]::new($false))
     $aetherManifest = Join-Path $aetherRelease 'SHA256SUMS.txt'
