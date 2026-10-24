@@ -1,4 +1,4 @@
-# Atlas 2.0.0 验证记录
+# Atlas 2.0.1 验证记录
 
 日期：2026-10-23（Asia/Shanghai）。Windows x64；Intel Core i9-13900H，14物理核/20逻辑处理器；MSVC19.44.35229，Windows SDK10.0.26100.0，CMake4.3.2，Ninja；JUCE固定501c076（版本8.0.12），VST3元数据SDK3.8.0。
 
@@ -18,6 +18,8 @@ Release成功构建FX/Synth两款VST3、两个Standalone、四个测试套件和
 最终CTest日志包含全部四套件输出。主机测试还运行了真实编辑器组件：节点/模块选择、算法、端口接线、FM矩阵点击，以及All params真实Slider箭头编辑；监听参数通知检查begin/end不嵌套且数值发生在手势中。它不是仅调用DSP内部方法的界面假测试。
 
 GCC14.3.0和MSVC分别验证FM；纯FM构建启用严格告警，215项均通过。模块引擎也完成独立MinGW运行及集成MSVC运行。编译器通过并不构成任意宿主环境下的形式化实时证明。
+
+新增缩放回归：真实编辑器通过生产 `performUiAction("zoom.50")`、`zoom.75`、`zoom.100` 分别切换到 720×450、1080×675、1440×900，并生成 `Atlas-zoom-50.png`、`Atlas-zoom-75.png`、`Atlas-zoom-100.png`。
 
 ## 2. 独立审查与修复
 

@@ -302,6 +302,23 @@ int main(int argc,char** argv) {
                 }
             }
         });
+        test("Atlas editor zoom switches between 50, 75 and 100 percent",[&] {
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            require(editor->getWidth()==1440 && editor->getHeight()==900,"Atlas editor default size changed");
+            juce::PNGImageFormat png;juce::File snapshotDir;
+            if(argc>1){snapshotDir=juce::File(juce::String(argv[1]));snapshotDir.createDirectory();}
+            auto capture=[&](const char* name){if(argc>1){auto image=editor->createComponentSnapshot(editor->getLocalBounds(),true,1.0f);auto stream=snapshotDir.getChildFile(name).createOutputStream();require(stream!=nullptr,"zoom snapshot file");stream->setPosition(0);stream->truncate();require(png.writeImageToStream(image,*stream),"zoom snapshot encode");}};
+            require(editor->performUiAction("zoom.50"),"50 percent zoom action missing");
+            require(editor->getWidth()==720 && editor->getHeight()==450,"50 percent zoom size incorrect");
+            capture("Atlas-zoom-50.png");
+            require(editor->performUiAction("zoom.75"),"75 percent zoom action missing");
+            require(editor->getWidth()==1080 && editor->getHeight()==675,"75 percent zoom size incorrect");
+            capture("Atlas-zoom-75.png");
+            require(editor->performUiAction("zoom.100"),"100 percent zoom action missing");
+            require(editor->getWidth()==1440 && editor->getHeight()==900,"100 percent zoom size incorrect");
+            capture("Atlas-zoom-100.png");
+        });
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
 }

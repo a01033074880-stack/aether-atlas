@@ -1,8 +1,10 @@
-# AETHER Micro — Atlas 2.0.0
+# AETHER Micro — Atlas 2.0.1
 
 **An impossible instrument for spectral material, physical bodies and phase architecture.** Windows x64 FX/Synth VST3 and standalone apps. The former five-stage chain is now a twelve-node patchable system with a six-operator FM source.
 
 ![Atlas patch workspace](out/atlas-screenshots/Atlas-workspace-0.png)
+
+- Scale the entire interface from the top control at **50%, 75% or 100%**. This changes editor geometry only; audio, parameters and host state remain unchanged.
 
 ## What you can do
 

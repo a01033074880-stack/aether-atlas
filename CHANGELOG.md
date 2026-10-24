@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 — 2026-10-24
+
+- Added native Atlas editor zoom control with 50%, 75% and 100% scales.
+- Zoom changes editor geometry only; audio, parameters and host state remain unchanged.
+- Added integration coverage and rendered zoom snapshots at all three scales.
+
+
 ## 2.0.0 — 2026-10-23
 
 - Rebuilt the instrument as Atlas: 12 repeatable effect slots, 20 effect types plus Thru, 32 routing algorithms, signed custom patching, per-node mix/level/pan/input/output and four real macros.

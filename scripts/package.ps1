@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 $aetherRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $aetherRoot
 try {
-    $aetherVersion = '2.0.0'
+    $aetherVersion = '2.0.1'
     $aetherName = "AetherAtlas-$aetherVersion-Windows-x64"
     $aetherRelease = Join-Path $aetherRoot "dist/$aetherName"
     # Never replace a prior reviewable release silently.
