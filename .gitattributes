@@ -1,0 +1,2 @@
+# Fixtures are byte-exact evidence (hashes in tests/fixtures/README.md): never convert line endings.
+tests/fixtures/** -text
