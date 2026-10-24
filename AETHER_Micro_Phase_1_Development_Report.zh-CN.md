@@ -638,7 +638,7 @@ C:\Users\24168\AppData\Local\Programs\Common\VST3\AETHER Micro Synth.vst3
   -BuildDirectory build-ninja `
   -Generator Ninja `
   -JucePath C:/SDKs/JUCE `
-  -NinjaPath C:/Users/24168/Documents/ChatGPT/vst3development/tmp/tools/ninja/ninja.exe `
+  -NinjaPath tmp/tools/ninja/ninja.exe `
   -VcVarsPath C:/SDKs/AetherBuildTools/VC/Auxiliary/Build/vcvars64.bat `
   -Jobs 4
 ```

@@ -1,4 +1,4 @@
-# Third-party software notices — Atlas 2.0.0
+# Third-party software notices — Atlas 2.0.1
 
 Copyright 2026 Aether Micro contributors. The original standalone DSP code under `libs/aether-dsp` is MIT. The complete JUCE-linked application is distributed under AGPL-3.0-or-later; the full license is in `LICENSE`.
 
@@ -36,3 +36,7 @@ Instrument Serif and DM Mono font files are from Google Fonts, licensed under SI
 ## Corresponding source and license boundaries
 
 The complete application remains AGPL-3.0-or-later through JUCE's open-source option. Original DSP/routing/FM wrapper code under `libs/` is MIT with separate LICENSE files. MIT/BSD upstream code retains its own copyright and license. A wrapper's MIT license does not replace the application AGPL or any upstream notice. The portable source archive includes all vendored DSP and font sources/notices; the separate JUCE source ZIP and local patch reproduce its dependency. `third_party/atlas-dependencies.json` records pinned upstream archive hashes.
+
+## aether-source references (no third-party code)
+
+libs/aether-source (MIT) is original code. It implements published algorithms from their papers: Vector Phaseshaping Synthesis (Kleimola, Lazzarini, Timoney, Valimaki, DAFx-11), GENDYN (Serra 1993, Hoffmann 2000), Walsh functions, PCG-XSH-RR (O'Neill) and splitmix64 (public domain). jeremycg/coalescent was read for ideas only; no code was copied. Casio, Xenakis and other names are used descriptively only.

@@ -115,3 +115,35 @@ aether::fm::Parameters AetherAudioProcessor::fmParameters() const noexcept {
     }
     return p;
 }
+
+aether::source::Source* AetherAudioProcessor::activeSource() noexcept {
+    return activeSourceEngine==1 ? static_cast<aether::source::Source*>(&phaseGeometry)
+         : activeSourceEngine==2 ? static_cast<aether::source::Source*>(&chaosSource) : nullptr;
+}
+void AetherAudioProcessor::sourceCommon(aether::source::CommonParameters& c) const noexcept {
+    using namespace aether;
+    auto value=[&](int index) { const int i=sourceOffset+index; const float v=allRaw[static_cast<size_t>(i)]->load(std::memory_order_relaxed); return std::isfinite(v)?v:parameterSpecs()[static_cast<size_t>(i)].defaultValue; };
+    c.enabled=value(sourceEnabled)>0.5f; c.antiAlias=value(sourceAntiAlias)>0.5f;
+    // The float parameter holds an offset; the library seed (0x41455448) does not fit a float32 mantissa.
+    c.seed=aether::source::defaultSeed+static_cast<std::uint32_t>(juce::jlimit(0.f,65535.f,std::round(value(sourceSeed))));
+    c.attack=value(sourceAttack);c.decay=value(sourceDecay);c.sustain=value(sourceSustain);c.release=value(sourceRelease);
+    c.gain=value(sourceGain);c.spread=value(sourceSpread);c.transpose=value(sourceTranspose);
+}
+aether::source::PhaseGeometryParameters AetherAudioProcessor::phaseGeometryParameters() const noexcept {
+    using namespace aether;
+    auto value=[&](int index) { const int i=sourceOffset+index; const float v=allRaw[static_cast<size_t>(i)]->load(std::memory_order_relaxed); return std::isfinite(v)?v:parameterSpecs()[static_cast<size_t>(i)].defaultValue; };
+    aether::source::PhaseGeometryParameters p; sourceCommon(p);
+    p.walshSequency=value(pgSequency);p.walshMix=value(pgWalshMix);p.czShape=static_cast<int>(value(pgCzShape));
+    p.czDepth=value(pgCzDepth);p.czEnvelope=value(pgCzEnvelope);p.czVelocity=value(pgCzVelocity);
+    p.vpsD=value(pgVpsD);p.vpsV=value(pgVpsV);p.vpsRatio=value(pgVpsRatio);p.phaseRandom=value(pgPhaseRandom);
+    return p; // walshBandLimit stays at the library default (ADAA); it is not a plugin parameter
+}
+aether::source::ChaosParameters AetherAudioProcessor::chaosParameters() const noexcept {
+    using namespace aether;
+    auto value=[&](int index) { const int i=sourceOffset+index; const float v=allRaw[static_cast<size_t>(i)]->load(std::memory_order_relaxed); return std::isfinite(v)?v:parameterSpecs()[static_cast<size_t>(i)].defaultValue; };
+    aether::source::ChaosParameters p; sourceCommon(p);
+    p.segments=static_cast<int>(std::lround(value(chaosSegments)));p.distribution=static_cast<int>(value(chaosDistribution));
+    p.ampStep=value(chaosAmpStep);p.durStep=value(chaosDurStep);p.durRange=value(chaosDurRange);
+    p.momentum=value(chaosMomentum);p.ampBarrier=value(chaosAmpBarrier);
+    return p;
+}

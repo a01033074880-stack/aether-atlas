@@ -11,6 +11,9 @@ $ErrorActionPreference = 'Stop'
 $aetherRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $aetherRoot
 try {
+    # Fail fast if docs/scripts/CI disagree with the CMake project version.
+    & (Join-Path $PSScriptRoot 'check-version.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'Version consistency check failed (scripts/check-version.ps1).' }
     if ($VcVarsPath) {
         if (-not (Test-Path -LiteralPath $VcVarsPath)) { throw 'vcvars64.bat path does not exist.' }
         $aetherEnvironment = & cmd.exe /d /s /c "`"call `"$VcVarsPath`" >nul && set`""

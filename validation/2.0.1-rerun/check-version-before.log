@@ -1,0 +1,28 @@
+# check-version.ps1 BEFORE doc fixes
+# date: 2026-10-24 15:50:00 (Asia/Shanghai)
+# base commit: c7e081b (branch chore/version-2.0.1, script untracked at this point)
+# cmd: powershell -NoProfile -File scripts\check-version.ps1
+Authoritative version (CMakeLists.txt): 2.0.1
+ALLOWED  Source/PluginEditor.cpp:179: literal '2.0.0' allowed: editor footer DISPLAY text. File is owned by the UI branch (ui/min-size-fix); change it there, not in this docs/scripts patch.
+ALLOWED  Source/PluginProcessor.cpp:27: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:333: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:362: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:118: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+MISMATCH README.md:1: expected install archive name (version 2.0.1) was not found
+MISMATCH THIRD_PARTY_NOTICES.md:1: expected title "Atlas <version>" (version 2.0.1) was not found
+MISMATCH docs/REQUIREMENTS.md:1: expected title "Atlas <version>" (version 2.0.1) was not found
+MISMATCH docs/ATLAS_ACCEPTANCE.md:1: expected title "Atlas <version>" (version 2.0.1) was not found
+MISMATCH docs/v2-contract.md:1: expected "Version <version>" (version 2.0.1) was not found
+MISMATCH .github/workflows/build.yml:1: expected artifact name (version 2.0.1) was not found
+MISMATCH README.md:22: stale version '2.0.0' (expected 2.0.1): AetherAtlas-2.0.0
+MISMATCH THIRD_PARTY_NOTICES.md:1: stale version '2.0.0' (expected 2.0.1): Atlas 2.0.0
+MISMATCH .github/workflows/build.yml:17: stale version '2.0.0' (expected 2.0.1): AetherAtlas-2.0.0
+MISMATCH scripts/package.ps1:68: stale version '2.0.0' (expected 2.0.1): AetherMicro-2.0.0
+MISMATCH docs/ATLAS_ACCEPTANCE.md:1: stale version '2.0.0' (expected 2.0.1): Atlas 2.0.0
+MISMATCH docs/REQUIREMENTS.md:1: stale version '2.0.0' (expected 2.0.1): Atlas 2.0.0
+MISMATCH docs/v2-contract.md:3: stale version '2.0.0' (expected 2.0.1): Version2.0.0
+MISMATCH docs/v2-contract.md:3: absolute developer workspace path; use a repository-relative path
+MISMATCH AETHER_Micro_Phase_1_Development_Report.zh-CN.md:641: absolute developer workspace path; use a repository-relative path
+FAIL: 15 version inconsistency(ies) against 2.0.1.
+# exit code: 1

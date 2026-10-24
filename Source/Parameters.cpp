@@ -19,6 +19,9 @@ juce::StringArray modulationTargetNames() {
         names.add("Node "+juce::String(n)+" / "+target);
     return names;
 }
+juce::StringArray sourceEngineNames() { return {"Off","Phase Geometry","Chaos"}; }
+juce::StringArray czShapeNames() { return {"Saw","Square","Pulse","Resonant saw","Resonant triangle","Resonant trapezoid"}; }
+juce::StringArray chaosDistributionNames() { return {"Cauchy","Logistic","Hyperbolic cosine","Arcsine","Exponential","Uniform"}; }
 modular::Parameters defaultGraph() {
     modular::Parameters graph;
     const modular::ModuleType types[]={modular::ModuleType::Spectral,modular::ModuleType::WdfDiode,modular::ModuleType::Resonator,
@@ -153,6 +156,47 @@ const std::vector<ParameterSpec>& parameterSpecs() {
         for(int source=0;source<fm::operatorCount;++source) for(int destination=0;destination<fm::operatorCount;++destination)
             f("fm.edge."+juce::String(source+1)+"."+juce::String(destination+1),"Op"+juce::String(source+1)+" to Op"+juce::String(destination+1),
                 0,1,fm::algorithm(0).matrix[static_cast<size_t>(destination)][static_cast<size_t>(source)],1,"%","FM matrix");
+        jassert(p.size() == legacyParameterCount);
+        // ---- source layer: ParameterID version 2, appended after every legacy parameter ----
+        auto sf = [&](juce::String id, juce::String name, float lo, float hi, float value, float skew, juce::String unit, juce::String group,
+                      float step = 0, bool automatable = true) {
+            ParameterSpec s{id,name,lo,hi,value,skew,unit,group,{},false}; s.version=2; s.step=step; s.automatable=automatable; p.push_back(s);
+        };
+        auto sb = [&](juce::String id, juce::String name, bool value, juce::String group, bool automatable = true) {
+            ParameterSpec s{id,name,0,1,value ? 1.f:0.f,1,"",group,{},true}; s.version=2; s.automatable=automatable; p.push_back(s);
+        };
+        auto sc = [&](juce::String id, juce::String name, juce::StringArray choices, int value, juce::String group) {
+            const auto hi = static_cast<float>(choices.size()-1);
+            ParameterSpec s{id,name,0,hi,static_cast<float>(value),1,"",group,std::move(choices),false}; s.version=2; p.push_back(s);
+        };
+        sc("source.engine","Engine",sourceEngineNames(),0,"Source");
+        sb("source.enabled","On",true,"Source");
+        sb("source.antialias","Anti-alias 4x",true,"Source",false);
+        sf("source.seed","Seed",0,65535,0,1,"","Source",1,false);
+        sf("source.attack","Attack",0.001f,5,0.005f,0.3f,"s","Source");
+        sf("source.decay","Decay",0.01f,5,0.3f,0.4f,"s","Source");
+        sf("source.sustain","Sustain",0,1,0.7f,1,"%","Source");
+        sf("source.release","Release",0.01f,12,0.3f,0.35f,"s","Source");
+        sf("source.gain","Level",0,1,0.65f,1,"%","Source");
+        sf("source.spread","Stereo spread",0,1,0.25f,1,"%","Source");
+        sf("source.transpose","Transpose",-24,24,0,1,"st","Source");
+        sf("source.pg.sequency","Walsh sequency",0,63,0,1,"","Phase Geometry");
+        sf("source.pg.walshmix","Walsh mix",0,1,0,1,"%","Phase Geometry");
+        sc("source.pg.czshape","CZ shape",czShapeNames(),0,"Phase Geometry");
+        sf("source.pg.czdepth","CZ depth",0,1,0.5f,1,"%","Phase Geometry");
+        sf("source.pg.czenvelope","CZ envelope",0,1,0,1,"%","Phase Geometry");
+        sf("source.pg.czvelocity","CZ velocity",0,1,0,1,"%","Phase Geometry");
+        sf("source.pg.vpsd","VPS breakpoint D",0.001f,0.999f,0.5f,1,"%","Phase Geometry");
+        sf("source.pg.vpsv","VPS breakpoint V",0,1,0.5f,1,"%","Phase Geometry");
+        sf("source.pg.vpsratio","VPS ratio",1,16,1,0.5f,"x","Phase Geometry");
+        sf("source.pg.phaserandom","Phase random",0,1,0,1,"%","Phase Geometry");
+        sf("source.chaos.segments","Segments",2,32,12,1,"","Chaos",1);
+        sc("source.chaos.distribution","Distribution",chaosDistributionNames(),0,"Chaos");
+        sf("source.chaos.ampstep","Amplitude step",0,1,0.15f,1,"%","Chaos");
+        sf("source.chaos.durstep","Duration step",0,1,0.1f,1,"%","Chaos");
+        sf("source.chaos.durrange","Duration range",0,1,0.5f,1,"%","Chaos");
+        sf("source.chaos.momentum","Momentum",0,0.95f,0,1,"%","Chaos");
+        sf("source.chaos.ampbarrier","Amplitude barrier",0.05f,1,1,1,"%","Chaos");
         jassert(p.size() == totalParameterCount);
         return p;
     }();
@@ -161,13 +205,13 @@ const std::vector<ParameterSpec>& parameterSpecs() {
 juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     for (const auto& p : parameterSpecs()) {
-        const juce::ParameterID id {p.id,1};
-        if (p.boolean) layout.add(std::make_unique<juce::AudioParameterBool>(id,p.name,p.defaultValue>0.5f));
-        else if (!p.choices.isEmpty()) layout.add(std::make_unique<juce::AudioParameterChoice>(id,p.name,p.choices,static_cast<int>(p.defaultValue)));
+        const juce::ParameterID id {p.id,p.version};
+        if (p.boolean) layout.add(std::make_unique<juce::AudioParameterBool>(id,p.name,p.defaultValue>0.5f,juce::AudioParameterBoolAttributes().withAutomatable(p.automatable)));
+        else if (!p.choices.isEmpty()) layout.add(std::make_unique<juce::AudioParameterChoice>(id,p.name,p.choices,static_cast<int>(p.defaultValue),juce::AudioParameterChoiceAttributes().withAutomatable(p.automatable)));
         else {
-            juce::NormalisableRange<float> range {p.minimum,p.maximum,0.0f,p.skew};
+            juce::NormalisableRange<float> range {p.minimum,p.maximum,p.step,p.skew};
             const juce::String unit {p.unit};
-            auto attrs = juce::AudioParameterFloatAttributes().withLabel(unit)
+            auto attrs = juce::AudioParameterFloatAttributes().withLabel(unit).withAutomatable(p.automatable)
                 .withStringFromValueFunction([unit](float value,int) {
                     if (unit=="%") return juce::String(value*100.f,0)+" %";
                     if (unit=="Hz" && value>=1000) return juce::String(value/1000.f,2)+" kHz";

@@ -1,6 +1,8 @@
 #pragma once
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <aether/Engine.h>
+#include <aether/Chaos.h>
+#include <aether/PhaseGeometry.h>
 #include "Parameters.h"
 #include <array>
 #include <atomic>
@@ -62,11 +64,16 @@ private:
     aether::Engine outputStage;
     aether::modular::GraphEngine graph;
     aether::fm::Synth fmEngine;
+    // Source layer: two voice engines, at most one of them is ever active (parameter "source.engine").
+    aether::source::PhaseGeometrySource phaseGeometry;
+    aether::source::ChaosSource chaosSource;
+    int activeSourceEngine=0; // 0 off, 1 Phase Geometry, 2 Chaos; changes only at block starts
     std::array<std::atomic<float>*,aether::parameterCount> raw{};
     std::vector<std::atomic<float>*> allRaw;
     static constexpr int scratchSize=512,analysisSize=16384;
     std::array<float,scratchSize> left{},right{},side{};
     std::array<float,scratchSize> dryLeft{},dryRight{};
+    std::array<float,scratchSize> sourceLeft{},sourceRight{};
     std::array<float,analysisSize> analysis{};
     juce::AbstractFifo analysisFifo{analysisSize};
     std::atomic<bool> panic{false},graphReset{false},snapshotB{false};
@@ -85,6 +92,10 @@ private:
     aether::Parameters parameters() const noexcept;
     aether::modular::Parameters graphParameters() const noexcept;
     aether::fm::Parameters fmParameters() const noexcept;
+    aether::source::Source* activeSource() noexcept;
+    void sourceCommon(aether::source::CommonParameters&) const noexcept;
+    aether::source::PhaseGeometryParameters phaseGeometryParameters() const noexcept;
+    aether::source::ChaosParameters chaosParameters() const noexcept;
     void analyseExcitation(float) noexcept;
     void handleMidi(const juce::MidiMessage&) noexcept;
     void renderSegment(juce::AudioBuffer<float>&,int,int,const aether::Parameters&);
