@@ -1,0 +1,15 @@
+﻿### ctest | start 2026-10-24 18:49:55 (Asia/Shanghai) | commit 159bd60e35290129e17cd496eede947a4c86f2f2 | cwd C:\Users\24168\Documents\Projects\wt-integration
+Test project C:/Users/24168/Documents/Projects/wt-integration/build-integ
+    Start 1: aether_dsp
+1/4 Test #1: aether_dsp .......................   Passed    3.59 sec
+    Start 2: aether_fm
+2/4 Test #2: aether_fm ........................   Passed   38.14 sec
+    Start 3: aether_modular
+3/4 Test #3: aether_modular ...................   Passed   12.08 sec
+    Start 4: aether_plugin
+4/4 Test #4: aether_plugin ....................   Passed    5.80 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =  59.65 sec
+### ctest | end 2026-10-24 18:50:55 | exit=0

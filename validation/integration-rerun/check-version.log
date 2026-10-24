@@ -1,0 +1,9 @@
+﻿### check-version | start 2026-10-24 18:31:52 (Asia/Shanghai) | commit 159bd60e35290129e17cd496eede947a4c86f2f2 | cwd C:\Users\24168\Documents\Projects\wt-integration
+Authoritative version (CMakeLists.txt): 2.0.1
+ALLOWED  Source/PluginProcessor.cpp:27: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:333: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:362: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..2). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:118: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+OK: all checked files are consistent with version 2.0.1 (5 allowlisted code literal(s)).
+### check-version | end 2026-10-24 18:31:54 | exit=0
