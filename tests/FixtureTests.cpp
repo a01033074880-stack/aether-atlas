@@ -348,34 +348,27 @@ int main(int argc,char** argv) {
             std::cout<<"  bit-exact SHA-256 matches: "<<exact<<" of "<<samples.size()<<" (informational; pass/fail uses the tolerance)\n";
             require(bad.empty(),bad);
         });
-        // Determinism checks. Observed on this build/machine (see tests/fixtures/README.md): samples that run through the
-        // Atlas graph / FM path (graph.enabled or fm.enabled) are NOT reproducible from run to run (root cause not found),
-        // while legacy-path samples (graph and FM off) never differed. Legacy samples are asserted strictly; graph/FM-path
-        // samples are reported as KNOWN-ISSUE warnings, and become failures with AETHER_STRICT_RENDER_DETERMINISM=1.
-        const bool strictAll=juce::SystemStats::getEnvironmentVariable("AETHER_STRICT_RENDER_DETERMINISM","0")=="1";
-        auto graphOrFm=[](const Sample& s) { AetherAudioProcessor p; loadSample(p,s); return p.parameterValue("graph.enabled")>0.5||p.parameterValue("fm.enabled")>0.5; };
-        auto finishDeterminism=[&](const std::string& strictBad,const std::string& knownBad) {
-            if(!knownBad.empty()) std::cout<<"  KNOWN-ISSUE (graph/FM path, "<<(strictAll?"strict mode: failing":"warning only")<<"): "<<knownBad<<'\n';
-            require(strictBad.empty()&&(!strictAll||knownBad.empty()),strictBad+(strictAll?knownBad:std::string()));
-        };
+        // Determinism checks, strict for every sample (legacy and graph/FM path alike). Until the Delay::read fix (index
+        // p + size could round up to size and read data[size]) graph/FM samples containing a Space module were not
+        // reproducible; see tests/fixtures/README.md section 4. A failure here is a real regression, there is no exemption.
         test("repeat render in one process is deterministic",[&] {
-            std::string strictBad,knownBad;
+            std::string bad;
             for(const auto& s:samples) {
                 const auto a=render(s,kGoldenBlock),b=render(s,kGoldenBlock);
-                if(maxAbsDiff(a,b)!=0.0) (graphOrFm(s)?knownBad:strictBad)+=s.id.toStdString()+" maxdiff "+std::to_string(maxAbsDiff(a,b))+"; ";
+                if(maxAbsDiff(a,b)!=0.0) bad+=s.id.toStdString()+" maxdiff "+std::to_string(maxAbsDiff(a,b))+"; ";
             }
-            finishDeterminism(strictBad,knownBad);
+            require(bad.empty(),bad);
         });
         test("render is consistent across host block sizes",[&] {
-            std::string strictBad,knownBad;
+            std::string bad;
             for(const auto& s:samples) {
                 const auto reference=render(s,kGoldenBlock);
                 for(const int block:{17,257,1000}) {
                     const double d=maxAbsDiff(reference,render(s,block));
-                    if(!(d<=kBlockSizeTol)) (graphOrFm(s)?knownBad:strictBad)+=s.id.toStdString()+" block "+std::to_string(block)+" maxdiff "+std::to_string(d)+"; ";
+                    if(!(d<=kBlockSizeTol)) bad+=s.id.toStdString()+" block "+std::to_string(block)+" maxdiff "+std::to_string(d)+"; ";
                 }
             }
-            finishDeterminism(strictBad,knownBad);
+            require(bad.empty(),bad);
         });        std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
 }

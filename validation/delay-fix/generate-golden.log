@@ -1,0 +1,4 @@
+# AetherFixtureTests --generate-golden x2 after the Delay::read wrap fix
+# commit cbb2d4e (+uncommitted tests/tools) date 2026-10-24 21:52:09 Asia/Shanghai exe built 10/24/2026 21:47:30
+exit1=0 exit2=0 identical_files=True
+6B221D42FEFCBFFCF789EE396C90AF0390984A587624761C745A85C2E1C971E1
