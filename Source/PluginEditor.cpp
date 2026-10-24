@@ -11,6 +11,8 @@ constexpr float baseWidth=1440.f,baseHeight=900.f;
 // Below this fit scale (the 50% preset and similarly small windows) Atlas switches to a compact 1000x625 layout so text stays >=10 effective px without truncation.
 // Default-layout FM algorithm picker: wide enough for the longest "NN  Name / Subtitle" entry at the largest text floor.
 constexpr int fmAlgorithmWidth=320;
+// Default-layout FM: y of the rule above the operator columns, below the matrix, hint and live-voice texts (stage.y + 268..292).
+constexpr int fmOperatorTop=296;
 constexpr float compactWidth=1000.f,compactHeight=625.f,compactBelow=.72f;
 // Text is never allowed below 11 logical px or 10 effective (on-screen) px, whichever is larger. Capped so very small windows stay laid out.
 float legibleFloor(float scale){return juce::jlimit(11.f,16.f,10.f/juce::jmax(.25f,scale));}
@@ -188,7 +190,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         }else if(workspace==1){
             stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,fmAlgorithmWidth,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+fmAlgorithmWidth+18,content.getY()+48,225,218);
             const int gx=content.getX()+fmAlgorithmWidth+275,gw=content.getWidth()-(fmAlgorithmWidth+275);for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
-            const int y=content.getY()+282,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(content.getX()+op*cw+10,y+32+k*39,cw-25,36);
+            const int y=content.getY()+fmOperatorTop,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(content.getX()+op*cw+10,y+32+k*39,cw-25,36);
         }else{
             stage=content;const int cw=content.getWidth()/4;for(int n=0;n<4;++n){for(int k=0;k<4;++k)motionControls[size_t(n*4+k)]->setBounds(content.getX()+n*cw+12+(k%2)*((cw-24)/2),content.getY()+41+(k/2)*49,(cw-24)/2-12,43);}motionScope.setBounds(content.withY(content.getY()+147).withHeight(47));
             const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,136,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+146,y,half-310,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
@@ -248,7 +250,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         if(workspace==0){
             text(g,"INSPECT / "+juce::String(slot+1).paddedLeft('0',2),right.withHeight(20),10,earth);const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(lastType));text(g,info.name,right.withY(right.getY()+20).withHeight(34),28,ink,juce::Justification::centredLeft,true);
         }else if(workspace==1){
-            text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{x0,y0+72,252,22},10,earth);
+            text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",fmPaintGeometry().liveVoices,10,earth);
             const int oy=y0+222,cw=content.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(x0+op*cw,oy,cw-8,26);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),{r.getX()+8,r.getY()+2,100,24},17,op%2?earth:blue,juce::Justification::centredLeft,true);}
         }else{
             const int cw=content.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{x0+n*cw+12,y0,cw-20,26},20,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(x0+n*cw,float(y0),float(y0+176));}
@@ -260,7 +262,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         uiTextScale=getTransform().getScaleFactor();
         if(compact){paintCompact(g);return;}
         g.fillAll(paper);g.setColour(line.withAlpha(.07f));for(int y=0;y<getHeight();y+=11)g.drawHorizontalLine(y,0,float(getWidth()));
-        text(g,"Atlas",{26,4,162,57},51,ink,juce::Justification::centredLeft,true);text(g,"AETHER / 2.0",{29,66,172,17},10,earth);text(g,"THE IMPOSSIBLE INSTRUMENT",{204,17,390,20},10,muted);
+        text(g,"Atlas",{26,4,162,57},51,ink,juce::Justification::centredLeft,true);text(g,"AETHER",{29,66,172,17},10,earth);text(g,"THE IMPOSSIBLE INSTRUMENT",{204,17,390,20},10,muted);
         g.setColour(line);g.drawHorizontalLine(103,26,float(getWidth()-26));g.drawHorizontalLine(getHeight()-105,26,float(getWidth()-26));
         text(g,"SIGNAL / GLOBAL",footer.withHeight(17),11,earth);const auto rate=p.getSampleRate()>0?p.getSampleRate():48000.;const float delayMs=float(p.textureLatencySamples.load()*1000./rate);juce::String telemetry="TEXTURE "+juce::String(delayMs,1)+" ms / PDC 0";const float cpu=p.cpuPercent.load();if(cpu>=0.0f)telemetry+=" / CPU "+juce::String(cpu,1)+"%";text(g,telemetry,footer.withHeight(17).withTrimmedLeft(330).withTrimmedRight(100),11,muted,juce::Justification::centredRight);const int mx=footer.getRight()-275;meter(g,"IN",p.inputMeterDb.load(),{mx,footer.getY()+28,170,15});meter(g,"OUT",p.outputMeterDb.load(),{mx,footer.getY()+48,170,15});text(g,juce::String(JucePlugin_VersionString)+"  /  "+juce::String(JucePlugin_Name),{26,getHeight()-18,400,13},9,muted);text(g,"DESIGNED FOR THE UNEXPECTED",{getWidth()-350,getHeight()-18,324,13},9,muted,juce::Justification::centredRight);
         if(minimal){text(g,"Complete parameter atlas",content.withY(110).withHeight(0));return;}
@@ -272,8 +274,8 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             text(g,"Drag OUT to IN / click two ports to connect",stage.withY(stage.getBottom()-54).withHeight(15),9,muted);
         }else if(workspace==1){
             text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+fmAlgorithmWidth+56,stage.getY()+24,190,20},9,muted);
-            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",{stage.getX()+fmAlgorithmWidth+18,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
-            const int cw=stage.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(stage.getX()+op*cw,stage.getY()+282,cw-8,stage.getHeight()-282);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),r.withY(r.getY()+5).withHeight(25).reduced(10,0),19,op%2?earth:blue,juce::Justification::centredLeft,true);}
+            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",fmPaintGeometry().matrixHint,9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",fmPaintGeometry().liveVoices,10,earth,juce::Justification::centredRight);
+            const int cw=stage.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(stage.getX()+op*cw,stage.getY()+fmOperatorTop,cw-8,stage.getHeight()-fmOperatorTop);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),r.withY(r.getY()+5).withHeight(25).reduced(10,0),19,op%2?earth:blue,juce::Justification::centredLeft,true);}
         }else{
             const int cw=stage.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{stage.getX()+n*cw+12,stage.getY(),cw-20,32},22,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(stage.getX()+n*cw,float(stage.getY()),float(stage.getY()+134));}
             text(g,"Movements & destinations",{stage.getX(),stage.getY()+195,600,36},28,ink,juce::Justification::centredLeft,true);text(g,"BIPOLAR SOURCES / SIGNED DEPTH",{stage.getRight()-330,stage.getY()+206,330,20},9,muted,juce::Justification::centredRight);
@@ -281,6 +283,12 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         }
     }
     void meter(juce::Graphics& g,const juce::String& label,float db,juce::Rectangle<int> r,int valueWidth=42){text(g,label,r.removeFromLeft(30),9,muted);text(g,db<=-99?"-inf":juce::String(db,1),r.removeFromRight(valueWidth),9,ink,juce::Justification::centredRight);auto bar=r.reduced(0,6).toFloat();g.setColour(line);g.fillRect(bar);g.setColour(db>-.5f?earth:blue);g.fillRect(bar.withWidth(bar.getWidth()*juce::jlimit(0.f,1.f,(db+60)/60)));}
+    AetherAudioProcessorEditor::FmPaintGeometry fmPaintGeometry()const{
+        AetherAudioProcessorEditor::FmPaintGeometry g;
+        if(compact){g.liveVoices={content.getX(),content.getY()+72,252,22};g.dividerY=content.getY()+222;}
+        else{g.matrixHint={stage.getX()+fmAlgorithmWidth+18,stage.getY()+268,420,24};g.liveVoices={stage.getRight()-220,stage.getY()+268,220,24};g.dividerY=stage.getY()+fmOperatorTop;}
+        g.dividerX0=content.getX();g.dividerX1=content.getRight();return g;
+    }
     void paintBrowser(juce::Graphics& g){for(size_t n=0;n<browserItems.size();++n){int i=browserItems[n];const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(i));auto r=juce::Rectangle<int>(0,int(n)*48,browser.getWidth(),48);if(i==lastType){g.setColour(ink);g.fillRect(r);}text(g,juce::String(i).paddedLeft('0',2),r.withWidth(28).reduced(3,0),9,i==lastType?light:earth);text(g,info.name,r.withTrimmedLeft(33).withHeight(26),12,i==lastType?light:ink);text(g,juce::String(info.category).toUpperCase(),r.withTrimmedLeft(33).withY(r.getY()+27).withHeight(16),8,i==lastType?line:muted);g.setColour(line);g.drawHorizontalLine(r.getBottom()-1,0,float(r.getRight()));}}
     void miniature(juce::Graphics& g,juce::Rectangle<float> r,int index,bool fm=false){
         const int count=fm?6:12;std::array<juce::Point<float>,12> pts{};for(int i=0;i<count;++i)pts[size_t(i)]={r.getX()+r.getWidth()*(.1f+.8f*float(i%4)/3),r.getY()+r.getHeight()*(.15f+.7f*float(i/4)/float(fm?1:2))};
@@ -365,3 +373,4 @@ void AetherAudioProcessorEditor::setMinimalMode(bool b){ui->setMinimal(b);}
 void AetherAudioProcessorEditor::setWorkspace(int w){ui->setWorkspace(w);}
 void AetherAudioProcessorEditor::selectSlot(int s){ui->select(s);}
 bool AetherAudioProcessorEditor::performUiAction(const juce::String& s){return ui->action(s);}
+AetherAudioProcessorEditor::FmPaintGeometry AetherAudioProcessorEditor::fmPaintGeometry() const{return ui->fmPaintGeometry();}

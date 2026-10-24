@@ -378,6 +378,19 @@ int main(int argc,char** argv) {
                 }
                 for(size_t i=0;i<visible.size();++i) for(size_t j=i+1;j<visible.size();++j)
                     require(!visible[i]->getBounds().intersects(visible[j]->getBounds()),"compact controls overlap: "+visible[i]->getComponentID()+" / "+visible[j]->getComponentID()+" workspace "+juce::String(workspace)+" size "+juce::String(size[0])+"x"+juce::String(size[1]));
+                // FM workspace: the hint texts and the rule above the operator columns must not touch each other or any control.
+                if(workspace==1) {
+                    const auto geo=editor->fmPaintGeometry();
+                    const juce::String where="fm size "+juce::String(size[0])+"x"+juce::String(size[1])+" "+testCase.zoom;
+                    require(geo.dividerY>0&&geo.dividerX1>geo.dividerX0,"fm divider missing: "+where);
+                    for(const auto& r:{geo.matrixHint,geo.liveVoices}) if(!r.isEmpty()) {
+                        require(content->getLocalBounds().contains(r),"fm hint outside content: "+where);
+                        require(r.getBottom()+4<=geo.dividerY,"fm hint touches the operator divider: "+where);
+                        if(!expectCompact) require((geo.dividerY-r.getY())%4==0&&r.getHeight()%4==0,"fm hint is off the 4px grid: "+where);
+                        for(auto* child:visible) require(!r.intersects(child->getBounds()),"fm hint overlaps control "+child->getComponentID()+": "+where);
+                    }
+                    for(auto* child:visible) require(!(child->getY()<geo.dividerY&&child->getBottom()>geo.dividerY),"control straddles the fm divider: "+child->getComponentID()+" "+where);
+                }
                 // Text must fit its widget at the font the look-and-feel really uses.
                 juce::TextButton* reference=nullptr;
                 std::function<void(juce::Component&)> find=[&](juce::Component& c){if(reference==nullptr)reference=dynamic_cast<juce::TextButton*>(&c);for(auto* k:c.getChildren())find(*k);};find(*content);

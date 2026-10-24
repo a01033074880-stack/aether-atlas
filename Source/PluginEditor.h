@@ -12,6 +12,9 @@ public:
     void setWorkspace(int);
     void selectSlot(int);
     bool performUiAction(const juce::String&);
+    // Geometry (in Atlas content-component coordinates) of the FM workspace hint texts and the horizontal rule above the operator columns; used by layout tests.
+    struct FmPaintGeometry { juce::Rectangle<int> matrixHint, liveVoices; int dividerY=0, dividerX0=0, dividerX1=0; };
+    FmPaintGeometry fmPaintGeometry() const;
 private:
     struct Impl;
     std::unique_ptr<Impl> ui;
