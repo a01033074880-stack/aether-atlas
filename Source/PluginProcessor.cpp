@@ -42,7 +42,7 @@ void AetherAudioProcessor::prepareToPlay(double rate,int block) {
     activeSourceEngine=0;
     engine.setParameters(parameters());
     graph.setParameters(graphParameters()); fmEngine.setParameters(fmParameters());
-    fmInputGain=1; inputGainSmoothing=static_cast<float>(1-std::exp(-1/(currentRate*0.005)));
+    fmInputGain=1; sourceInputGain=1; inputGainSmoothing=static_cast<float>(1-std::exp(-1/(currentRate*0.005)));
     excitationAttack=static_cast<float>(1-std::exp(-1/(currentRate*0.004)));
     excitationRelease=static_cast<float>(1-std::exp(-1/(currentRate*0.08)));
     excitationLowpass=static_cast<float>(1-std::exp(-2*juce::MathConstants<double>::pi*1800/currentRate));
@@ -227,6 +227,10 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
             if(auto* src=activeSource()) {
                 // Source layer (mode 2 only). It replaces the buffer when FM is not rendering, otherwise it is added to FM.
                 src->process(sourceLeft.data(),sourceRight.data(),n);
+                // Same Input-gain semantics as the FM path: target = Input (dB), 5 ms one-pole smoothing, applied after the
+                // voices render. The source keeps its own smoothing state so FM and source ramp independently.
+                const float inputTarget=juce::Decibels::decibelsToGain(p.inputDb);
+                for(size_t i=0;i<static_cast<size_t>(n);++i) { sourceInputGain+=inputGainSmoothing*(inputTarget-sourceInputGain);sourceLeft[i]*=sourceInputGain;sourceRight[i]*=sourceInputGain; }
                 const bool replace=!(fmActive&&p.mode!=0);
                 for(size_t i=0;i<static_cast<size_t>(n);++i) {
                     left[i]=(replace?0.f:left[i])+sourceLeft[i]; right[i]=(replace?0.f:right[i])+sourceRight[i];
