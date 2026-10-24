@@ -6,14 +6,27 @@
 #include <map>
 
 namespace {
-const juce::Colour paper{0xffeee9dc}, light{0xfff7f3e9}, ink{0xff252b2b}, muted{0xff7d8078}, line{0xffcfcbbd}, earth{0xffb65337}, blue{0xff264fba}, pale{0xffded9ca};
+// Atlas lays out on a 1440x900 logical canvas that is scaled to fit the editor window.
+constexpr float baseWidth=1440.f,baseHeight=900.f;
+// Below this fit scale (the 50% preset and similarly small windows) Atlas switches to a compact 1000x625 layout so text stays >=10 effective px without truncation.
+// Default-layout FM algorithm picker: wide enough for the longest "NN  Name / Subtitle" entry at the largest text floor.
+constexpr int fmAlgorithmWidth=320;
+constexpr float compactWidth=1000.f,compactHeight=625.f,compactBelow=.72f;
+// Text is never allowed below 11 logical px or 10 effective (on-screen) px, whichever is larger. Capped so very small windows stay laid out.
+float legibleFloor(float scale){return juce::jlimit(11.f,16.f,10.f/juce::jmax(.25f,scale));}
+// Scale of the Atlas content transform for the component currently being drawn (set from Impl::paint, message thread only).
+float uiTextScale=1.f;
+float scaleOf(const juce::Component& c){float s=1.f;for(const auto* q=&c;q!=nullptr;q=q->getParentComponent())s*=q->getTransform().getScaleFactor();return s;}
+const juce::Colour paper{0xffeee9dc}, light{0xfff7f3e9}, ink{0xff252b2b}, muted{0xff575a51}, earthText{0xff963c24}, line{0xffcfcbbd}, earth{0xffb65337}, blue{0xff264fba}, pale{0xffded9ca};
 juce::Font type(float size, bool display=false) {
     static auto serif=juce::Typeface::createSystemTypefaceFor(BinaryData::InstrumentSerifRegular_ttf,BinaryData::InstrumentSerifRegular_ttfSize);
     static auto mono=juce::Typeface::createSystemTypefaceFor(BinaryData::DMMonoRegular_ttf,BinaryData::DMMonoRegular_ttfSize);
     return juce::Font(juce::FontOptions(display?serif:mono).withHeight(size));
 }
 void text(juce::Graphics& g,const juce::String& s,juce::Rectangle<int> r,float size=11,juce::Colour colour=ink,int justification=juce::Justification::centredLeft,bool display=false) {
-    g.setColour(colour); g.setFont(type(display?size:juce::jmax(11.f,size),display)); g.drawText(s,r,justification,true);
+    // earth is a graphic colour (4.05:1 on paper); text uses the darker earthText (5.84:1).
+    if(colour==earth)colour=earthText;
+    g.setColour(colour); g.setFont(type(display?size:juce::jmax(legibleFloor(uiTextScale),size),display)); g.drawText(s,r,justification,true);
 }
 juce::String nid(int n,const juce::String& suffix) {return "node."+juce::String(n+1)+"."+suffix;}
 juce::String oid(int n,const juce::String& suffix) {return "fm.op."+juce::String(n+1)+"."+suffix;}
@@ -40,10 +53,10 @@ public:
         setColour(juce::TooltipWindow::backgroundColourId,ink);setColour(juce::TooltipWindow::textColourId,light);setColour(juce::TooltipWindow::outlineColourId,ink);
         setColour(juce::ScrollBar::thumbColourId,line);
     }
-    juce::Font getComboBoxFont(juce::ComboBox&) override{return type(12);}
+    juce::Font getComboBoxFont(juce::ComboBox& c) override{return type(juce::jmax(12.f,legibleFloor(scaleOf(c))));}
     juce::Font getPopupMenuFont() override{return type(12);}
-    juce::Font getTextButtonFont(juce::TextButton&,int) override{return type(11);}
-    juce::Font getLabelFont(juce::Label&) override{return type(12);}
+    juce::Font getTextButtonFont(juce::TextButton& b,int) override{return type(legibleFloor(scaleOf(b)));}
+    juce::Font getLabelFont(juce::Label& l) override{return type(juce::jmax(12.f,legibleFloor(scaleOf(l))));}
     juce::Label* createSliderTextBox(juce::Slider& slider) override {auto* label=juce::LookAndFeel_V4::createSliderTextBox(slider);label->setFont(type(12));label->setColour(juce::Label::textColourId,ink);label->setColour(juce::Label::backgroundColourId,light);label->setColour(juce::Label::outlineColourId,line);label->setColour(juce::TextEditor::textColourId,ink);label->setColour(juce::TextEditor::backgroundColourId,light);return label;}
     void drawButtonBackground(juce::Graphics& g,juce::Button& b,const juce::Colour&,bool hover,bool down) override{
         g.setColour(b.getToggleState()?ink:(down?line:(hover?light:paper)));g.fillRect(b.getLocalBounds());
@@ -51,7 +64,13 @@ public:
     }
     void drawButtonText(juce::Graphics& g,juce::TextButton& b,bool,bool) override{text(g,b.getButtonText(),b.getLocalBounds().reduced(5,0),11,b.getToggleState()?light:ink,juce::Justification::centred);}
     void drawToggleButton(juce::Graphics& g,juce::ToggleButton& b,bool,bool) override{
-        auto r=b.getLocalBounds();g.setColour(b.getToggleState()?blue:line);g.fillEllipse(3.f,float(r.getCentreY()-4),8,8);text(g,b.getButtonText(),r.withTrimmedLeft(17),10,b.getToggleState()?ink:muted);
+        auto r=b.getLocalBounds();const auto id=b.getComponentID();const bool on=b.getToggleState();
+        const bool bypass=id=="global.bypass",enable=id.endsWith(".on")||id.endsWith(".enabled");
+        // Bypass engaged: solid earthText chip with light text (6.38:1) instead of a faint dot.
+        if(bypass&&on){g.setColour(earthText);g.fillRect(r.reduced(0,2));text(g,"BYPASS ON",r.reduced(8,0),11,light,juce::Justification::centred);return;}
+        // Disabled (on/enable switches off): hollow earthText ring and earthText label, clearly different from the blue active dot.
+        if(enable&&!on){g.setColour(earthText);g.drawEllipse(3.5f,float(r.getCentreY())-3.5f,7.f,7.f,1.5f);text(g,b.getButtonText(),r.withTrimmedLeft(17),10,earthText);return;}
+        g.setColour(on?blue:muted);if(on)g.fillEllipse(3.f,float(r.getCentreY()-4),8,8);else g.drawEllipse(3.5f,float(r.getCentreY())-3.5f,7.f,7.f,1.5f);text(g,b.getButtonText(),r.withTrimmedLeft(17),10,on?ink:muted);
     }
     void drawLinearSlider(juce::Graphics& g,int x,int y,int w,int h,float pos,float,float,juce::Slider::SliderStyle,juce::Slider& s) override {
         const float cy=float(y)+float(h)*.5f;g.setColour(line);g.drawLine(float(x),cy,float(x+w),cy,1);g.setColour(s.findColour(juce::Slider::rotarySliderFillColourId));g.drawLine(float(x),cy,pos,cy,2);g.fillEllipse(pos-3,cy-3,6,6);
@@ -78,18 +97,22 @@ public:
 class ParamControl final:public juce::Component {
 public:
     ParamControl(AetherAudioProcessor& p,const juce::String& id,const juce::String& caption={},bool rotary=false):parameterId(id){
-        setName(id);setComponentID(id);const auto* spec=specFor(id);if(!spec)return;
+        rotaryStyle=rotary;setName(id);setComponentID(id);const auto* spec=specFor(id);if(!spec)return;
         title=caption.isEmpty()?juce::String(spec->name):caption;
         if(spec->boolean){toggle.setButtonText(title);addAndMakeVisible(toggle);toggle.setComponentID(id);toggle.setName(id);buttonAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.state,id,toggle);}
         else if(!spec->choices.isEmpty()){combo.addItemList(spec->choices,1);addAndMakeVisible(combo);combo.setComponentID(id);combo.setName(id);choiceAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.state,id,combo);}
-        else {addAndMakeVisible(slider);slider.setComponentID(id);slider.setName(id);slider.setSliderStyle(rotary?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);slider.setTextBoxStyle(rotary?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rotary?90:65,18);slider.setColour(juce::Slider::rotarySliderFillColourId,earth);slider.setColour(juce::Slider::textBoxTextColourId,ink);slider.setColour(juce::Slider::textBoxBackgroundColourId,light);slider.setColour(juce::Slider::textBoxOutlineColourId,line);slider.setDoubleClickReturnValue(true,spec->defaultValue);sliderAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,slider);if(id.startsWith("route.")||(id.startsWith("node.")&&(id.endsWith(".input")||id.endsWith(".output"))))slider.beforeGesture=[&p]{p.prepareGraphEditing();};else if(id.startsWith("fm.edge."))slider.beforeGesture=[&p]{p.prepareFmEditing();};}
+        else {addAndMakeVisible(slider);slider.setComponentID(id);slider.setName(id);slider.setSliderStyle(rotary?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);slider.setTextBoxStyle(rotary?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rotary?90:74,18);slider.setColour(juce::Slider::rotarySliderFillColourId,earth);slider.setColour(juce::Slider::textBoxTextColourId,ink);slider.setColour(juce::Slider::textBoxBackgroundColourId,light);slider.setColour(juce::Slider::textBoxOutlineColourId,line);slider.setDoubleClickReturnValue(true,spec->defaultValue);sliderAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,slider);if(id.startsWith("route.")||(id.startsWith("node.")&&(id.endsWith(".input")||id.endsWith(".output"))))slider.beforeGesture=[&p]{p.prepareGraphEditing();};else if(id.startsWith("fm.edge."))slider.beforeGesture=[&p]{p.prepareFmEditing();};}
         setTooltipText(juce::String(spec->group)+" / "+title+". Double click a slider to restore its default.");
     }
     void setTooltipText(const juce::String& t){slider.setTooltip(t);combo.setTooltip(t);toggle.setTooltip(t);}
     void macro(const aether::modular::MacroInfo& info){title=info.name;const auto lo=info.minimum,hi=info.maximum;const juce::String unit=info.unit;slider.textFromValueFunction=[lo,hi,unit](double v){return juce::String(lo+float(v)*(hi-lo),hi-lo>100?0:2)+(unit.isEmpty()?"":" "+unit);};slider.valueFromTextFunction=[lo,hi](const juce::String& v){return (v.getDoubleValue()-lo)/juce::jmax(.00001f,hi-lo);};slider.updateText();resized();repaint();}
-    void paint(juce::Graphics& g)override{if(!buttonAttachment)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
-    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(17);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else slider.setBounds(r);}
-    juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;
+    void paint(juce::Graphics& g)override{if(!buttonAttachment&&captionShown)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
+    // Compact layout: sliders become linear with a wider value box (knobs do not fit), optionally without the caption row.
+    void setCompact(bool c,bool caption=true){compact=c;captionShown=caption;if(sliderAttachment){const bool rot=rotaryStyle&&!c;slider.setSliderStyle(rot?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);boxWidth=0;slider.setTextBoxStyle(rot?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rot?90:(c?78:74),c?20:18);}resized();repaint();}
+    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(captionShown?17:0);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else{fitValueBox(r.getWidth());slider.setBounds(r);}}
+    // Widen the value box to the longest of min / max / current text at the real font so extremes such as "-100.00 ct" are never truncated.
+    void fitValueBox(int total){if(rotaryStyle&&!compact)return;const auto font=type(juce::jmax(12.f,legibleFloor(scaleOf(*this))));int need=0;for(double v:{slider.getMinimum(),slider.getMaximum(),slider.getValue()})need=juce::jmax(need,juce::GlyphArrangement::getStringWidthInt(font,slider.getTextFromValue(v)));const int base=compact?78:74,w=juce::jmax(base,juce::jmin(need+12,total*5/8));if(w!=boxWidth){boxWidth=w;slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,w,compact?20:18);}}
+    juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;bool rotaryStyle=false,compact=false,captionShown=true;int boxWidth=0;
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> choiceAttachment;
@@ -108,7 +131,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cableAttachment;
     std::unique_ptr<juce::FileChooser> chooser;std::vector<int> browserItems;
     juce::Rectangle<int> content,left,right,stage,footer;std::array<juce::Point<float>,12> nodePoints{};
-    int workspace=0,slot=0,lastType=-1,source=-1,selectedSource=-1,selectedDestination=-1;bool minimal=false;float zoomFactor=1.f;juce::Point<float> cableEnd;juce::String currentName;
+    int workspace=0,slot=0,lastType=-1,source=-1,selectedSource=-1,selectedDestination=-1;bool minimal=false,compact=false;float zoomFactor=1.f;juce::Point<float> cableEnd;juce::String currentName;
     Impl(AetherAudioProcessorEditor& o,AetherAudioProcessor& proc):owner(o),p(proc){
         setLookAndFeel(&theme);setOpaque(true);cableGain.setColour(juce::Slider::textBoxTextColourId,ink);cableGain.setColour(juce::Slider::textBoxBackgroundColourId,light);cableGain.setColour(juce::Slider::textBoxOutlineColourId,line);
         for(auto* b:{&load,&save,&ab,&panic,&help,&minimalButton,&patchTab,&fmTab,&motionTab}){addAndMakeVisible(*b);b->setName(b->getButtonText());}
@@ -136,10 +159,12 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         rebuildInspector();setWorkspace(0);p.analysisEnabled.store(false);startTimerHz(24);
     }
     ~Impl()override{stopTimer();chooser.reset();cableAttachment.reset();setLookAndFeel(nullptr);}
-    ParamControl& addControl(std::vector<std::unique_ptr<ParamControl>>& v,const juce::String& id,const juce::String& name={},bool rotary=false){auto c=std::make_unique<ParamControl>(p,id,name,rotary);addAndMakeVisible(*c);v.push_back(std::move(c));return *v.back();}
+    ParamControl& addControl(std::vector<std::unique_ptr<ParamControl>>& v,const juce::String& id,const juce::String& name={},bool rotary=false){auto c=std::make_unique<ParamControl>(p,id,name,rotary);c->setCompact(compact);addAndMakeVisible(*c);v.push_back(std::move(c));return *v.back();}
+    // Switch between the default and compact layouts; returns true when the mode changed.
+    bool applyCompact(bool c){if(compact==c)return false;compact=c;for(auto* group:{&globals,&inspector,&fmControls,&motionControls,&allControls})for(size_t i=0;i<group->size();++i)(*group)[i]->setCompact(c,!(c&&group==&motionControls&&i>=16));return true;}
     void setWorkspace(int w){workspace=juce::jlimit(0,2,w);minimal=false;resized();repaint();}
     void setMinimal(bool b){minimal=b;resized();repaint();}
-    void setZoom(float value){zoomFactor=value;const int id=value<.625f?1:(value<.875f?2:3);zoom.setSelectedId(id,juce::dontSendNotification);owner.setResizeLimits(juce::roundToInt(1180*value),juce::roundToInt(780*value),juce::roundToInt(2200*value),juce::roundToInt(1500*value));owner.setSize(juce::roundToInt(1440*value),juce::roundToInt(900*value));owner.resized();repaint();}
+    void setZoom(float value){zoomFactor=value;const int id=value<.625f?1:(value<.875f?2:3);zoom.setSelectedId(id,juce::dontSendNotification);owner.setResizeLimits(juce::jmax(juce::roundToInt(1180*value),value<.625f?720:0),juce::jmax(juce::roundToInt(780*value),value<.625f?450:0),juce::roundToInt(2200*value),juce::roundToInt(1500*value));owner.setSize(juce::roundToInt(1440*value),juce::roundToInt(900*value));owner.resized();repaint();}
     float getZoom()const noexcept{return zoomFactor;}
     void select(int s){slot=juce::jlimit(0,11,s);rebuildInspector();resized();repaint();}
     void assign(int type){p.assignModule(slot,type);rebuildInspector();resized();repaint();}
@@ -147,46 +172,107 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     void filterBrowser(){browserItems.clear();const auto query=search.getText().trim();for(int i=0;i<21;++i){const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(i));if(query.isEmpty()||juce::String(info.name).containsIgnoreCase(query)||juce::String(info.category).containsIgnoreCase(query))browserItems.push_back(i);}browser.setSize(juce::jmax(170,browserViewport.getWidth()-10),int(browserItems.size())*48);browser.repaint();}
     void choose(bool saving){load.setEnabled(false);save.setEnabled(false);chooser=std::make_unique<juce::FileChooser>(saving?"Save Atlas sound":"Open Atlas sound",juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),"*.aether");juce::Component::SafePointer<Impl> safe(this);chooser->launchAsync((saving?juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::warnAboutOverwriting:juce::FileBrowserComponent::openMode)|juce::FileBrowserComponent::canSelectFiles,[safe,saving](const juce::FileChooser& fc){if(!safe)return;safe->load.setEnabled(true);safe->save.setEnabled(true);auto f=fc.getResult();if(f==juce::File{})return;if(saving)f=f.withFileExtension(".aether");auto result=saving?safe->p.savePreset(f):safe->p.loadPreset(f);if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Preset",result.getErrorMessage());});}
     void resized()override{
+        if(compact){resizedCompact();return;}
         auto r=getLocalBounds().reduced(26,0);auto top=r.removeFromTop(104);auto tabs=top.withY(60).withHeight(31);tabs.removeFromLeft(215);for(auto* b:{&patchTab,&fmTab,&motionTab})b->setBounds(tabs.removeFromLeft(119).reduced(3,0));zoom.setBounds(top.getRight()-208,20,92,28);minimalButton.setBounds(top.getRight()-103,20,103,28);help.setBounds(590,20,28,28);
-        auto tools=top.withY(20).withHeight(28);tools.removeFromLeft(625);presets.setBounds(tools.removeFromLeft(juce::jmax(140,tools.getWidth()-290)));tools.removeFromLeft(8);for(auto* b:{&load,&save,&ab})b->setBounds(tools.removeFromLeft(59).reduced(3,0));
+        auto tools=top.withY(20).withHeight(28);tools.removeFromLeft(625);presets.setBounds(tools.removeFromLeft(juce::jmax(140,tools.getWidth()-402)));tools.removeFromLeft(8);for(auto* b:{&load,&save,&ab})b->setBounds(tools.removeFromLeft(59).reduced(3,0));
         footer={26,getHeight()-96,getWidth()-52,76};content={26,114,getWidth()-52,getHeight()-222};
         auto fr=footer.withY(footer.getY()+22).withHeight(48);for(int i=0;i<3;++i)globals[size_t(i)]->setBounds(fr.removeFromLeft(juce::jmax(120,footer.getWidth()/7)).reduced(0,1));fr.removeFromLeft(18);globals[3]->setBounds(fr.removeFromLeft(126));globals[4]->setBounds(fr.removeFromLeft(100));panic.setBounds(footer.getRight()-70,footer.getY()+27,70,29);
-        for(auto* c:std::initializer_list<juce::Component*>{&search,&browserViewport,&canvas,&gallery,&algorithm,&cableGain,&removeCable})c->setVisible(!minimal&&workspace==0);
-        for(auto* c:std::initializer_list<juce::Component*>{&fmAlgorithm,&fmDiagram,&fmMatrix})c->setVisible(!minimal&&workspace==1);
-        motionScope.setVisible(!minimal&&workspace==2);for(auto& c:inspector)c->setVisible(!minimal&&workspace==0);for(auto& c:fmControls)c->setVisible(!minimal&&workspace==1);for(auto& c:motionControls)c->setVisible(!minimal&&workspace==2);allViewport.setVisible(minimal);
-        globals[5]->setVisible(!minimal&&workspace==0);globals[6]->setVisible(!minimal&&workspace==0);globals[7]->setVisible(!minimal&&workspace==0);
-        patchTab.setToggleState(!minimal&&workspace==0,juce::dontSendNotification);fmTab.setToggleState(!minimal&&workspace==1,juce::dontSendNotification);motionTab.setToggleState(!minimal&&workspace==2,juce::dontSendNotification);minimalButton.setToggleState(minimal,juce::dontSendNotification);
+        updateVisibility();
         if(minimal){allViewport.setBounds(content);const int cw=(content.getWidth()-22)/4;for(size_t i=0;i<allControls.size();++i)allControls[i]->setBounds(int(i%4)*cw,int(i/4)*57,cw-18,51);allBody.setSize(content.getWidth()-18,int((allControls.size()+3)/4)*57);return;}
         if(workspace==0){
             left=content.removeFromLeft(194);content.removeFromLeft(24);right=content.removeFromRight(270);content.removeFromRight(24);stage=content;
             search.setBounds(left.withY(left.getY()+50).withHeight(30));browserViewport.setBounds(left.withTrimmedTop(95));filterBrowser();
             auto st=stage;st.removeFromTop(51);algorithm.setBounds(st.removeFromTop(29).withTrimmedRight(100));globals[5]->setBounds(stage.getRight()-88,stage.getY()+51,88,29);st.removeFromTop(12);gallery.setBounds(st.removeFromTop(144));st.removeFromTop(10);canvas.setBounds(st.withTrimmedBottom(40));
             auto end=stage.withY(stage.getBottom()-34).withHeight(32);globals[6]->setBounds(end.removeFromLeft(125));globals[7]->setBounds(end.removeFromLeft(125));end.removeFromLeft(10);cableGain.setBounds(end.removeFromLeft(juce::jmax(50,end.getWidth()-100)));removeCable.setBounds(end.removeFromRight(94).reduced(0,3));cableGain.setVisible(selectedSource>=0);removeCable.setVisible(selectedSource>=0);
-            auto ins=right;ins.removeFromTop(100);auto typeRow=ins.removeFromTop(45);inspector[0]->setBounds(typeRow.withTrimmedRight(62));inspector[0]->combo.setTooltip("Choose a module type for the selected slot. Its four macros update to the material metadata.");inspector[1]->setBounds(typeRow.removeFromRight(58).withTrimmedTop(17));auto levels=ins.removeFromTop(40);inspector[2]->setBounds(levels.removeFromLeft(132));inspector[3]->setBounds(levels.withTrimmedLeft(6));inspector[4]->setBounds(ins.removeFromTop(35));ins.removeFromTop(8);const int knobH=juce::jlimit(70,120,(right.getHeight()-398)/2);for(int i=0;i<4;++i)inspector[size_t(i+5)]->setBounds(right.getX()+(i%2)*137,ins.getY()+(i/2)*knobH,130,knobH);ins.removeFromTop(knobH*2);for(int i=9;i<11;++i)inspector[size_t(i)]->setBounds(ins.removeFromTop(35));
+            auto ins=right;ins.removeFromTop(100);auto typeRow=ins.removeFromTop(45);inspector[0]->setBounds(typeRow.withTrimmedRight(86));inspector[0]->combo.setTooltip("Choose a module type for the selected slot. Its four macros update to the material metadata.");inspector[1]->setBounds(typeRow.removeFromRight(82).withTrimmedTop(17));auto levels=ins.removeFromTop(40);inspector[2]->setBounds(levels.removeFromLeft(132));inspector[3]->setBounds(levels.withTrimmedLeft(6));inspector[4]->setBounds(ins.removeFromTop(35));ins.removeFromTop(8);const int knobH=juce::jlimit(70,120,(right.getHeight()-398)/2);for(int i=0;i<4;++i)inspector[size_t(i+5)]->setBounds(right.getX()+(i%2)*137,ins.getY()+(i/2)*knobH,130,knobH);ins.removeFromTop(knobH*2);for(int i=9;i<11;++i)inspector[size_t(i)]->setBounds(ins.removeFromTop(35));
         }else if(workspace==1){
-            stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,260,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+278,content.getY()+48,225,218);
-            const int gx=content.getX()+535,gw=content.getWidth()-535;for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
+            stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,fmAlgorithmWidth,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+fmAlgorithmWidth+18,content.getY()+48,225,218);
+            const int gx=content.getX()+fmAlgorithmWidth+275,gw=content.getWidth()-(fmAlgorithmWidth+275);for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
             const int y=content.getY()+282,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(content.getX()+op*cw+10,y+32+k*39,cw-25,36);
         }else{
             stage=content;const int cw=content.getWidth()/4;for(int n=0;n<4;++n){for(int k=0;k<4;++k)motionControls[size_t(n*4+k)]->setBounds(content.getX()+n*cw+12+(k%2)*((cw-24)/2),content.getY()+41+(k/2)*49,(cw-24)/2-12,43);}motionScope.setBounds(content.withY(content.getY()+147).withHeight(47));
-            const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,100,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+110,y,half-274,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
+            const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,136,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+146,y,half-310,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
+        }
+    }
+    void updateVisibility(){
+        for(auto* c:std::initializer_list<juce::Component*>{&search,&browserViewport,&canvas,&gallery,&algorithm,&cableGain,&removeCable})c->setVisible(!minimal&&workspace==0);
+        for(auto* c:std::initializer_list<juce::Component*>{&fmAlgorithm,&fmDiagram,&fmMatrix})c->setVisible(!minimal&&workspace==1);
+        motionScope.setVisible(!minimal&&workspace==2);for(auto& c:inspector)c->setVisible(!minimal&&workspace==0);for(auto& c:fmControls)c->setVisible(!minimal&&workspace==1);for(auto& c:motionControls)c->setVisible(!minimal&&workspace==2);allViewport.setVisible(minimal);
+        globals[5]->setVisible(!minimal&&workspace==0);globals[6]->setVisible(!minimal&&workspace==0);globals[7]->setVisible(!minimal&&workspace==0);
+        patchTab.setToggleState(!minimal&&workspace==0,juce::dontSendNotification);fmTab.setToggleState(!minimal&&workspace==1,juce::dontSendNotification);motionTab.setToggleState(!minimal&&workspace==2,juce::dontSendNotification);minimalButton.setToggleState(minimal,juce::dontSendNotification);
+    }
+    void resizedCompact(){
+        const int W=getWidth(),H=getHeight(),m=12,headerH=72,footerH=70;
+        auto row=juce::Rectangle<int>(m,8,W-2*m,28);
+        minimalButton.setBounds(row.removeFromRight(100));row.removeFromRight(6);zoom.setBounds(row.removeFromRight(84));row.removeFromRight(6);
+        for(auto* b:{&ab,&save,&load}){b->setBounds(row.removeFromRight(60));row.removeFromRight(4);}
+        row.removeFromLeft(100);help.setBounds(row.removeFromLeft(28));row.removeFromLeft(8);presets.setBounds(row);
+        auto tabs=juce::Rectangle<int>(m,40,W-2*m,28);for(auto* b:{&patchTab,&fmTab,&motionTab})b->setBounds(tabs.removeFromLeft(120).withTrimmedRight(6));
+        footer={m,H-footerH,W-2*m,footerH-6};content={m,headerH+4,W-2*m,H-footerH-headerH-10};
+        const int fy=footer.getY();auto fr=juce::Rectangle<int>(m,fy+22,W-2*m,44);
+        for(int i=0;i<3;++i){globals[size_t(i)]->setBounds(fr.removeFromLeft(160).reduced(0,1));fr.removeFromLeft(8);}
+        globals[3]->setBounds(fr.removeFromLeft(112));fr.removeFromLeft(10);globals[4]->setBounds(fr.removeFromLeft(104).withTrimmedTop(14));panic.setBounds(W-m-64,fy+30,64,30);
+        updateVisibility();gallery.setVisible(false);fmDiagram.setVisible(false);
+        const int x0=content.getX(),y0=content.getY();
+        if(minimal){allViewport.setBounds(content);const int cw=(content.getWidth()-22)/3;for(size_t i=0;i<allControls.size();++i)allControls[i]->setBounds(int(i%3)*cw,int(i/3)*57,cw-18,51);allBody.setSize(content.getWidth()-18,int((allControls.size()+2)/3)*57);return;}
+        if(workspace==0){
+            auto c=content;left=c.removeFromLeft(176);c.removeFromLeft(10);right=c.removeFromRight(244);c.removeFromRight(10);stage=c;
+            search.setBounds(left.withHeight(28));browserViewport.setBounds(left.withTrimmedTop(34));filterBrowser();
+            algorithm.setBounds(stage.getX(),stage.getY(),stage.getWidth()-132,28);globals[5]->setBounds(stage.getRight()-124,stage.getY(),124,28);
+            canvas.setBounds(stage.getX(),stage.getY()+36,stage.getWidth(),stage.getHeight()-76);
+            auto end=stage.withY(stage.getBottom()-36).withHeight(36);globals[6]->setBounds(end.removeFromLeft(150));globals[7]->setBounds(end.removeFromLeft(130));end.removeFromLeft(8);removeCable.setBounds(end.removeFromRight(124).reduced(0,4));end.removeFromRight(6);cableGain.setBounds(end);cableGain.setVisible(selectedSource>=0);removeCable.setVisible(selectedSource>=0);
+            auto ins=right;ins.removeFromTop(56);inspector[0]->setBounds(ins.removeFromTop(42));inspector[0]->combo.setTooltip("Choose a module type for the selected slot. Its four macros update to the material metadata.");inspector[1]->setBounds(ins.removeFromTop(26));for(int i=2;i<11;++i)inspector[size_t(i)]->setBounds(ins.removeFromTop(38));
+        }else if(workspace==1){
+            stage=content;const int gx=x0+505,gw=content.getWidth()-505;fmAlgorithm.setBounds(gx,y0,gw,28);fmControls[36]->setBounds(x0,y0,252,26);fmControls[37]->setBounds(x0,y0+34,252,26);fmMatrix.setBounds(x0+264,y0,225,218);
+            for(int i=2;i<11;++i){const int col=(i-2)%3,r=(i-2)/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),y0+36+r*62,gw/3-12,44);}
+            const int oy=y0+222,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(x0+op*cw+8,oy+28+k*37,cw-20,37);
+        }else{
+            stage=content;const int cw=content.getWidth()/4;for(int n=0;n<4;++n)for(int k=0;k<4;++k)motionControls[size_t(n*4+k)]->setBounds(x0+n*cw+12,y0+28+k*38,cw-24,38);
+            motionScope.setBounds(content.withY(y0+182).withHeight(26));
+            const int rowH=30,half=content.getWidth()/2;for(int n=0;n<16;++n){const int hx=x0+(n/8)*half,y=y0+230+(n%8)*rowH;motionControls[size_t(16+n*3)]->setBounds(hx+26,y,112,rowH-4);motionControls[size_t(17+n*3)]->setBounds(hx+144,y,192,rowH-4);motionControls[size_t(18+n*3)]->setBounds(hx+half-146,y,140,rowH-4);}
+        }
+    }
+    void paintCompact(juce::Graphics& g){
+        const int W=getWidth(),H=getHeight(),m=12;
+        g.fillAll(paper);g.setColour(line.withAlpha(.07f));for(int y=0;y<H;y+=11)g.drawHorizontalLine(y,0,float(W));
+        text(g,"Atlas",{m,4,96,36},30,ink,juce::Justification::centredLeft,true);
+        g.setColour(line);g.drawHorizontalLine(71,float(m),float(W-m));g.drawHorizontalLine(H-73,float(m),float(W-m));
+        const int fy=footer.getY();
+        text(g,"SIGNAL / GLOBAL",{m,fy,160,20},11,earth);
+        const auto rate=p.getSampleRate()>0?p.getSampleRate():48000.;const float delayMs=float(p.textureLatencySamples.load()*1000./rate);juce::String telemetry="TEXTURE "+juce::String(delayMs,1)+" ms / PDC 0";const float cpu=p.cpuPercent.load();if(cpu>=0.0f)telemetry+=" / CPU "+juce::String(cpu,1)+"%";
+        text(g,telemetry,{m+170,fy,W-2*m-170-270,20},11,muted,juce::Justification::centredRight);
+        text(g,juce::String(JucePlugin_VersionString)+"  /  "+juce::String(JucePlugin_Name),{W-m-260,fy,260,20},11,muted,juce::Justification::centredRight);
+        const int mx=W-m-64-10-150;meter(g,"IN",p.inputMeterDb.load(),{mx,fy+24,150,20},50);meter(g,"OUT",p.outputMeterDb.load(),{mx,fy+46,150,20},50);
+        if(minimal)return;
+        const int x0=content.getX(),y0=content.getY();
+        if(workspace==0){
+            text(g,"INSPECT / "+juce::String(slot+1).paddedLeft('0',2),right.withHeight(20),10,earth);const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(lastType));text(g,info.name,right.withY(right.getY()+20).withHeight(34),28,ink,juce::Justification::centredLeft,true);
+        }else if(workspace==1){
+            text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{x0,y0+72,252,22},10,earth);
+            const int oy=y0+222,cw=content.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(x0+op*cw,oy,cw-8,26);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),{r.getX()+8,r.getY()+2,100,24},17,op%2?earth:blue,juce::Justification::centredLeft,true);}
+        }else{
+            const int cw=content.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{x0+n*cw+12,y0,cw-20,26},20,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(x0+n*cw,float(y0),float(y0+176));}
+            const int half=content.getWidth()/2;for(int h=0;h<2;++h){const int hx=x0+h*half;text(g,"Source",{hx+26,y0+210,112,18},10,muted);text(g,"Destination",{hx+144,y0+210,192,18},10,muted);text(g,"Depth",{hx+half-146,y0+210,140,18},10,muted);}
+            for(int n=0;n<16;++n)text(g,juce::String(n+1).paddedLeft('0',2),{x0+(n/8)*half,y0+230+(n%8)*30+3,24,20},10,earth);
         }
     }
     void paint(juce::Graphics& g)override{
+        uiTextScale=getTransform().getScaleFactor();
+        if(compact){paintCompact(g);return;}
         g.fillAll(paper);g.setColour(line.withAlpha(.07f));for(int y=0;y<getHeight();y+=11)g.drawHorizontalLine(y,0,float(getWidth()));
         text(g,"Atlas",{26,4,162,57},51,ink,juce::Justification::centredLeft,true);text(g,"AETHER / 2.0",{29,66,172,17},10,earth);text(g,"THE IMPOSSIBLE INSTRUMENT",{204,17,390,20},10,muted);
         g.setColour(line);g.drawHorizontalLine(103,26,float(getWidth()-26));g.drawHorizontalLine(getHeight()-105,26,float(getWidth()-26));
-        text(g,"SIGNAL / GLOBAL",footer.withHeight(17),11,earth);const auto rate=p.getSampleRate()>0?p.getSampleRate():48000.;const float delayMs=float(p.textureLatencySamples.load()*1000./rate);juce::String telemetry="TEXTURE "+juce::String(delayMs,1)+" ms / PDC 0";const float cpu=p.cpuPercent.load();if(cpu>=0.0f)telemetry+=" / CPU "+juce::String(cpu,1)+"%";text(g,telemetry,footer.withHeight(17).withTrimmedLeft(330).withTrimmedRight(100),11,muted,juce::Justification::centredRight);const int mx=footer.getRight()-275;meter(g,"IN",p.inputMeterDb.load(),{mx,footer.getY()+28,170,15});meter(g,"OUT",p.outputMeterDb.load(),{mx,footer.getY()+48,170,15});text(g,"2.0.0  /  "+juce::String(JucePlugin_Name),{26,getHeight()-18,400,13},9,muted);text(g,"DESIGNED FOR THE UNEXPECTED",{getWidth()-350,getHeight()-18,324,13},9,muted,juce::Justification::centredRight);
+        text(g,"SIGNAL / GLOBAL",footer.withHeight(17),11,earth);const auto rate=p.getSampleRate()>0?p.getSampleRate():48000.;const float delayMs=float(p.textureLatencySamples.load()*1000./rate);juce::String telemetry="TEXTURE "+juce::String(delayMs,1)+" ms / PDC 0";const float cpu=p.cpuPercent.load();if(cpu>=0.0f)telemetry+=" / CPU "+juce::String(cpu,1)+"%";text(g,telemetry,footer.withHeight(17).withTrimmedLeft(330).withTrimmedRight(100),11,muted,juce::Justification::centredRight);const int mx=footer.getRight()-275;meter(g,"IN",p.inputMeterDb.load(),{mx,footer.getY()+28,170,15});meter(g,"OUT",p.outputMeterDb.load(),{mx,footer.getY()+48,170,15});text(g,juce::String(JucePlugin_VersionString)+"  /  "+juce::String(JucePlugin_Name),{26,getHeight()-18,400,13},9,muted);text(g,"DESIGNED FOR THE UNEXPECTED",{getWidth()-350,getHeight()-18,324,13},9,muted,juce::Justification::centredRight);
         if(minimal){text(g,"Complete parameter atlas",content.withY(110).withHeight(0));return;}
         if(workspace==0){
             text(g,"Materials",left.withHeight(42),31,ink,juce::Justification::centredLeft,true);text(g,"21 MODULES / CLICK TO ASSIGN",left.withY(left.getY()+80).withHeight(14),8,muted);
             text(g,"A constellation of sound",stage.withHeight(42),32,ink,juce::Justification::centredLeft,true);
             text(g,"INSPECT / "+juce::String(slot+1).paddedLeft('0',2),right.withHeight(22),10,earth);const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(lastType));text(g,info.name,right.withY(right.getY()+27).withHeight(40),31,ink,juce::Justification::centredLeft,true);
-            g.setColour(muted);g.setFont(type(10));g.drawFittedText(info.description,right.withY(right.getY()+67).withHeight(30),juce::Justification::topLeft,3);
+            g.setColour(muted);g.setFont(type(juce::jmax(10.f,legibleFloor(uiTextScale))));g.drawFittedText(info.description,right.withY(right.getY()+67).withHeight(33),juce::Justification::topLeft,3);
             text(g,"Drag OUT to IN / click two ports to connect",stage.withY(stage.getBottom()-54).withHeight(15),9,muted);
         }else if(workspace==1){
-            text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+316,stage.getY()+24,190,20},9,muted);
-            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",{stage.getX()+278,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
+            text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+fmAlgorithmWidth+56,stage.getY()+24,190,20},9,muted);
+            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",{stage.getX()+fmAlgorithmWidth+18,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
             const int cw=stage.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(stage.getX()+op*cw,stage.getY()+282,cw-8,stage.getHeight()-282);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),r.withY(r.getY()+5).withHeight(25).reduced(10,0),19,op%2?earth:blue,juce::Justification::centredLeft,true);}
         }else{
             const int cw=stage.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{stage.getX()+n*cw+12,stage.getY(),cw-20,32},22,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(stage.getX()+n*cw,float(stage.getY()),float(stage.getY()+134));}
@@ -194,7 +280,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             const int rh=juce::jmax(36,(stage.getHeight()-236)/8),half=stage.getWidth()/2;for(int n=0;n<16;++n)text(g,juce::String(n+1).paddedLeft('0',2),{stage.getX()+(n/8)*half,stage.getY()+255+(n%8)*rh,27,20},10,earth);
         }
     }
-    void meter(juce::Graphics& g,const juce::String& label,float db,juce::Rectangle<int> r){text(g,label,r.removeFromLeft(30),9,muted);text(g,db<=-99?"-inf":juce::String(db,1),r.removeFromRight(42),9,ink,juce::Justification::centredRight);auto bar=r.reduced(0,6).toFloat();g.setColour(line);g.fillRect(bar);g.setColour(db>-.5f?earth:blue);g.fillRect(bar.withWidth(bar.getWidth()*juce::jlimit(0.f,1.f,(db+60)/60)));}
+    void meter(juce::Graphics& g,const juce::String& label,float db,juce::Rectangle<int> r,int valueWidth=42){text(g,label,r.removeFromLeft(30),9,muted);text(g,db<=-99?"-inf":juce::String(db,1),r.removeFromRight(valueWidth),9,ink,juce::Justification::centredRight);auto bar=r.reduced(0,6).toFloat();g.setColour(line);g.fillRect(bar);g.setColour(db>-.5f?earth:blue);g.fillRect(bar.withWidth(bar.getWidth()*juce::jlimit(0.f,1.f,(db+60)/60)));}
     void paintBrowser(juce::Graphics& g){for(size_t n=0;n<browserItems.size();++n){int i=browserItems[n];const auto& info=aether::modular::moduleInfo(aether::modular::ModuleType(i));auto r=juce::Rectangle<int>(0,int(n)*48,browser.getWidth(),48);if(i==lastType){g.setColour(ink);g.fillRect(r);}text(g,juce::String(i).paddedLeft('0',2),r.withWidth(28).reduced(3,0),9,i==lastType?light:earth);text(g,info.name,r.withTrimmedLeft(33).withHeight(26),12,i==lastType?light:ink);text(g,juce::String(info.category).toUpperCase(),r.withTrimmedLeft(33).withY(r.getY()+27).withHeight(16),8,i==lastType?line:muted);g.setColour(line);g.drawHorizontalLine(r.getBottom()-1,0,float(r.getRight()));}}
     void miniature(juce::Graphics& g,juce::Rectangle<float> r,int index,bool fm=false){
         const int count=fm?6:12;std::array<juce::Point<float>,12> pts{};for(int i=0;i<count;++i)pts[size_t(i)]={r.getX()+r.getWidth()*(.1f+.8f*float(i%4)/3),r.getY()+r.getHeight()*(.15f+.7f*float(i/4)/float(fm?1:2))};
@@ -211,9 +297,9 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         juce::Path shadow;shadow.startNewSubPath(w*.36f,h*.88f);shadow.lineTo(w*.62f,h*.88f);shadow.lineTo(w*.81f,h*.98f);shadow.lineTo(w*.55f,h*.98f);shadow.closeSubPath();g.setColour(ink.withAlpha(.04f));g.fillPath(shadow);
         g.setGradientFill(juce::ColourGradient(light,w*.79f,h*.02f,earth,w*.87f,h*.24f,true));g.fillEllipse(w*.80f,h*.02f,46,46);g.setColour(ink.withAlpha(.07f));g.fillEllipse(w*.86f,h*.26f,70,11);
         aether::modular::Parameters visualRouting;const int visualAlgorithm=int(p.parameterValue("routing.algorithm"));if(visualAlgorithm!=32)aether::modular::applyAlgorithm(visualAlgorithm,visualRouting);for(int i=0;i<12;++i){const float input=visualAlgorithm==32?p.parameterValue(nid(i,"input")):visualRouting.input[size_t(i)],output=visualAlgorithm==32?p.parameterValue(nid(i,"output")):visualRouting.output[size_t(i)];g.setColour(blue.withAlpha(.22f));if(std::abs(input)>.001f)g.drawLine(7,h*.5f,port(i,false).x,port(i,false).y,.8f);g.setColour(earth.withAlpha(.22f));if(std::abs(output)>.001f)g.drawLine(port(i,true).x,port(i,true).y,w-7,h*.5f,.8f);}
-        for(int d=0;d<12;++d)for(int s=0;s<12;++s){const float v=visualAlgorithm==32?p.parameterValue(rid(s,d)):visualRouting.connection[size_t(d)][size_t(s)];if(std::abs(v)<.001f)continue;const bool selected=s==selectedSource&&d==selectedDestination;g.setColour((selected?blue:(s>=d?earth:ink)).withAlpha(selected?.95f:.4f));g.strokePath(connectionPath(s,d),juce::PathStrokeType(selected?2.8f:1.25f));if(s>=d){auto mid=connectionPath(s,d).getPointAlongPath(connectionPath(s,d).getLength()*.5f);text(g,"z-1",{int(mid.x)-12,int(mid.y)-8,25,15},8,earth);}}
-        for(int i=0;i<12;++i){auto c=nodePoints[size_t(i)];const int t=juce::jlimit(0,20,int(p.parameterValue(nid(i,"type"))));const bool on=p.parameterValue(nid(i,"on"))>.5f;auto colour=i==slot?blue:ink;g.setColour(ink.withAlpha(.07f));g.fillEllipse(c.x-24+8,c.y-24+11,48,48);g.setColour(i==slot?blue:light);g.fillEllipse(c.x-24,c.y-24,48,48);g.setColour(i==slot?blue:line);g.drawEllipse(c.x-24,c.y-24,48,48,1);text(g,juce::String(i+1).paddedLeft('0',2),{int(c.x)-22,int(c.y)-17,44,34},20,i==slot?light:ink,juce::Justification::centred,true);text(g,aether::modular::moduleInfo(aether::modular::ModuleType(t)).name,{int(c.x)-58,int(c.y)+29,116,18},9,on?colour:muted,juce::Justification::centred);const float meterLevel=juce::jlimit(0.f,1.f,p.nodeMeters[size_t(i)].load());g.setColour(line);g.fillRect(c.x-21,c.y+52,42.f,2.f);g.setColour(earth);g.fillRect(c.x-21,c.y+52,42.f*meterLevel,2.f);
-            for(bool out:{false,true}){auto q=port(i,out);g.setColour(out?earth:blue);g.fillEllipse(q.x-3.3f,q.y-3.3f,6.6f,6.6f);}if(!on){g.setColour(earth);g.drawLine(c.x-15,c.y+15,c.x+15,c.y-15,1);}}
+        for(int d=0;d<12;++d)for(int s=0;s<12;++s){const float v=visualAlgorithm==32?p.parameterValue(rid(s,d)):visualRouting.connection[size_t(d)][size_t(s)];if(std::abs(v)<.001f)continue;const bool selected=s==selectedSource&&d==selectedDestination;g.setColour((selected?blue:(s>=d?earth:ink)).withAlpha(selected?.95f:.4f));g.strokePath(connectionPath(s,d),juce::PathStrokeType(selected?2.8f:1.25f));if(s>=d){auto mid=connectionPath(s,d).getPointAlongPath(connectionPath(s,d).getLength()*.5f);text(g,"z-1",{int(mid.x)-(compact?16:12),int(mid.y)-8,compact?32:25,15},8,earth);}}
+        for(int i=0;i<12;++i){auto c=nodePoints[size_t(i)];const int t=juce::jlimit(0,20,int(p.parameterValue(nid(i,"type"))));const bool on=p.parameterValue(nid(i,"on"))>.5f;auto colour=i==slot?blue:ink;g.setColour(ink.withAlpha(.07f));g.fillEllipse(c.x-24+8,c.y-24+11,48,48);g.setColour(i==slot?blue:(on?light:pale));g.fillEllipse(c.x-24,c.y-24,48,48);g.setColour(i==slot?blue:line);g.drawEllipse(c.x-24,c.y-24,48,48,1);if(!on){juce::Path ring,dashed;ring.addEllipse(c.x-24,c.y-24,48,48);const float dashes[]{4.f,3.f};juce::PathStrokeType(1.5f).createDashedStroke(dashed,ring,dashes,2);g.setColour(earthText);g.fillPath(dashed);}text(g,juce::String(i+1).paddedLeft('0',2),{int(c.x)-22,int(c.y)-17,44,34},20,i==slot?light:ink,juce::Justification::centred,true);text(g,aether::modular::moduleInfo(aether::modular::ModuleType(t)).name,{int(c.x)-(compact?68:58),int(c.y)+29,compact?136:116,18},9,on?colour:earthText,juce::Justification::centred);const float meterLevel=juce::jlimit(0.f,1.f,p.nodeMeters[size_t(i)].load());g.setColour(line);g.fillRect(c.x-21,c.y+52,42.f,2.f);g.setColour(earth);g.fillRect(c.x-21,c.y+52,42.f*meterLevel,2.f);
+            for(bool out:{false,true}){auto q=port(i,out);g.setColour(out?earth:blue);g.fillEllipse(q.x-3.3f,q.y-3.3f,6.6f,6.6f);}if(!on){g.setColour(earthText);g.drawLine(c.x-15,c.y+15,c.x+15,c.y-15,2);}}
         if(source>=0){g.setColour(blue);juce::Path dragPath;auto a=port(source,true);dragPath.startNewSubPath(a);dragPath.cubicTo(a.x+50,a.y,cableEnd.x-50,cableEnd.y,cableEnd.x,cableEnd.y);g.strokePath(dragPath,juce::PathStrokeType(2));}
         text(g,"IN",{0,int(h/2)-10,23,20},8,muted);text(g,"OUT",{int(w)-28,int(h/2)-10,28,20},8,muted);
     }
@@ -253,8 +339,8 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         text(g,activeCount>0?"OUTPUT":"OUTPUT / SILENT",{0,int(h)-35,int(w),15},9,activeCount>0?earth:muted,juce::Justification::centred);
         text(g,p.parameterValue("fm.custom")>.5f?"CUSTOM / STORED MATRIX":"ALGORITHM / MORPH TO NEXT",{0,int(h)-16,int(w),16},9,muted,juce::Justification::centred);
     }
-    void paintFmMatrix(juce::Graphics& g){for(int i=0;i<6;++i){text(g,juce::String(i+1),{38+i*30,5,27,20},10,blue,juce::Justification::centred);text(g,juce::String(i+1),{4,30+i*30,27,27},10,earth,juce::Justification::centred);}for(int d=0;d<6;++d)for(int s=0;s<6;++s){const float v=fmEdge(s,d);auto r=juce::Rectangle<int>(38+s*30,30+d*30,27,27);g.setColour(v>.001f?(s>=d?earth:blue).withAlpha(.2f+.8f*v):light);g.fillRect(r);g.setColour(line);g.drawRect(r);text(g,v>.001f?juce::String(v,1):"-",r,11,v>.001f?light:muted,juce::Justification::centred);}}
-    void paintMotion(juce::Graphics& g){const int cw=motionScope.getWidth()/4;for(int n=0;n<4;++n){auto r=juce::Rectangle<float>(float(n*cw+12),4,float(cw-25),35);g.setColour(line);g.drawLine(r.getX(),r.getCentreY(),r.getRight(),r.getCentreY());juce::Path waveform;const int shape=int(p.parameterValue("lfo."+juce::String(n+1)+".shape"));const float phase=p.parameterValue("lfo."+juce::String(n+1)+".phase");for(int i=0;i<100;++i){float t=float(i)/99+phase,v=0;t-=std::floor(t);switch(shape){case 0:v=std::sin(t*juce::MathConstants<float>::twoPi);break;case 1:v=1-4*std::abs(t-.5f);break;case 2:v=2*t-1;break;case 3:v=t<.5f?1.f:-1.f;break;default:v=std::sin(std::floor(t*7)*27.4f);break;}float x=r.getX()+r.getWidth()*float(i)/99,y=r.getCentreY()-v*r.getHeight()*.4f;if(i==0)waveform.startNewSubPath(x,y);else waveform.lineTo(x,y);}g.setColour(n%2?earth:blue);g.strokePath(waveform,juce::PathStrokeType(1.2f));const float live=p.modulationMeters[size_t(n+1)].load();g.fillEllipse(r.getRight()-5,r.getCentreY()-live*14-3,6,6);}}
+    void paintFmMatrix(juce::Graphics& g){for(int i=0;i<6;++i){text(g,juce::String(i+1),{38+i*30,5,27,20},10,blue,juce::Justification::centred);text(g,juce::String(i+1),{4,30+i*30,27,27},10,earth,juce::Justification::centred);}for(int d=0;d<6;++d)for(int s=0;s<6;++s){const float v=fmEdge(s,d);auto r=juce::Rectangle<int>(38+s*30,30+d*30,27,27);g.setColour(light);g.fillRect(r);if(v>.001f){const auto tone=s>=d?earth:blue;g.setColour(tone.withAlpha(.16f+.26f*v));g.fillRect(r);g.setColour(tone);g.fillRect(r.getX(),r.getBottom()-int(2+4*v),r.getWidth(),int(2+4*v));}g.setColour(line);g.drawRect(r);text(g,v>.001f?juce::String(v,1):"-",r.withTrimmedBottom(4),11,v>.001f?ink:muted,juce::Justification::centred);}}
+    void paintMotion(juce::Graphics& g){const int cw=motionScope.getWidth()/4;for(int n=0;n<4;++n){const float scopeH=compact?20.f:35.f;auto r=juce::Rectangle<float>(float(n*cw+12),compact?3.f:4.f,float(cw-25),scopeH);g.setColour(line);g.drawLine(r.getX(),r.getCentreY(),r.getRight(),r.getCentreY());juce::Path waveform;const int shape=int(p.parameterValue("lfo."+juce::String(n+1)+".shape"));const float phase=p.parameterValue("lfo."+juce::String(n+1)+".phase");for(int i=0;i<100;++i){float t=float(i)/99+phase,v=0;t-=std::floor(t);switch(shape){case 0:v=std::sin(t*juce::MathConstants<float>::twoPi);break;case 1:v=1-4*std::abs(t-.5f);break;case 2:v=2*t-1;break;case 3:v=t<.5f?1.f:-1.f;break;default:v=std::sin(std::floor(t*7)*27.4f);break;}float x=r.getX()+r.getWidth()*float(i)/99,y=r.getCentreY()-v*r.getHeight()*.4f;if(i==0)waveform.startNewSubPath(x,y);else waveform.lineTo(x,y);}g.setColour(n%2?earth:blue);g.strokePath(waveform,juce::PathStrokeType(1.2f));const float live=p.modulationMeters[size_t(n+1)].load();g.fillEllipse(r.getRight()-5,r.getCentreY()-live*(scopeH*.4f)-3,6,6);}}
     void timerCallback()override{const auto name=p.currentPresetName();if(name!=currentName){currentName=name;presets.setText(name,juce::dontSendNotification);}ab.setButtonText(p.isSnapshotB()?"B / A":"A / B");if(lastType!=int(p.parameterValue(nid(slot,"type")))){rebuildInspector();resized();}algorithm.setSelectedId(int(p.parameterValue("routing.algorithm"))+1,juce::dontSendNotification);fmAlgorithm.setSelectedId(int(p.parameterValue("fm.algorithm"))+1,juce::dontSendNotification);for(int i=0;i<4;++i){auto& rateControl=*motionControls[size_t(i*4)];const bool synced=p.parameterValue("lfo."+juce::String(i+1)+".sync")>.5f;const juce::String label=synced?"Rate / cyc per beat":"Rate / Hz";if(rateControl.title!=label){rateControl.title=label;rateControl.slider.textFromValueFunction=[synced](double v){return juce::String(v,v<1?2:1)+(synced?" cpb":" Hz");};rateControl.slider.updateText();rateControl.repaint();}}if(!minimal){canvas.repaint();gallery.repaint();fmDiagram.repaint();fmMatrix.repaint();motionScope.repaint();repaint();}}
     bool action(const juce::String& a){auto parts=juce::StringArray::fromTokens(a,".","");if(parts.size()==2&&parts[0]=="zoom"){const int value=parts[1].getIntValue();if(value==50||value==75||value==100){setZoom(value==50?.5f:(value==75?.75f:1.f));return true;}return false;}if(a=="workspace.patch"){patchTab.triggerClick();return true;}if(a=="workspace.fm"){fmTab.triggerClick();return true;}if(a=="workspace.motion"){motionTab.triggerClick();return true;}if(a=="workspace.minimal"){minimalButton.triggerClick();return true;}if(parts.size()==2&&parts[0]=="slot"){select(parts[1].getIntValue()-1);return true;}if(parts.size()==2&&parts[0]=="module"){assign(parts[1].getIntValue());return true;}if(parts.size()==2&&parts[0]=="routing"){algorithm.setSelectedId(parts[1].getIntValue()+1,juce::sendNotificationSync);return true;}if(parts.size()==3&&parts[0]=="fm"&&parts[1]=="algorithm"){fmAlgorithm.setSelectedId(parts[2].getIntValue()+1,juce::sendNotificationSync);return true;}if(parts.size()==3&&parts[0]=="route"){int s=parts[1].getIntValue()-1,d=parts[2].getIntValue()-1;if(s<0||s>11||d<0||d>11)return false;positionNodes();juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(),port(s,true),juce::ModifierKeys(),1.f,0.f,0.f,0.f,0.f,&canvas,&canvas,juce::Time(),port(s,true),juce::Time(),1,false);canvasDown(e);juce::MouseEvent end=e.withNewPosition(port(d,false));canvasDown(end);return true;}if(parts.size()==4&&parts[0]=="fm"&&parts[1]=="edge"){int s=parts[2].getIntValue()-1,d=parts[3].getIntValue()-1;if(s<0||s>5||d<0||d>5)return false;juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(),{float(38+s*30+13),float(30+d*30+13)},juce::ModifierKeys(),1.f,0.f,0.f,0.f,0.f,&fmMatrix,&fmMatrix,juce::Time(),{},juce::Time(),1,false);fmMatrix.mouseDown(e);return true;}return false;}
 };
@@ -262,7 +348,19 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
 AetherAudioProcessorEditor::AetherAudioProcessorEditor(AetherAudioProcessor& p):AudioProcessorEditor(&p),ui(std::make_unique<Impl>(*this,p)){addAndMakeVisible(*ui);setResizable(true,true);setResizeLimits(1180,780,2200,1500);setSize(1440,900);}
 AetherAudioProcessorEditor::~AetherAudioProcessorEditor()=default;
 void AetherAudioProcessorEditor::paint(juce::Graphics& g){g.fillAll(paper);}
-void AetherAudioProcessorEditor::resized(){if(ui){ui->setBounds(0,0,1440,900);ui->setTransform(juce::AffineTransform::scale(ui->getZoom()));}}
+// Fit the 1440x900 logical canvas to the actual window: scale by the limiting axis and give the other axis extra logical room, so nothing is clipped at any size.
+void AetherAudioProcessorEditor::resized(){
+    if(!ui)return;
+    const float w=float(juce::jmax(1,getWidth())),h=float(juce::jmax(1,getHeight()));
+    // Small windows (50% preset) use the compact layout so fonts can be larger relative to the canvas.
+    const bool compact=juce::jmin(w/baseWidth,h/baseHeight)<compactBelow;
+    const float bw=compact?compactWidth:baseWidth,bh=compact?compactHeight:baseHeight;
+    const float fit=juce::jmax(.25f,juce::jmin(w/bw,h/bh));
+    const bool changed=ui->applyCompact(compact);
+    ui->setBounds(0,0,juce::jmax(int(bw),int(std::ceil(w/fit-.001f))),juce::jmax(int(bh),int(std::ceil(h/fit-.001f))));
+    ui->setTransform(juce::AffineTransform::scale(fit));
+    if(changed){ui->resized();ui->repaint();}
+}
 void AetherAudioProcessorEditor::setMinimalMode(bool b){ui->setMinimal(b);}
 void AetherAudioProcessorEditor::setWorkspace(int w){ui->setWorkspace(w);}
 void AetherAudioProcessorEditor::selectSlot(int s){ui->select(s);}
