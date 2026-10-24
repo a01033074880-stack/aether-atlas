@@ -55,6 +55,31 @@ int main(int argc,char** argv) {
         editor->performUiAction("slot.1"); editor->performUiAction("route.1.2"); shot("patch-zoom.50-cable-selected");
         return good?0:1;
     }
+    // "v3" mode: FM workspace with the longest algorithm name and detune at -100 ct, plus patch/motion/all regression shots. Usage: AetherUiSnapshots <dir> v3
+    if(argc>2&&juce::String(argv[2])=="v3") {
+        bool good=true;
+        auto shot=[&](const juce::String& name) {
+            for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-v3-"+name+"-"+juce::String(int(scale))+"x.png"),editor->createComponentSnapshot(editor->getLocalBounds(),true,scale))&&good;
+        };
+        auto settle=[] {}; // parameter attachments update synchronously on the message thread
+        editor->setMinimalMode(false); editor->setWorkspace(1);
+        editor->performUiAction("fm.algorithm.24"); // item "25  Triangular Courtyard / Three Cycle"
+        for(int op=1;op<=6;++op) setParam(p,("fm.op."+juce::String(op)+".detune").toRawUTF8(),-100.f);
+        settle();
+        editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("fm-default-1440x900");
+        editor->setSize(1180,780); shot("fm-min-1180x780");
+        editor->performUiAction("zoom.75"); shot("fm-zoom.75-1080x675");
+        editor->performUiAction("zoom.50"); shot("fm-zoom.50-720x450");
+        for(int op=1;op<=6;++op) setParam(p,("fm.op."+juce::String(op)+".detune").toRawUTF8(),100.f);
+        settle(); editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot("fm-default-1440x900-detune-plus100");
+        const char* names[]={"patch","fm","motion","all"};
+        for(int ws:{0,2,3}) {
+            editor->performUiAction("zoom.50"); editor->setMinimalMode(ws==3); if(ws<3) editor->setWorkspace(ws); shot(juce::String(names[ws])+"-zoom.50-720x450");
+            editor->performUiAction("zoom.100"); editor->setSize(1440,900); shot(juce::String(names[ws])+"-default-1440x900");
+        }
+        editor->setMinimalMode(false); editor->setWorkspace(2); editor->setSize(1100,750); shot("motion-1100x750");
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
     const char* workspaces[]={"patch","fm","motion","all"};

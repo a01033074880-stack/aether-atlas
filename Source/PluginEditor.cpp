@@ -9,6 +9,8 @@ namespace {
 // Atlas lays out on a 1440x900 logical canvas that is scaled to fit the editor window.
 constexpr float baseWidth=1440.f,baseHeight=900.f;
 // Below this fit scale (the 50% preset and similarly small windows) Atlas switches to a compact 1000x625 layout so text stays >=10 effective px without truncation.
+// Default-layout FM algorithm picker: wide enough for the longest "NN  Name / Subtitle" entry at the largest text floor.
+constexpr int fmAlgorithmWidth=320;
 constexpr float compactWidth=1000.f,compactHeight=625.f,compactBelow=.72f;
 // Text is never allowed below 11 logical px or 10 effective (on-screen) px, whichever is larger. Capped so very small windows stay laid out.
 float legibleFloor(float scale){return juce::jlimit(11.f,16.f,10.f/juce::jmax(.25f,scale));}
@@ -106,9 +108,11 @@ public:
     void macro(const aether::modular::MacroInfo& info){title=info.name;const auto lo=info.minimum,hi=info.maximum;const juce::String unit=info.unit;slider.textFromValueFunction=[lo,hi,unit](double v){return juce::String(lo+float(v)*(hi-lo),hi-lo>100?0:2)+(unit.isEmpty()?"":" "+unit);};slider.valueFromTextFunction=[lo,hi](const juce::String& v){return (v.getDoubleValue()-lo)/juce::jmax(.00001f,hi-lo);};slider.updateText();resized();repaint();}
     void paint(juce::Graphics& g)override{if(!buttonAttachment&&captionShown)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
     // Compact layout: sliders become linear with a wider value box (knobs do not fit), optionally without the caption row.
-    void setCompact(bool c,bool caption=true){compact=c;captionShown=caption;if(sliderAttachment){const bool rot=rotaryStyle&&!c;slider.setSliderStyle(rot?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);slider.setTextBoxStyle(rot?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rot?90:(c?78:74),c?20:18);}resized();repaint();}
-    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(captionShown?17:0);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else slider.setBounds(r);}
-    juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;bool rotaryStyle=false,compact=false,captionShown=true;
+    void setCompact(bool c,bool caption=true){compact=c;captionShown=caption;if(sliderAttachment){const bool rot=rotaryStyle&&!c;slider.setSliderStyle(rot?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);boxWidth=0;slider.setTextBoxStyle(rot?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rot?90:(c?78:74),c?20:18);}resized();repaint();}
+    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(captionShown?17:0);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else{fitValueBox(r.getWidth());slider.setBounds(r);}}
+    // Widen the value box to the longest of min / max / current text at the real font so extremes such as "-100.00 ct" are never truncated.
+    void fitValueBox(int total){if(rotaryStyle&&!compact)return;const auto font=type(juce::jmax(12.f,legibleFloor(scaleOf(*this))));int need=0;for(double v:{slider.getMinimum(),slider.getMaximum(),slider.getValue()})need=juce::jmax(need,juce::GlyphArrangement::getStringWidthInt(font,slider.getTextFromValue(v)));const int base=compact?78:74,w=juce::jmax(base,juce::jmin(need+12,total*5/8));if(w!=boxWidth){boxWidth=w;slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,w,compact?20:18);}}
+    juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;bool rotaryStyle=false,compact=false,captionShown=true;int boxWidth=0;
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> choiceAttachment;
@@ -182,12 +186,12 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             auto end=stage.withY(stage.getBottom()-34).withHeight(32);globals[6]->setBounds(end.removeFromLeft(125));globals[7]->setBounds(end.removeFromLeft(125));end.removeFromLeft(10);cableGain.setBounds(end.removeFromLeft(juce::jmax(50,end.getWidth()-100)));removeCable.setBounds(end.removeFromRight(94).reduced(0,3));cableGain.setVisible(selectedSource>=0);removeCable.setVisible(selectedSource>=0);
             auto ins=right;ins.removeFromTop(100);auto typeRow=ins.removeFromTop(45);inspector[0]->setBounds(typeRow.withTrimmedRight(86));inspector[0]->combo.setTooltip("Choose a module type for the selected slot. Its four macros update to the material metadata.");inspector[1]->setBounds(typeRow.removeFromRight(82).withTrimmedTop(17));auto levels=ins.removeFromTop(40);inspector[2]->setBounds(levels.removeFromLeft(132));inspector[3]->setBounds(levels.withTrimmedLeft(6));inspector[4]->setBounds(ins.removeFromTop(35));ins.removeFromTop(8);const int knobH=juce::jlimit(70,120,(right.getHeight()-398)/2);for(int i=0;i<4;++i)inspector[size_t(i+5)]->setBounds(right.getX()+(i%2)*137,ins.getY()+(i/2)*knobH,130,knobH);ins.removeFromTop(knobH*2);for(int i=9;i<11;++i)inspector[size_t(i)]->setBounds(ins.removeFromTop(35));
         }else if(workspace==1){
-            stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,260,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+278,content.getY()+48,225,218);
-            const int gx=content.getX()+535,gw=content.getWidth()-535;for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
+            stage=content;fmAlgorithm.setBounds(content.getX(),content.getY()+45,fmAlgorithmWidth,28);fmDiagram.setBounds(content.getX(),content.getY()+90,260,190);fmMatrix.setBounds(content.getX()+fmAlgorithmWidth+18,content.getY()+48,225,218);
+            const int gx=content.getX()+fmAlgorithmWidth+275,gw=content.getWidth()-(fmAlgorithmWidth+275);for(int i=0;i<11;++i){const int col=i%3,row=i/3;fmControls[size_t(36+i)]->setBounds(gx+col*(gw/3),content.getY()+44+row*54,gw/3-18,48);}
             const int y=content.getY()+282,cw=content.getWidth()/6;for(int op=0;op<6;++op)for(int k=0;k<6;++k)fmControls[size_t(op*6+k)]->setBounds(content.getX()+op*cw+10,y+32+k*39,cw-25,36);
         }else{
             stage=content;const int cw=content.getWidth()/4;for(int n=0;n<4;++n){for(int k=0;k<4;++k)motionControls[size_t(n*4+k)]->setBounds(content.getX()+n*cw+12+(k%2)*((cw-24)/2),content.getY()+41+(k/2)*49,(cw-24)/2-12,43);}motionScope.setBounds(content.withY(content.getY()+147).withHeight(47));
-            const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,100,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+110,y,half-274,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
+            const int rowHeight=juce::jmax(36,(content.getHeight()-236)/8),half=content.getWidth()/2;for(int n=0;n<16;++n){const int x=content.getX()+(n/8)*half+32,y=content.getY()+235+(n%8)*rowHeight;motionControls[size_t(16+n*3)]->setBounds(x,y,136,rowHeight-5);motionControls[size_t(17+n*3)]->setBounds(x+146,y,half-310,rowHeight-5);motionControls[size_t(18+n*3)]->setBounds(x+half-151,y,112,rowHeight-5);}
         }
     }
     void updateVisibility(){
@@ -267,8 +271,8 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             g.setColour(muted);g.setFont(type(juce::jmax(10.f,legibleFloor(uiTextScale))));g.drawFittedText(info.description,right.withY(right.getY()+67).withHeight(33),juce::Justification::topLeft,3);
             text(g,"Drag OUT to IN / click two ports to connect",stage.withY(stage.getBottom()-54).withHeight(15),9,muted);
         }else if(workspace==1){
-            text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+316,stage.getY()+24,190,20},9,muted);
-            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",{stage.getX()+278,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
+            text(g,"Phase architectures",stage.withHeight(38),32,ink,juce::Justification::centredLeft,true);text(g,"SOURCE > DESTINATION",{stage.getX()+fmAlgorithmWidth+56,stage.getY()+24,190,20},9,muted);
+            text(g,"Click matrix: 0 / 0.5 / 1  -  right-click: clear",{stage.getX()+fmAlgorithmWidth+18,stage.getY()+270,420,22},9,muted);text(g,"LIVE VOICES  "+juce::String(p.fmVoiceCount.load())+" / 16",{stage.getRight()-220,stage.getY()+270,220,22},10,earth,juce::Justification::centredRight);
             const int cw=stage.getWidth()/6;for(int op=0;op<6;++op){auto r=juce::Rectangle<int>(stage.getX()+op*cw,stage.getY()+282,cw-8,stage.getHeight()-282);g.setColour(line);g.drawLine(float(r.getX()),float(r.getY()),float(r.getRight()),float(r.getY()),1);text(g,"OP "+juce::String(op+1),r.withY(r.getY()+5).withHeight(25).reduced(10,0),19,op%2?earth:blue,juce::Justification::centredLeft,true);}
         }else{
             const int cw=stage.getWidth()/4;for(int n=0;n<4;++n){text(g,"0"+juce::String(n+1)+" / Low frequency",{stage.getX()+n*cw+12,stage.getY(),cw-20,32},22,n%2?earth:blue,juce::Justification::centredLeft,true);g.setColour(line);g.drawVerticalLine(stage.getX()+n*cw,float(stage.getY()),float(stage.getY()+134));}

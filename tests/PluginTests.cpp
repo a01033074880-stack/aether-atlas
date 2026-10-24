@@ -393,13 +393,13 @@ int main(int argc,char** argv) {
                         if(t->getComponentID()=="global.bypass")require(juce::GlyphArrangement::getStringWidthInt(buttonFont,"BYPASS ON")<=t->getWidth()-16,"bypass chip text truncated: "+where);
                     } else if(auto* cb=dynamic_cast<juce::ComboBox*>(&c)) {
                         const auto font=cb->getLookAndFeel().getComboBoxFont(*cb);
-                        // Compact layout: every entry must fit the closed box. Default layout: only the current selection (popup menus widen themselves; very long FM algorithm names in the 260px default-layout box are a known pre-existing limit).
-                        for(int i=0;i<cb->getNumItems();++i) if(expectCompact||cb->getSelectedItemIndex()==i)
+                        // Every entry (all FM algorithm names, routing algorithms, modulation targets, ...) must fit the closed box, and every slider's minimum, maximum and current value text must fit its value box.
+                        for(int i=0;i<cb->getNumItems();++i)
                             require(juce::GlyphArrangement::getStringWidthInt(font,cb->getItemText(i))<=cb->getWidth()-40,"combo text truncated: "+where+" / "+cb->getItemText(i));
                     } else if(auto* s=dynamic_cast<juce::Slider*>(&c)) {
                         for(auto* k:s->getChildren()) if(auto* label=dynamic_cast<juce::Label*>(k)) {
                             const auto font=label->getLookAndFeel().getLabelFont(*label);
-                            for(double v:{expectCompact?s->getMinimum():s->getValue(),expectCompact?s->getMaximum():s->getValue(),s->getValue()})
+                            for(double v:{s->getMinimum(),s->getMaximum(),s->getValue()})
                                 require(juce::GlyphArrangement::getStringWidthInt(font,s->getTextFromValue(v))<=label->getWidth()-10,"slider value truncated: "+where+" / "+s->getTextFromValue(v));
                         }
                     }
