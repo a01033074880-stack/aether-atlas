@@ -18,6 +18,21 @@ constexpr float compactWidth=1000.f,compactHeight=625.f,compactBelow=.72f;
 float legibleFloor(float scale){return juce::jlimit(11.f,16.f,10.f/juce::jmax(.25f,scale));}
 // Scale of the Atlas content transform for the component currently being drawn (set from Impl::paint, message thread only).
 float uiTextScale=1.f;
+// Plugin edition: AETHER Micro Synth (JucePlugin_IsSynth) offers only Synth mode; AETHER Micro (effect) offers only FX and Resynth. Chosen at compile time;
+// the override exists so tests and snapshot tools can exercise both editions from one binary (-1 = compile-time edition).
+int editionOverride=-1;
+bool synthEdition(){if(editionOverride>=0)return editionOverride>0;
+#if JucePlugin_IsSynth
+    return true;
+#else
+    return false;
+#endif
+}
+// global.mode keeps its parameter choices (0 FX, 1 Resynth, 2 Synth); the UI only offers the applicable ones and maps combo item ids to the real index (id = index + 1).
+bool modeApplicable(int index){return synthEdition()?index==2:(index==0||index==1);}
+// What the panel shows for a stored mode value: an inapplicable value (e.g. Synth restored into the effect, or FX into the Synth edition) falls back to the edition's own mode.
+int modeShown(int raw){raw=juce::jlimit(0,2,raw);return modeApplicable(raw)?raw:(synthEdition()?2:0);}
+int modeSounding(){return synthEdition()?2:1;}
 float scaleOf(const juce::Component& c){float s=1.f;for(const auto* q=&c;q!=nullptr;q=q->getParentComponent())s*=q->getTransform().getScaleFactor();return s;}
 const juce::Colour paper{0xffeee9dc}, light{0xfff7f3e9}, ink{0xff252b2b}, muted{0xff575a51}, earthText{0xff963c24}, line{0xffcfcbbd}, earth{0xffb65337}, blue{0xff264fba}, pale{0xffded9ca}, inactive{0xff6f6c62};
 juce::Font type(float size, bool display=false) {
@@ -102,6 +117,15 @@ public:
         rotaryStyle=rotary;setName(id);setComponentID(id);const auto* spec=specFor(id);if(!spec)return;
         title=caption.isEmpty()?juce::String(spec->name):caption;
         if(spec->boolean){toggle.setButtonText(title);addAndMakeVisible(toggle);toggle.setComponentID(id);toggle.setName(id);buttonAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.state,id,toggle);}
+        else if(id=="global.mode"&&p.state.getParameter(id)!=nullptr){
+            // ComboBoxAttachment maps the selected item *index* onto the parameter, which would misalign once inapplicable modes are hidden; this keeps item ids = real indices and
+            // binds through juce::ParameterAttachment (same host gesture / automation path).
+            for(int i=0;i<spec->choices.size();++i)if(modeApplicable(i))combo.addItem(spec->choices[i],i+1);
+            addAndMakeVisible(combo);combo.setComponentID(id);combo.setName(id);
+            modeAttachment=std::make_unique<juce::ParameterAttachment>(*p.state.getParameter(id),[this](float v){combo.setSelectedId(modeShown(juce::roundToInt(v))+1,juce::dontSendNotification);});
+            combo.onChange=[this]{const int index=combo.getSelectedId()-1;if(index>=0&&modeAttachment)modeAttachment->setValueAsCompleteGesture(float(index));};
+            modeAttachment->sendInitialUpdate();
+        }
         else if(!spec->choices.isEmpty()){combo.addItemList(spec->choices,1);addAndMakeVisible(combo);combo.setComponentID(id);combo.setName(id);choiceAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.state,id,combo);}
         else {addAndMakeVisible(slider);slider.setComponentID(id);slider.setName(id);slider.setSliderStyle(rotary?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);slider.setTextBoxStyle(rotary?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rotary?90:74,18);slider.setColour(juce::Slider::rotarySliderFillColourId,earth);slider.setColour(juce::Slider::textBoxTextColourId,ink);slider.setColour(juce::Slider::textBoxBackgroundColourId,light);slider.setColour(juce::Slider::textBoxOutlineColourId,line);slider.setDoubleClickReturnValue(true,spec->defaultValue);sliderAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,slider);if(id.startsWith("route.")||(id.startsWith("node.")&&(id.endsWith(".input")||id.endsWith(".output"))))slider.beforeGesture=[&p]{p.prepareGraphEditing();};else if(id.startsWith("fm.edge."))slider.beforeGesture=[&p]{p.prepareFmEditing();};if(spec->step>=1.f){slider.textFromValueFunction=[](double v){return juce::String(juce::roundToInt(v));};slider.updateText();}}
         setTooltipText(juce::String(spec->group)+" / "+title+". Double click a slider to restore its default.");
@@ -113,13 +137,14 @@ public:
     void paint(juce::Graphics& g)override{if(!buttonAttachment&&captionShown)text(g,title,getLocalBounds().removeFromTop(17),10,muted);}
     // Compact layout: sliders become linear with a wider value box (knobs do not fit), optionally without the caption row.
     void setCompact(bool c,bool caption=true){compact=c;captionShown=caption;if(sliderAttachment){const bool rot=rotaryStyle&&!c;slider.setSliderStyle(rot?juce::Slider::RotaryHorizontalVerticalDrag:juce::Slider::LinearHorizontal);boxWidth=0;slider.setTextBoxStyle(rot?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,rot?90:(c?78:74),c?20:18);}resized();repaint();}
-    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(captionShown?17:0);if(choiceAttachment)combo.setBounds(r.reduced(0,1));else{fitValueBox(r.getWidth());slider.setBounds(r);}}
+    void resized()override{auto r=getLocalBounds();if(buttonAttachment){toggle.setBounds(r);return;}r.removeFromTop(captionShown?17:0);if(choiceAttachment||modeAttachment)combo.setBounds(r.reduced(0,1));else{fitValueBox(r.getWidth());slider.setBounds(r);}}
     // Widen the value box to the longest of min / max / current text at the real font so extremes such as "-100.00 ct" are never truncated.
     void fitValueBox(int total){if(rotaryStyle&&!compact)return;const auto font=type(juce::jmax(12.f,legibleFloor(scaleOf(*this))));int need=0;for(double v:{slider.getMinimum(),slider.getMaximum(),slider.getValue()})need=juce::jmax(need,juce::GlyphArrangement::getStringWidthInt(font,slider.getTextFromValue(v)));const int base=compact?78:74,w=juce::jmax(base,juce::jmin(need+12,total*5/8));if(w!=boxWidth){boxWidth=w;slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,w,compact?20:18);}}
     juce::String parameterId,title;InstrumentSlider slider;juce::ComboBox combo;juce::ToggleButton toggle;bool rotaryStyle=false,compact=false,captionShown=true,dimmed=false;int boxWidth=0;
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> choiceAttachment;
+    std::unique_ptr<juce::ParameterAttachment> modeAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachment;
 };
 class Surface:public juce::Component {public:std::function<void(juce::Graphics&)> draw;std::function<void(const juce::MouseEvent&)> down,drag,up;void paint(juce::Graphics& g)override{if(draw)draw(g);}void mouseDown(const juce::MouseEvent& e)override{if(down)down(e);}void mouseDrag(const juce::MouseEvent& e)override{if(drag)drag(e);}void mouseUp(const juce::MouseEvent& e)override{if(up)up(e);}};
@@ -174,14 +199,15 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     void setMinimal(bool b){minimal=b;resized();repaint();}
     // ---- Source workspace (engine select, shared voice controls, engine-specific block) ----
     int sourceEngine()const{return juce::jlimit(0,2,int(p.parameterValue("source.engine")+.5f));}
-    bool sourceSounding()const{return int(p.parameterValue("global.mode")+.5f)==2&&sourceEngine()>0&&p.parameterValue("source.enabled")>.5f;}
+    int shownMode()const{return modeShown(int(p.parameterValue("global.mode")+.5f));}
+    bool sourceSounding()const{return shownMode()==modeSounding()&&sourceEngine()>0&&p.parameterValue("source.enabled")>.5f;}
     juce::String sourceStatusText()const{
-        const int e=sourceEngine(),mode=int(p.parameterValue("global.mode")+.5f);const auto* engines=specFor("source.engine");const auto* modes=specFor("global.mode");
+        const int e=sourceEngine(),mode=shownMode();const auto* engines=specFor("source.engine");const auto* modes=specFor("global.mode");
         const auto engine=engines?engines->choices[e]:juce::String();const auto modeName=modes&&mode>=0&&mode<modes->choices.size()?modes->choices[mode]:juce::String(mode);
-        if(e==0)return "Source layer is off. Choose an engine to use it (Synth mode only).";
-        if(mode!=2)return "Idle: Mode is "+modeName+". Set Mode to Synth in the footer to hear this layer.";
+        if(e==0)return synthEdition()?"Source layer is off. Choose an engine to use it (plays on MIDI notes).":"Source layer is off. Choose an engine to use it (Resynth mode).";
+        if(mode!=modeSounding())return "Idle: Mode is "+modeName+". Switch Mode to Resynth in the footer to run this layer.";
         if(p.parameterValue("source.enabled")<=.5f)return "Switched off. Turn Source on to hear "+engine+".";
-        return "Active: "+engine+" sounds on MIDI notes in Synth mode.";
+        return synthEdition()?"Active: "+engine+" sounds on MIDI notes in Synth mode.":"Active: "+engine+" follows the input audio in Resynth mode.";
     }
     // Status text, text colour and the inactive (grey graphics, full-contrast text) style of the controls that do not sound right now.
     void refreshSource(){
@@ -203,7 +229,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             if(e==0){
                 v.push_back({{rx,y0+96,rw,38},"No engine selected",28.f,true,ink});
                 v.push_back({{rx,y0+138,rw,20},"Choose Phase Geometry or Chaos in the Engine menu to show its parameters here.",10.f,false,muted});
-                v.push_back({{rx,y0+162,rw,20},"The source layer sounds only in Synth mode with the engine switched on.",10.f,false,muted});
+                v.push_back({{rx,y0+162,rw,20},synthEdition()?"The source layer plays on MIDI notes in Synth mode with the engine switched on.":"The source layer follows the input audio in Resynth mode with the engine switched on.",10.f,false,muted});
                 v.push_back({{rx,y0+186,rw,20},"Envelope, level, spread and transpose stay editable on the left.",10.f,false,muted});
             }else{
                 v.push_back({{rx,y0+96,rw,38},engine,28.f,true,ink});
@@ -217,7 +243,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
             if(e==0){
                 v.push_back({{rx,y0+36,496,18},"NO ENGINE SELECTED",10.f,false,earthText});
                 v.push_back({{rx,y0+58,496,20},"Choose Phase Geometry or Chaos in the Engine menu.",10.f,false,muted});
-                v.push_back({{rx,y0+82,496,20},"The source layer sounds only in Synth mode.",10.f,false,muted});
+                v.push_back({{rx,y0+82,496,20},synthEdition()?"The source layer plays on MIDI notes in Synth mode.":"The source layer follows the input audio in Resynth mode.",10.f,false,muted});
                 v.push_back({{rx,y0+106,496,20},"Common parameters stay editable on the left.",10.f,false,muted});
             }else v.push_back({{rx,y0+36,496,18},engine.toUpperCase()+" / "+juce::String(e==1?10:7)+" PARAMETERS",10.f,false,earthText});
         }
@@ -476,4 +502,5 @@ void AetherAudioProcessorEditor::selectSlot(int s){ui->select(s);}
 bool AetherAudioProcessorEditor::performUiAction(const juce::String& s){return ui->action(s);}
 AetherAudioProcessorEditor::FmPaintGeometry AetherAudioProcessorEditor::fmPaintGeometry() const{return ui->fmPaintGeometry();}
 std::vector<AetherAudioProcessorEditor::SourcePaintText> AetherAudioProcessorEditor::sourcePaintTexts() const{return ui->sourceTexts();}
+void AetherAudioProcessorEditor::setEditionForTesting(int edition){editionOverride=edition;}
 juce::String AetherAudioProcessorEditor::sourceStatus(){ui->syncSourceEngine();ui->refreshSource();return ui->statusLabel.getText();}

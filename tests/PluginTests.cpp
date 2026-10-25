@@ -34,6 +34,15 @@ double luminance(juce::Colour c) {
     return .2126*lin(c.getFloatRed())+.7152*lin(c.getFloatGreen())+.0722*lin(c.getFloatBlue());
 }
 double contrast(juce::Colour a,juce::Colour b) {const double la=luminance(a),lb=luminance(b);return (std::max(la,lb)+.05)/(std::min(la,lb)+.05);}
+// Mode picker helpers: edition 0 = AETHER Micro (FX + Resynth), 1 = AETHER Micro Synth (Synth only). Combo item ids must equal the real parameter index + 1.
+juce::String modeItems(const juce::ComboBox& c) {juce::StringArray a;for(int i=0;i<c.getNumItems();++i)a.add(juce::String(c.getItemId(i))+":"+c.getItemText(i));return a.joinIntoString("|");}
+juce::String modeText(int edition,int raw) {const int shown=edition==1?2:(raw==2?0:juce::jlimit(0,1,raw));return shown==0?"FX":shown==1?"Resynth":"Synth";}
+struct ScopedEdition {explicit ScopedEdition(int e){AetherAudioProcessorEditor::setEditionForTesting(e);}~ScopedEdition(){AetherAudioProcessorEditor::setEditionForTesting(-1);}};
+// Wording rules: the effect edition never talks about MIDI notes / Synth mode; the Synth edition never mentions Resynth / the input audio.
+void requireEditionWording(int edition,const juce::String& s,const juce::String& where) {
+    if(edition==0) require(!s.contains("Synth mode")&&!s.contains("MIDI"),"effect edition text mentions Synth/MIDI: "+s+" / "+where);
+    else require(!s.containsIgnoreCase("Resynth")&&!s.containsIgnoreCase("input audio"),"Synth edition text mentions Resynth/input: "+s+" / "+where);
+}
 template<class F> void test(const char* name,F f) {
     try { f(); ++passed; std::cout<<"PASS "<<name<<'\n'; }
     catch(const std::exception& error) { ++failed; std::cerr<<"FAIL "<<name<<": "<<error.what()<<'\n'; }
@@ -633,7 +642,9 @@ int main(int argc,char** argv) {
                 require(content->getWidth()==z.w && content->getHeight()==z.h,"zoom content canvas changed");
             }
         });
-        test("Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size",[&] {
+        test("Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size (both plugin editions)",[&] {
+            for(int edition=0;edition<2;++edition) {
+            ScopedEdition editionGuard(edition);std::cout<<"  edition "<<(edition==1?"AETHER Micro Synth (Synth only)":"AETHER Micro (FX + Resynth)")<<"\n";
             AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
             auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
             auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
@@ -646,7 +657,7 @@ int main(int argc,char** argv) {
             for(int page=0;page<8;++page) for(const auto& sizePair:testCase.sizes) {
                 const int workspace=page<3?page:(page<7?3:4);
                 const int size[2]={sizePair.first,sizePair.second};
-                if(workspace==3){p.setParameterValue("global.mode",page==6?0.f:2.f);p.setParameterValue("source.engine",page==3?0.f:(page==5?2.f:1.f));p.setParameterValue("source.enabled",1.f);}
+                if(workspace==3){p.setParameterValue("global.mode",page==6?0.f:(edition==1?2.f:1.f));p.setParameterValue("source.engine",page==3?0.f:(page==5?2.f:1.f));p.setParameterValue("source.enabled",1.f);}
                 editor->setMinimalMode(workspace==4);if(workspace<4)editor->setWorkspace(workspace);editor->setSize(size[0],size[1]);if(workspace==3)(void)editor->sourceStatus();
                 const float scale=content->getTransform().getScaleFactor();
                 const bool expectCompact=std::min(float(size[0])/1440.f,float(size[1])/900.f)<.72f;
@@ -706,6 +717,12 @@ int main(int argc,char** argv) {
                 check(*content);
                 const juce::String here="page "+juce::String(page)+" "+testCase.zoom+" "+juce::String(size[0])+"x"+juce::String(size[1]);
                 const float floorSize=juce::jlimit(11.f,16.f,10.f/scale);
+                {
+                    auto* modeBox=findShown<juce::ComboBox>(*content,"global.mode");require(modeBox!=nullptr,"Mode combo missing: "+here);
+                    require(modeItems(*modeBox)==(edition==1?"3:Synth":"1:FX|2:Resynth"),"Mode combo items wrong: "+here+" / "+modeItems(*modeBox));
+                    require(modeBox->getText()==modeText(edition,int(p.parameterValue("global.mode")+.5f)),"Mode combo shows "+modeBox->getText()+": "+here);
+                    require(modeBox->getSelectedId()>0,"Mode combo blank: "+here);
+                }
                 if(workspace==3) {
                     const int engine=page==3?0:(page==5?2:1);
                     auto* status=findShown<juce::Label>(*content,"source.status");
@@ -713,8 +730,10 @@ int main(int argc,char** argv) {
                     require(juce::GlyphArrangement::getStringWidthInt(status->getLookAndFeel().getLabelFont(*status),status->getText())<=status->getWidth(),"source status truncated: "+here+" / "+status->getText());
                     const auto note=status->getText();
                     if(engine==0) require(note.containsIgnoreCase("off")&&note.containsIgnoreCase("engine"),"engine Off notice wrong: "+here+" / "+note);
-                    else if(page==6) require(note.startsWith("Idle")&&note.containsIgnoreCase("Synth"),"non-Synth notice wrong: "+here+" / "+note);
-                    else require(note.startsWith("Active"),"active status wrong: "+here+" / "+note);
+                    else if(page==6&&edition==0) require(note.startsWith("Idle")&&note.contains("Mode is FX")&&note.contains("Resynth")&&!note.contains("Synth mode"),"effect FX notice wrong: "+here+" / "+note);
+                    else require(note.startsWith("Active")&&(edition==1?note.contains("MIDI notes in Synth mode"):note.contains("input audio in Resynth mode")),"active status wrong: "+here+" / "+note);
+                    requireEditionWording(edition,note,here);
+                    if(page==6&&edition==0) require(contrast(status->findColour(juce::Label::textColourId),juce::Colour(0xffeee9dc))>=4.5,"idle notice contrast below 4.5: "+here);
                     int common=0,pg=0,chaos=0;
                     for(auto* child:visible) {
                         const auto id=child->getComponentID();
@@ -730,6 +749,7 @@ int main(int argc,char** argv) {
                     for(size_t i=0;i<texts.size();++i) {
                         const auto& t=texts[i];
                         require(content->getLocalBounds().contains(t.area),"source text outside content: "+t.text+" "+here);
+                        requireEditionWording(edition,t.text,here);
                         require(contrast(t.colour,juce::Colour(0xffeee9dc))>=4.5,"source text contrast below 4.5: "+t.text+" "+here);
                         if(!t.display) {
                             const auto font=buttonFont.withHeight(juce::jmax(floorSize,t.size));
@@ -757,8 +777,11 @@ int main(int argc,char** argv) {
             }
             }
             editor->performUiAction("zoom.100");editor->setMinimalMode(false);editor->setWorkspace(0);
+            }
         });
-        test("Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice",[&] {
+        test("Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)",[&] {
+            for(int edition=0;edition<2;++edition) {
+            ScopedEdition editionGuard(edition);const float soundingRaw=edition==1?2.f:1.f;
             AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
             auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
             auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
@@ -766,7 +789,7 @@ int main(int argc,char** argv) {
             auto countShown=[&](const char* prefix){int n=0;for(auto* child:content->getChildren()) if(child->isVisible()&&child->getComponentID().startsWith(prefix)) ++n;return n;};
             for(const char* zoom:{"zoom.100","zoom.50"}) {
                 require(editor->performUiAction(zoom),"zoom action missing");require(editor->performUiAction("workspace.source"),"workspace.source action missing");editor->setWorkspace(3);
-                p.setParameterValue("global.mode",2);p.setParameterValue("source.engine",0);p.setParameterValue("source.enabled",1);(void)editor->sourceStatus();
+                p.setParameterValue("global.mode",soundingRaw);p.setParameterValue("source.engine",0);p.setParameterValue("source.enabled",1);(void)editor->sourceStatus();
                 require(countShown("source.pg.")==0&&countShown("source.chaos.")==0,"Off must show no engine controls");
                 // Choosing the engine in the real combo box changes the visible block at once (no timer, no manual refresh).
                 auto* engineBox=findShown<juce::ComboBox>(*content,"source.engine");require(engineBox!=nullptr,"engine combo not found");require(engineBox->getNumItems()==3,"engine combo items "+juce::String(engineBox->getNumItems()));
@@ -817,12 +840,66 @@ int main(int argc,char** argv) {
                 require(ratio->getTextFromValue(ratio->getMaximum()).contains("16"),"vpsratio maximum text: "+ratio->getTextFromValue(ratio->getMaximum()));
                 std::cout<<"  source extremes ("<<zoom<<"): transpose \""<<transpose->getTextFromValue(transpose->getMinimum()).toStdString()<<"\" .. \""<<transpose->getTextFromValue(transpose->getMaximum()).toStdString()<<"\", release max \""<<release->getTextFromValue(release->getMaximum()).toStdString()<<"\", vpsratio \""<<ratio->getTextFromValue(ratio->getMinimum()).toStdString()<<"\" .. \""<<ratio->getTextFromValue(ratio->getMaximum()).toStdString()<<"\"\n";
                 // notices
-                p.setParameterValue("global.mode",0);require(editor->sourceStatus().startsWith("Idle"),"Mode FX must show the idle notice: "+editor->sourceStatus());
-                p.setParameterValue("global.mode",2);p.setParameterValue("source.enabled",0);require(editor->sourceStatus().startsWith("Switched off"),"On=off notice: "+editor->sourceStatus());
+                if(edition==0) {
+                    p.setParameterValue("global.mode",0);require(editor->sourceStatus().startsWith("Idle")&&editor->sourceStatus().contains("Resynth"),"Mode FX must show the Resynth hint: "+editor->sourceStatus());
+                    // a Synth-mode value restored into the effect falls back to FX, so the same hint shows
+                    p.setParameterValue("global.mode",2);require(editor->sourceStatus().startsWith("Idle")&&editor->sourceStatus().contains("Mode is FX"),"restored Synth must fall back to the FX hint: "+editor->sourceStatus());
+                } else {
+                    p.setParameterValue("global.mode",0);require(editor->sourceStatus().startsWith("Active"),"Synth edition ignores a stray FX value: "+editor->sourceStatus());
+                }
+                p.setParameterValue("global.mode",soundingRaw);p.setParameterValue("source.enabled",0);require(editor->sourceStatus().startsWith("Switched off"),"On=off notice: "+editor->sourceStatus());
                 p.setParameterValue("source.enabled",1);require(editor->sourceStatus().startsWith("Active"),"active notice: "+editor->sourceStatus());
                 p.setParameterValue("source.engine",0);require(editor->sourceStatus().containsIgnoreCase("off"),"Off notice: "+editor->sourceStatus());
             }
             editor->performUiAction("zoom.100");editor->setMinimalMode(false);editor->setWorkspace(0);
+            }
+        });
+        test("Atlas Mode picker offers only the modes of the plugin edition, keeps real parameter indices and falls back sensibly",[&] {
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);const juce::String name=edition==1?"Synth edition":"Micro edition";
+                AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+                auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+                auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+                // the parameter itself is untouched: id, name and all three choices stay
+                auto* choice=dynamic_cast<juce::AudioParameterChoice*>(p.state.getParameter("global.mode"));require(choice!=nullptr,"global.mode is no choice parameter");
+                require(choice->choices==juce::StringArray({"FX","Resynth","Synth"})&&choice->getName(100)=="Mode","global.mode parameter changed: "+name);
+                editor->setSize(1440,900);
+                auto* mode=findShown<juce::ComboBox>(*content,"global.mode");require(mode!=nullptr,"Mode combo missing: "+name);
+                require(modeItems(*mode)==(edition==1?"3:Synth":"1:FX|2:Resynth"),"Mode items: "+name+" / "+modeItems(*mode));
+                // every stored value shows an applicable item (never blank) and the picker never writes the parameter by itself
+                for(int raw=0;raw<=2;++raw) {
+                    p.setParameterValue("global.mode",static_cast<float>(raw));
+                    require(mode->getSelectedId()>0&&mode->getText()==modeText(edition,raw),"Mode shows \""+mode->getText()+"\" for stored "+juce::String(raw)+": "+name);
+                    require(int(p.parameterValue("global.mode")+.5f)==raw,"showing the fallback changed the parameter: "+name);
+                }
+                if(edition==0) {
+                    // choosing items maps to the real indices 0 / 1 (not shifted), also through the All params page copy of the control
+                    p.setParameterValue("global.mode",0);
+                    mode->setSelectedId(2,juce::sendNotificationSync);require(int(p.parameterValue("global.mode")+.5f)==1,"Resynth item did not set index 1");
+                    mode->setSelectedId(1,juce::sendNotificationSync);require(int(p.parameterValue("global.mode")+.5f)==0,"FX item did not set index 0");
+                    editor->setMinimalMode(true);
+                    int boxes=0;std::function<void(juce::Component&)> walk=[&](juce::Component& c){if(!c.isVisible())return;if(auto* cb=dynamic_cast<juce::ComboBox*>(&c);cb!=nullptr&&c.getComponentID()=="global.mode"){++boxes;require(modeItems(*cb)=="1:FX|2:Resynth","All params Mode items: "+modeItems(*cb));}for(auto* k:c.getChildren())walk(*k);};walk(*content);
+                    require(boxes>=1,"All params page lacks the Mode control");editor->setMinimalMode(false);
+                } else {
+                    mode->setSelectedId(3,juce::sendNotificationSync);require(int(p.parameterValue("global.mode")+.5f)==2,"Synth item did not set index 2");
+                }
+            }
+        });
+        test("Atlas Mode picker follows the compile-time plugin edition (JucePlugin_IsSynth) when no override is set",[&] {
+            AetherAudioProcessorEditor::setEditionForTesting(-1);
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+            editor->setSize(1440,900);
+            auto* mode=findShown<juce::ComboBox>(*content,"global.mode");require(mode!=nullptr,"Mode combo missing");
+#if JucePlugin_IsSynth
+            const int edition=1;
+#else
+            const int edition=0;
+#endif
+            std::cout<<"  compile-time edition: "<<(edition==1?"AETHER Micro Synth":"AETHER Micro")<<", Mode items "<<modeItems(*mode).toStdString()<<"\n";
+            require(modeItems(*mode)==(edition==1?"3:Synth":"1:FX|2:Resynth"),"compile-time Mode items: "+modeItems(*mode));
+            for(int raw=0;raw<=2;++raw){p.setParameterValue("global.mode",static_cast<float>(raw));require(mode->getText()==modeText(edition,raw),"compile-time Mode text for "+juce::String(raw)+": "+mode->getText());}
         });
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
