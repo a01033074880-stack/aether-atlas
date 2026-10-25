@@ -3,6 +3,7 @@
 #include <aether/PhaseGeometry.h>
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <memory>
 #include <string>
@@ -30,6 +31,34 @@ template <class E, class P> void bench(const char* label, P p, int lowNote, int 
   std::printf("BENCH %-34s voices=%d active=%d rate=%.0f block=%d AA=%s audio_s=%.2f process_s=%.4f realtime_x=%.1f core_percent=%.2f\n",
               label, voiceCount, e->activeVoices(), rate, block, p.antiAlias ? "4x" : "off", audio, best, audio / best, best / audio * 100);
 }
+// Single voice: one MIDI note voice (the Synth path) versus the external Resynth drive (processDriven, one voice with
+// per-sample pitch/level). Same engine code, so the difference is the driver state only.
+template <class E, class P> void benchSingle(const char* label, P p, bool driven, int note, double rate, int block) {
+  auto e = std::make_unique<E>();
+  e->prepare(rate, block);
+  e->setParameters(p);
+  const float hz = static_cast<float>(440 * std::pow(2.0, (note - 69) / 12.0));
+  std::vector<float> l(static_cast<std::size_t>(block)), r(l.size()), freq(l.size()), level(l.size(), .8f);
+  if (!driven) e->noteOn(note, .8f);
+  auto run = [&](int i) {
+    for (std::size_t k = 0; k < freq.size(); ++k) freq[k] = hz * (1 + .02f * std::sin(static_cast<float>(i * block + static_cast<int>(k)) * 1e-4f)); // slow vibrato keeps the glide path active
+    if (driven) e->processDriven(l.data(), r.data(), block, freq.data(), level.data());
+    else e->process(l.data(), r.data(), block);
+  };
+  const int warm = static_cast<int>(rate / block);
+  for (int i = 0; i < warm; ++i) run(i);
+  const double seconds = 20;
+  const int iterations = static_cast<int>(seconds * rate / block);
+  double best = 1e30;
+  for (int rep = 0; rep < 3; ++rep) {
+    const auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < iterations; ++i) run(i);
+    best = std::min(best, std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count());
+  }
+  const double audio = static_cast<double>(iterations) * block / rate;
+  std::printf("BENCH1 %-34s %s rate=%.0f block=%d AA=%s audio_s=%.2f process_s=%.4f realtime_x=%.1f core_percent=%.3f\n", label,
+              driven ? "driven   " : "note-voice", rate, block, p.antiAlias ? "4x" : "off", audio, best, audio / best, best / audio * 100);
+}
 } // namespace
 // usage: AetherSourceBench [table]   ("table" = pre-ADAA plain Walsh lookup, for before/after on the same machine state)
 int main(int argc, char** argv) {
@@ -52,6 +81,14 @@ int main(int argc, char** argv) {
       ch.sustain = 1; ch.antiAlias = aa;
       bench<ChaosSource>("Chaos seg12 notes 36..111", ch, 36, 5, 48000, block);
     }
+  }
+  for (int block : {64, 480}) for (bool aa : {true, false}) for (bool driven : {false, true}) {
+    PhaseGeometryParameters pg;
+    pg.sustain = 1; pg.czDepth = .7f; pg.walshMix = .3f; pg.walshSequency = 5.5f; pg.vpsD = .3f; pg.vpsV = .6f; pg.antiAlias = aa; pg.walshBandLimit = walshMode;
+    benchSingle<PhaseGeometrySource>("PhaseGeometry 1 voice (note 57)", pg, driven, 57, 48000, block);
+    ChaosParameters ch;
+    ch.sustain = 1; ch.antiAlias = aa;
+    benchSingle<ChaosSource>("Chaos seg12 1 voice (note 57)", ch, driven, 57, 48000, block);
   }
   ChaosParameters hard;
   hard.sustain = 1; hard.segments = 32; hard.ampStep = .5f; hard.durStep = .5f;
