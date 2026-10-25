@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -87,7 +88,7 @@ int main(int argc,char** argv) {
             require(std::isinf(p.getTailLengthSeconds()),"recursive patch advertised a short tail");
         });
         test("host tail covers the longest legal six-operator release",[] {
-            AetherAudioProcessor p;p.setParameterValue("graph.enabled",0);p.setParameterValue("global.mode",2);
+            AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/p.setParameterValue("graph.enabled",0);p.setParameterValue("global.mode",2);
             p.setParameterValue("fm.release",12);p.setParameterValue("fm.op.6.release",4);
             require(p.getTailLengthSeconds()>=48,"host may truncate a legal 48 second FM release");
             p.setParameterValue("graph.enabled",1);require(p.getTailLengthSeconds()>=48,"effects graph reduced FM tail report");
@@ -198,7 +199,7 @@ int main(int argc,char** argv) {
         });
         test("source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path",[] {
             auto render=[](int engine,int mode,int block,bool setSourceParameters) {
-                AetherAudioProcessor p;p.setParameterValue("global.mode",static_cast<float>(mode));p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
+                AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/p.setParameterValue("global.mode",static_cast<float>(mode));p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
                 p.setParameterValue("source.engine",static_cast<float>(engine));
                 if(setSourceParameters) { p.setParameterValue("source.pg.sequency",33);p.setParameterValue("source.pg.walshmix",0.6f);p.setParameterValue("source.chaos.segments",9); }
                 p.prepareToPlay(48000,block);
@@ -223,14 +224,15 @@ int main(int argc,char** argv) {
             // Engine Off in Synth mode is the old modal path: source parameter values must not change it by a single bit.
             const auto off=render(0,2,480,false),offWithParameters=render(0,2,480,true);
             require(energy(off)>0.0 && maxDiff(off,offWithParameters)==0.f,"source parameters leaked into the old path while engine is Off");
-            for(const int engine:{1,2}) for(const int mode:{0,1}) {
+            // FX mode ignores the source. (Resynth drives it from the input since the Resynth split; tested below.)
+            for(const int engine:{1,2}) for(const int mode:{0}) {
                 const auto selected=render(engine,mode,480,true),reference=render(0,mode,480,true);
-                require(maxDiff(selected,reference)==0.f,"source selection changed the output outside Synth mode");
+                require(maxDiff(selected,reference)==0.f,"source selection changed the output outside Synth/Resynth mode");
             }
         });
         test("source layer: Input gain scales the source like the FM path",[] {
             auto rms=[](int engine,bool fm,float inputDb) {
-                AetherAudioProcessor p;p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);
+                AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);
                 p.setParameterValue("fm.enabled",fm?1.f:0.f);p.setParameterValue("fm.gain",0.2f);p.setParameterValue("fm.sustain",1);
                 p.setParameterValue("source.engine",fm?0.f:static_cast<float>(engine));p.setParameterValue("source.gain",0.2f);p.setParameterValue("source.sustain",1);
                 p.setParameterValue("global.input",inputDb);
@@ -256,9 +258,124 @@ int main(int argc,char** argv) {
                 }
             }
         });
+        // ---- Resynth drive of the Source layer and the mode restriction per plugin type --------------------------------
+        using Clamp=AetherAudioProcessor::ModeClamp;
+        // Input: 220 Hz sine, 0.5 s silence, 330 Hz sine, optional MIDI note; fixed length so every block size sees the same signal.
+        auto renderIn=[](Clamp clamp,int mode,int engine,int block,bool midiNote,bool sourceEnabled=true,bool pureSine=false,float hzA=220.f,float hzB=330.f) {
+            AetherAudioProcessor p;p.setModeClamp(clamp);
+            p.setParameterValue("global.mode",static_cast<float>(mode));p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
+            p.setParameterValue("source.engine",static_cast<float>(engine));p.setParameterValue("source.enabled",sourceEnabled?1.f:0.f);
+            p.setParameterValue("source.pg.sequency",33);p.setParameterValue("source.pg.walshmix",pureSine?0.f:0.6f);p.setParameterValue("source.chaos.segments",9);
+            if(pureSine) { p.setParameterValue("source.pg.czdepth",0);p.setParameterValue("source.spread",0);p.setParameterValue("source.gain",1); }
+            p.prepareToPlay(48000,block);
+            const int total=96000;std::vector<float> out(static_cast<size_t>(total)*2);
+            for(int offset=0;offset<total;offset+=block) {
+                const int count=juce::jmin(block,total-offset);juce::AudioBuffer<float> audio(2,count);juce::MidiBuffer midi;
+                for(int i=0;i<count;++i) {
+                    const int t=offset+i;float x=0;
+                    if(t<24000) x=0.5f*std::sin(6.2831853f*hzA*static_cast<float>(t)/48000.f);
+                    else if(t>=48000 && t<72000) x=0.5f*std::sin(6.2831853f*hzB*static_cast<float>(t)/48000.f);
+                    audio.setSample(0,i,x);audio.setSample(1,i,x);
+                }
+                if(midiNote && offset==0) midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),0);
+                p.processBlock(audio,midi);
+                for(int i=0;i<count;++i) { out[static_cast<size_t>(offset+i)*2]=audio.getSample(0,i);out[static_cast<size_t>(offset+i)*2+1]=audio.getSample(1,i); }
+            }
+            return out;
+        };
+        auto sameBits=[](const std::vector<float>& a,const std::vector<float>& b) { return a.size()==b.size() && std::memcmp(a.data(),b.data(),a.size()*sizeof(float))==0; };
+        auto energyOf=[](const std::vector<float>& v,size_t from,size_t to) { double e=0;for(size_t i=from;i<to&&i<v.size();++i) { require(std::isfinite(v[i]),"non-finite output");e+=static_cast<double>(v[i])*v[i]; } return e; };
+        test("mode clamp: pure mapping for both plugin types, and the processor applies it where the mode is read",[=] {
+            for(int mode=-2;mode<=4;++mode) {
+                require(aether::clampModeForPluginType(mode,true)==2,"Micro Synth must always be Synth");
+                const int fx=aether::clampModeForPluginType(mode,false);
+                require(fx==(mode==1?1:0),"Micro (effect) must allow only FX and Resynth, Synth falls back to FX");
+            }
+            require(aether::clampModeForPluginType(0,false)==0 && aether::clampModeForPluginType(1,false)==1 && aether::clampModeForPluginType(2,false)==0,"effect mapping 0/1/2");
+            require(aether::clampModeForPluginType(0,true)==2 && aether::clampModeForPluginType(1,true)==2 && aether::clampModeForPluginType(2,true)==2,"synth mapping 0/1/2");
+            // The option list and the stored value are untouched: 3 choices, a stored 2 stays 2.
+            require(aether::parameterSpecs()[aether::mode].choices.size()==3,"global.mode option list changed");
+            // Processor level (this executable is the effect build, the Synth restriction is selected explicitly):
+            // effect plugin, stored Synth == FX; stored FX/Resynth unchanged. Synth plugin, stored FX/Resynth == Synth.
+            for(const bool midi:{false,true}) {
+                const auto fx0=renderIn(Clamp::none,0,0,480,midi),fx1=renderIn(Clamp::none,1,0,480,midi),fx2=renderIn(Clamp::none,2,0,480,midi);
+                require(sameBits(renderIn(Clamp::fxPlugin,2,0,480,midi),fx0),"effect plugin: stored Synth must render exactly like FX");
+                require(sameBits(renderIn(Clamp::fxPlugin,0,0,480,midi),fx0) && sameBits(renderIn(Clamp::fxPlugin,1,0,480,midi),fx1),"effect plugin: FX and Resynth must be unchanged");
+                require(sameBits(renderIn(Clamp::synthPlugin,0,0,480,midi),fx2) && sameBits(renderIn(Clamp::synthPlugin,1,0,480,midi),fx2) && sameBits(renderIn(Clamp::synthPlugin,2,0,480,midi),fx2),"Synth plugin: stored FX/Resynth must render exactly like Synth");
+            }
+            // Same for the Source layer (engine on): an effect plugin storing Synth gets FX (source silent), a Synth plugin storing Resynth gets Synth.
+            for(const int engine:{1,2}) {
+                require(sameBits(renderIn(Clamp::fxPlugin,2,engine,480,true),renderIn(Clamp::none,0,engine,480,true)),"effect plugin, source on: stored Synth must fall back to FX");
+                require(sameBits(renderIn(Clamp::synthPlugin,1,engine,480,true),renderIn(Clamp::none,2,engine,480,true)),"Synth plugin, source on: stored Resynth must play as Synth");
+            }
+            // getTailLengthSeconds reads the mode through the same function.
+            { AetherAudioProcessor fxp,synp,none; fxp.setModeClamp(Clamp::fxPlugin);synp.setModeClamp(Clamp::synthPlugin);none.setModeClamp(Clamp::none);
+              for(auto* q:{&fxp,&synp,&none}) { q->setParameterValue("fm.enabled",1);q->setParameterValue("global.mode",2); }
+              none.setParameterValue("global.mode",0);
+              require(fxp.getTailLengthSeconds()==none.getTailLengthSeconds(),"tail length: effect plugin storing Synth is FX");
+              none.setParameterValue("global.mode",2);
+              require(synp.getTailLengthSeconds()==none.getTailLengthSeconds(),"tail length: Synth plugin is Synth"); }
+            // Old saves: a state with mode 2 loaded into an effect processor keeps the stored value and plays as FX.
+            { AetherAudioProcessor src,dst;src.setModeClamp(Clamp::none);src.setParameterValue("global.mode",2);juce::MemoryBlock block;src.getStateInformation(block);
+              dst.setModeClamp(Clamp::fxPlugin);dst.setStateInformation(block.getData(),static_cast<int>(block.getSize()));
+              require(dst.parameterValue("global.mode")==2.f,"the stored mode value must not be rewritten");
+              require(sameBits(renderIn(Clamp::fxPlugin,2,0,480,false),renderIn(Clamp::none,0,0,480,false)),"old save plays as FX"); }
+            std::cout<<"  clampModeForPluginType: effect {0,1,2}->{0,1,0}, synth {0,1,2}->{2,2,2}; processor renders match the unclamped reference bit for bit\n";
+        });
+        test("Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch)",[=] {
+            for(const int engine:{1,2}) {
+                const auto a=renderIn(Clamp::none,1,engine,480,false),b=renderIn(Clamp::none,1,engine,480,false);
+                const auto c=renderIn(Clamp::none,1,engine,64,false),d=renderIn(Clamp::none,1,engine,37,false);
+                const auto off=renderIn(Clamp::none,1,0,480,false);
+                const double e1=energyOf(a,6000,24000),gap=energyOf(a,40000,48000),e2=energyOf(a,52000,72000);
+                std::cout<<"  engine "<<engine<<": energy tone1 "<<e1<<", gap "<<gap<<", tone2 "<<e2<<"\n";
+                require(e1>1.0 && e2>1.0,"Resynth + Source rendered silence for a tonal input");
+                const double gapOff=energyOf(off,40000,48000);
+                std::cout<<"  engine "<<engine<<": gap energy source off (chain tail only) "<<gapOff<<"\n";
+                require(gap<=gapOff*1.0001+1.e-6*e1,"source does not fade out after the input stops");
+                require(!sameBits(a,off),"Resynth with the source on equals the source-off render");
+                require(sameBits(a,b),"Resynth + Source is not reproducible between identical runs");
+                float worst=0;for(size_t i=0;i<a.size();++i) worst=juce::jmax(worst,std::abs(a[i]-c[i]),std::abs(a[i]-d[i]));
+                std::cout<<"  engine "<<engine<<": max |difference| between block 480 and blocks 64/37: "<<worst<<"\n";
+                require(worst<1.e-5f,"Resynth + Source depends on the host block size");
+                // Source.enabled == false: back to the plain Resynth output
+                require(sameBits(renderIn(Clamp::none,1,engine,480,false,false),off),"source.enabled=0 must restore the source-off Resynth output");
+            }
+            // Pitch following: a pure-sine voice reproduces the input frequency (zero crossing count), input 220 and 330 Hz.
+            for(const float hz:{220.f,330.f,110.f}) {
+                const auto s=renderIn(Clamp::none,1,1,480,false,true,true,hz,hz);
+                int crossings=0;size_t first=0,last=0;
+                for(size_t i=6000;i<24000;++i) if((s[(i-1)*2]<0)!=(s[i*2]<0)) { if(!crossings) first=i;last=i;++crossings; }
+                const double measured=crossings>1?(crossings-1)/2.0/(static_cast<double>(last-first)/48000.0):0.0;
+                std::cout<<"  input "<<hz<<" Hz -> source sine at "<<measured<<" Hz\n";
+                require(std::abs(measured/hz-1)<0.03,"driven source does not follow the detected input pitch");
+            }
+            // Transpose: +12 st doubles the pitch.
+            { AetherAudioProcessor p;p.setParameterValue("global.mode",1);p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);p.setParameterValue("source.engine",1);
+              p.setParameterValue("source.pg.czdepth",0);p.setParameterValue("source.spread",0);p.setParameterValue("source.transpose",12);p.prepareToPlay(48000,480);
+              std::vector<float> o;
+              for(int offset=0;offset<24000;offset+=480) { juce::AudioBuffer<float> audio(2,480);juce::MidiBuffer midi;
+                  for(int i=0;i<480;++i) { const float x=0.5f*std::sin(6.2831853f*220.f*static_cast<float>(offset+i)/48000.f);audio.setSample(0,i,x);audio.setSample(1,i,x); }
+                  p.processBlock(audio,midi);for(int i=0;i<480;++i) o.push_back(audio.getSample(0,i)); }
+              int crossings=0;size_t first=0,last=0;for(size_t i=6000;i<o.size();++i) if((o[i-1]<0)!=(o[i]<0)) { if(!crossings) first=i;last=i;++crossings; }
+              const double measured=crossings>1?(crossings-1)/2.0/(static_cast<double>(last-first)/48000.0):0.0;
+              std::cout<<"  transpose +12 st: input 220 Hz -> "<<measured<<" Hz\n";
+              require(std::abs(measured/440.0-1)<0.03,"source.transpose does not shift the driven pitch"); }
+        });
+        test("Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled)",[=] {
+            for(const int mode:{0,1,2}) for(const bool midi:{false,true}) {
+                const auto ref=renderIn(Clamp::none,mode,0,480,midi);
+                if(mode!=2) require(energyOf(ref,0,96000)>1.e-6,"reference render is silent"); // Synth without FM/graph/source is legitimately silent
+                require(sameBits(renderIn(Clamp::none,mode,0,64,midi),renderIn(Clamp::none,mode,0,64,midi)),"reference not reproducible");
+                // source disabled with an engine selected is the same as engine Off
+                for(const int engine:{1,2}) require(sameBits(renderIn(Clamp::none,mode,engine,480,midi,false),ref),"source.enabled=0 changed the output");
+            }
+            // FX mode with an engine selected is untouched (source runs only in Resynth/Synth).
+            for(const int engine:{1,2}) require(sameBits(renderIn(Clamp::none,0,engine,480,true),renderIn(Clamp::none,0,0,480,true)),"engine selection changed FX mode");
+        });
         test("source layer: automating seed, antialias and sound parameters is finite, deterministic and block-size independent",[] {
             auto render=[](int engine,int block) {
-                AetherAudioProcessor p;p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
+                AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/p.setParameterValue("global.mode",2);p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",0);
                 p.setParameterValue("source.engine",static_cast<float>(engine));p.setParameterValue("source.pg.phaserandom",1);
                 p.prepareToPlay(48000,block);
                 const int total=96000;std::vector<float> out(static_cast<size_t>(total)*2);
@@ -312,7 +429,7 @@ int main(int argc,char** argv) {
             require(p.parameterValue("fm.morph")==0,"custom snapshot was morphed a second time");
         });
         test("FM remains enabled when the Atlas effects graph is bypassed",[] {
-            AetherAudioProcessor p;p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",1);p.setParameterValue("global.mode",2);
+            AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/p.setParameterValue("graph.enabled",0);p.setParameterValue("fm.enabled",1);p.setParameterValue("global.mode",2);
             p.setParameterValue("fm.custom",1);
             for(int i=1;i<=6;++i) p.setParameterValue("fm.op."+juce::String(i)+".carrier",0);
             p.prepareToPlay(48000,256);juce::AudioBuffer<float> b(2,256);b.clear();juce::MidiBuffer midi;midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),0);
@@ -384,7 +501,7 @@ int main(int argc,char** argv) {
             }
         });
         test("sample-offset MIDI starts only at its timestamp",[] {
-            AetherAudioProcessor p; set(p,"global.mode",2); set(p,"space.mix",0); p.prepareToPlay(48000,128);
+            AetherAudioProcessor p; p.setModeClamp(AetherAudioProcessor::ModeClamp::none); /*legacy: this test needs stored mode 2 in the FX build*/ set(p,"global.mode",2); set(p,"space.mix",0); p.prepareToPlay(48000,128);
             for(int n=1;n<=12;++n) { p.setParameterValue("node."+juce::String(n)+".type",0);p.setParameterValue("node."+juce::String(n)+".on",0); }
             juce::AudioBuffer<float> b(2,128); b.clear(); juce::MidiBuffer midi;
             midi.addEvent(juce::MidiMessage::noteOn(1,60,0.8f),73); p.processBlock(b,midi);

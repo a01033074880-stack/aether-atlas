@@ -25,6 +25,15 @@ enum ParamIndex {
     masterOn, masterWidth, masterCeiling, masterRelease, dither,
     modRate, modDepth, modTarget, modShape, modSync, parameterCount
 };
+// Mode (global.mode) restriction per plugin type, applied only where the processor reads the parameter; the stored
+// value, the option list and the parameter ID never change.  0 = FX, 1 = Resynth, 2 = Synth.
+//   AETHER Micro Synth (isSynth): always Synth (2), whatever is stored (old saves with 0/1 play as Synth).
+//   AETHER Micro (effect):        FX (0) or Resynth (1); a stored 2 (Synth) falls back to FX (0).
+// The plugin type is an explicit argument so both types can be tested in one executable.
+inline constexpr int clampModeForPluginType(int mode,bool isSynth) noexcept {
+    if(isSynth) return 2;
+    return mode==1 ? 1 : 0;
+}
 inline constexpr int graphOffset=parameterCount;
 inline constexpr int nodeOffset=graphOffset+4;
 inline constexpr int routeOffset=nodeOffset+modular::slotCount*11;

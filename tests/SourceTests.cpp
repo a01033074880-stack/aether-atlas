@@ -188,15 +188,20 @@ double hzOf(int note) { return 440 * std::pow(2.0, (note - 69) / 12.0); }
 // ratio = non-harmonic / harmonic power in dB; aliasAbs / harmAbs = the same powers in dB relative to a +/-1 square
 // wave (mean square 1), so a ratio computed from almost no harmonic energy can be told apart from a real problem.
 struct AliasStat { double ratio, aliasAbs, harmAbs; };
-template <class E, class P> AliasStat aliasStat(P p, bool antiAlias, int noteNumber, double rate = 48000) {
+template <class E, class P> AliasStat aliasStat(P p, bool antiAlias, int noteNumber, double rate = 48000, bool driven = false) {
   constexpr std::size_t n = 65536;
   p.antiAlias = antiAlias;
   p.attack = .001f; p.sustain = 1; p.decay = .01f; p.spread = 0; p.gain = 1;
   auto e = make<E>(rate);
   e->setParameters(p);
-  e->noteOn(noteNumber, 1);
   std::vector<float> l(n + 20000), r(n + 20000);
-  e->process(l.data(), r.data(), static_cast<int>(l.size()));
+  if (driven) { // Resynth drive: constant pitch, full level (same loudness as the note above)
+    std::vector<float> hz(l.size(), static_cast<float>(hzOf(noteNumber))), level(l.size(), 1.f);
+    e->processDriven(l.data(), r.data(), static_cast<int>(l.size()), hz.data(), level.data());
+  } else {
+    e->noteOn(noteNumber, 1);
+    e->process(l.data(), r.data(), static_cast<int>(l.size()));
+  }
   const auto spectrum = powerSpectrum(l.data() + 20000, n);
   const double binHz = rate / static_cast<double>(n), f0 = hzOf(noteNumber);
   std::vector<char> harmonic(spectrum.size(), 0), guard(spectrum.size(), 0);
@@ -484,6 +489,179 @@ template <class E, class P> void suite(const char* label, std::vector<P> variant
     }
   });
 }
+// ---- external continuous drive (Resynth) -------------------------------------
+// Deterministic drive script: silence, steady pitch, glide, pitch lost (hz 0), return, level dip, junk values.
+void driveScript(std::vector<float>& hz, std::vector<float>& level, int total) {
+  hz.assign(static_cast<std::size_t>(total), 0.f);
+  level.assign(static_cast<std::size_t>(total), 0.f);
+  for (int i = 0; i < total; ++i) {
+    const auto k = static_cast<std::size_t>(i);
+    if (i < 4000) { hz[k] = 0; level[k] = 0; }
+    else if (i < 24000) { hz[k] = i < 12000 ? 220.f : 220.f + 110.f * static_cast<float>(i - 12000) / 8000.f; level[k] = .8f * std::min(1.f, static_cast<float>(i - 4000) / 400.f); }
+    else if (i < 40000) { hz[k] = 0; level[k] = .8f; } // pitch lost while the envelope is still high
+    else if (i < 60000) { hz[k] = 440.f; level[k] = .6f + .2f * std::sin(static_cast<float>(i) * .001f); }
+    else if (i < 64000) { hz[k] = 330.f; level[k] = 0; }
+    else { // junk: NaN, inf, negative, absurd, sub-audio, above Nyquist
+      const float junk[] = {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity(), -50.f, 1e9f, .5f, 30000.f, 90.f, 0.f};
+      hz[k] = junk[(i / 700) % 8];
+      level[k] = (i / 900) % 5 == 0 ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>((i / 450) % 4) * 1.5f - .5f; // out of 0..1 on purpose
+    }
+  }
+}
+template <class E>
+void renderDriven(E& e, const std::vector<float>& hz, const std::vector<float>& level, int block, std::vector<float>& l, std::vector<float>& r) {
+  const int total = static_cast<int>(hz.size());
+  l.assign(hz.size(), 0); r.assign(hz.size(), 0);
+  for (int pos = 0; pos < total; pos += block) {
+    const int n = std::min(block, total - pos);
+    e.processDriven(l.data() + pos, r.data() + pos, n, hz.data() + pos, level.data() + pos);
+  }
+}
+double maxStep(const std::vector<float>& x, int from, int to) {
+  double m = 0;
+  for (int i = std::max(1, from); i < to && i < static_cast<int>(x.size()); ++i) m = std::max(m, static_cast<double>(std::abs(x[static_cast<std::size_t>(i)] - x[static_cast<std::size_t>(i) - 1])));
+  return m;
+}
+double peakAbs(const std::vector<float>& x, int from, int to) {
+  double m = 0;
+  for (int i = from; i < to && i < static_cast<int>(x.size()); ++i) m = std::max(m, static_cast<double>(std::abs(x[static_cast<std::size_t>(i)])));
+  return m;
+}
+
+template <class E, class P> void driveSuite(const char* label, std::vector<P> variants) {
+  const std::string L = std::string(label) + " driven";
+  constexpr int total = 80000;
+  test(L + ": finite, bounded, non-silent; silence in = exact silence out", [&] {
+    std::vector<float> hz, level, l, r;
+    driveScript(hz, level, total);
+    for (std::size_t v = 0; v < variants.size(); ++v) {
+      auto e = make<E>();
+      e->setParameters(variants[v]);
+      renderDriven(*e, hz, level, 480, l, r);
+      bool finite = true;
+      double peak = 0;
+      for (std::size_t i = 0; i < l.size(); ++i) { finite = finite && std::isfinite(l[i]) && std::isfinite(r[i]); peak = std::max(peak, static_cast<double>(std::max(std::abs(l[i]), std::abs(r[i])))); }
+      require(finite, "non finite sample");
+      require(peak <= 16.0, "sample beyond the engine bound");
+      require(peakAbs(l, 6000, 20000) > .05, "driven voice is silent");
+      bool silent = true;
+      for (int i = 0; i < 4000; ++i) silent = silent && l[static_cast<std::size_t>(i)] == 0.f && r[static_cast<std::size_t>(i)] == 0.f;
+      require(silent, "silence in did not give exact silence");
+      note(fmt("variant %.0f: peak %.3f, steady max |x| %.3f", static_cast<double>(v), peak, peakAbs(l, 6000, 20000)));
+    }
+  });
+  test(L + ": bit-deterministic and independent of the host block size", [&] {
+    std::vector<float> hz, level, l1, r1, l2, r2;
+    driveScript(hz, level, total);
+    for (std::size_t v = 0; v < variants.size(); ++v) {
+      auto a = make<E>();
+      a->setParameters(variants[v]);
+      renderDriven(*a, hz, level, 480, l1, r1);
+      auto b = make<E>();
+      b->setParameters(variants[v]);
+      renderDriven(*b, hz, level, 480, l2, r2);
+      require(sameBits(l1, l2) && sameBits(r1, r2), "two identical runs differ");
+      for (int block : {1, 7, 64, 333, 512, total}) {
+        auto c = make<E>();
+        c->setParameters(variants[v]);
+        renderDriven(*c, hz, level, block, l2, r2);
+        std::size_t differing = 0;
+        const double d = maxDiff(l1, l2, differing);
+        require(sameBits(l1, l2) && sameBits(r1, r2), fmt("block size %.0f changes the output: ", block) + fmt("%.3g max, %.0f samples", d, static_cast<double>(differing)));
+      }
+    }
+    note("block sizes 1, 7, 64, 333, 480, 512 and a single 80000 block give identical bits");
+  });
+  test(L + ": zero allocations after prepare", [&] {
+    std::vector<float> hz, level, l, r;
+    driveScript(hz, level, total);
+    auto e = make<E>();
+    e->setParameters(variants[0]);
+    l.assign(hz.size(), 0); r.assign(hz.size(), 0);
+    g_allocations = 0;
+    g_tracking = true;
+    for (int pos = 0, b = 0; pos < total; ++b) {
+      const int n = std::min(1 + (b * 37) % 700, total - pos);
+      e->setParameters(variants[static_cast<std::size_t>(b % 2)]);
+      if (b % 11 == 0) e->noteOn(48 + b % 24, .7f);
+      e->processDriven(l.data() + pos, r.data() + pos, n, hz.data() + pos, level.data() + pos);
+      pos += n;
+    }
+    e->reset();
+    e->processDriven(l.data(), r.data(), 480, hz.data() + 4000, level.data() + 4000);
+    g_tracking = false;
+    note(fmt("allocations while driving (changing blocks, parameters, notes, reset): %.0f", static_cast<double>(g_allocations.load())));
+    require(g_allocations.load() == 0, "heap allocation in processDriven");
+  });
+  test(L + ": pitch lost and regained: no click, pitch held while fading, silent afterwards", [&] {
+    for (std::size_t v = 0; v < variants.size(); ++v) {
+      std::vector<float> hz(40000, 220.f), level(40000, .8f), l, r;
+      for (int i = 0; i < 400; ++i) level[static_cast<std::size_t>(i)] = .8f * static_cast<float>(i) / 400;
+      for (int i = 15000; i < 28000; ++i) hz[static_cast<std::size_t>(i)] = 0; // no valid pitch, envelope unchanged
+      auto e = make<E>();
+      auto p = variants[v];
+      e->setParameters(p);
+      renderDriven(*e, hz, level, 480, l, r);
+      const double steady = maxStep(l, 2000, 15000), steadyPeak = peakAbs(l, 2000, 15000);
+      const double lossStep = maxStep(l, 15000, 28000), returnStep = maxStep(l, 28000, 28000 + 3000);
+      const double startStep = maxStep(l, 0, 3000);
+      note(fmt("variant %.0f: steady max step %.4f (peak %.3f); at pitch loss ", static_cast<double>(v), steady, steadyPeak) +
+           fmt("%.4f; at return %.4f; at start %.4f", lossStep, returnStep, startStep));
+      // A fresh voice (new random shape for Chaos) may have a steeper edge than the stretch measured, but the 4 ms gate
+      // ramp keeps every transition within 1.5x of the steady-state step and well below the peak.
+      require(lossStep <= steady * 1.5 + 1e-6, "step at pitch loss exceeds 1.5x the steady-state step");
+      require(returnStep <= steady * 1.5 + 1e-6, "step at pitch return exceeds 1.5x the steady-state step");
+      require(startStep <= steady * 1.5 + 1e-6, "step at start exceeds 1.5x the steady-state step");
+      // held pitch: while fading (first 100 ms after the loss) the sound keeps its 220 Hz period
+      int crossings = 0;
+      for (int i = 15001; i < 15000 + 2400; ++i) crossings += (l[static_cast<std::size_t>(i)] < 0) != (l[static_cast<std::size_t>(i) - 1] < 0);
+      // after the fade the voice is off and the engine output is exactly the DC blocker tail: silent
+      require(peakAbs(l, 15000 + 16000, 28000) < 1e-5, "output not silent after the fade");
+      require(peakAbs(l, 15000 + 1000, 15000 + 2400) > .01 * steadyPeak, "fade-out is much too fast (30 ms expected)");
+      note(fmt("zero crossings in the 50 ms after pitch loss: %.0f (about ", crossings) + fmt("%.0f expected at 220 Hz for any waveform with a 220 Hz period at least)", 2 * 220 * .05));
+      require(crossings >= 18, "pitch not held during the fade (too few zero crossings)");
+    }
+  });
+  test(L + ": level scales the output linearly and transpose moves the pitch", [&] {
+    std::vector<float> hz(30000, 220.f), a(30000, .8f), b(30000, .4f), l1, r1, l2, r2;
+    auto p = variants[0];
+    p.transpose = 0;
+    auto e1 = make<E>(); e1->setParameters(p); renderDriven(*e1, hz, a, 480, l1, r1);
+    auto e2 = make<E>(); e2->setParameters(p); renderDriven(*e2, hz, b, 480, l2, r2);
+    double num = 0, den = 0;
+    for (std::size_t i = 10000; i < 30000; ++i) { num += static_cast<double>(l1[i]) * l2[i]; den += static_cast<double>(l2[i]) * l2[i]; }
+    const double gainRatio = num / den;
+    note(fmt("level .8 vs .4: gain ratio %.5f", gainRatio));
+    require(std::abs(gainRatio - 2.0) < 0.02, "output is not proportional to the drive level");
+    if constexpr (std::is_same_v<P, PhaseGeometryParameters>) {
+      auto q = PhaseGeometryParameters{};
+      q.czDepth = 0; q.attack = .001f; q.sustain = 1; q.gain = 1; q.spread = 0;
+      for (float transpose : {0.f, 12.f, -12.f}) {
+        q.transpose = transpose;
+        auto e = make<E>(); e->setParameters(q);
+        std::vector<float> h(65536 + 20000, 220.f), lv(h.size(), 1.f), l(h.size()), r(h.size());
+        e->processDriven(l.data(), r.data(), static_cast<int>(h.size()), h.data(), lv.data());
+        const auto s = powerSpectrum(l.data() + 20000, 65536);
+        std::size_t peak = 5;
+        for (std::size_t i = 5; i < s.size(); ++i) if (s[i] > s[peak]) peak = i;
+        const double found = static_cast<double>(peak) * 48000. / 65536., expected = 220 * std::pow(2.0, transpose / 12.0);
+        note(fmt("transpose %.0f: spectral peak %.2f Hz, expected %.2f Hz", transpose, found, expected));
+        require(std::abs(found - expected) < 2 * 48000. / 65536., "driven pitch does not follow hz and transpose");
+      }
+    }
+  });
+  test(L + ": Source.enabled=false is silent; MIDI note voices still mix with the driven voice", [&] {
+    std::vector<float> hz(8000, 220.f), level(8000, .8f), l, r, l2, r2;
+    auto p = variants[0];
+    p.enabled = false;
+    auto e = make<E>(); e->setParameters(p); renderDriven(*e, hz, level, 480, l, r);
+    require(peakAbs(l, 0, 8000) == 0.0, "disabled source produced sound");
+    p.enabled = true;
+    auto m = make<E>(); m->setParameters(p); m->noteOn(60, 1); renderDriven(*m, hz, level, 480, l, r);
+    auto d = make<E>(); d->setParameters(p); renderDriven(*d, hz, level, 480, l2, r2);
+    require(peakAbs(l, 2000, 8000) > 0 && energy(l) != energy(l2), "note voice does not add to the driven voice");
+  });
+}
 } // namespace
 
 int main() {
@@ -625,6 +803,28 @@ int main() {
 
     suite<PhaseGeometrySource, PhaseGeometryParameters>("Phase Geometry", pgVariants(), [](PhaseGeometryParameters p) { return p; });
     suite<ChaosSource, ChaosParameters>("Chaos", chaosVariants(), [](ChaosParameters p) { p.ampStep = 0; p.durStep = 0; return p; });
+    driveSuite<PhaseGeometrySource, PhaseGeometryParameters>("Phase Geometry", pgVariants());
+    driveSuite<ChaosSource, ChaosParameters>("Chaos", chaosVariants());
+    test("driven voice: FFT alias, Phase Geometry/Chaos, 4x oversampling vs 1x, constant drive", [] {
+      for (int noteNumber : {72, 84, 96, 103}) {
+        std::string line = fmt("note %.0f:", noteNumber);
+        for (int kind = 0; kind < 4; ++kind) {
+          AliasStat on{}, off{};
+          const char* tag = "";
+          if (kind < 2) { auto p = pgVariants()[static_cast<std::size_t>(kind)]; tag = kind == 0 ? "PG typical" : "PG harsh"; on = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, true, noteNumber, 48000, true); off = aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(p, false, noteNumber, 48000, true); }
+          else { auto p = chaosVariants()[static_cast<std::size_t>(kind - 2)]; p.ampStep = 0; p.durStep = 0; tag = kind == 2 ? "Chaos typical" : "Chaos harsh"; on = aliasStat<ChaosSource, ChaosParameters>(p, true, noteNumber, 48000, true); off = aliasStat<ChaosSource, ChaosParameters>(p, false, noteNumber, 48000, true); }
+          auto chaosFrozen = [&] { auto q = chaosVariants()[static_cast<std::size_t>(kind - 2)]; q.ampStep = 0; q.durStep = 0; return q; };
+          const auto ref = kind < 2 ? aliasStat<PhaseGeometrySource, PhaseGeometryParameters>(pgVariants()[static_cast<std::size_t>(kind)], true, noteNumber) : aliasStat<ChaosSource, ChaosParameters>(chaosFrozen(), true, noteNumber);
+          line += std::string(" | ") + tag + fmt(" 4x %.1f dB, ", on.ratio) + fmt("1x %.1f dB, ", off.ratio) + fmt("note-path 4x %.1f dB", ref.ratio);
+          require(on.aliasAbs <= off.aliasAbs + 0.5, std::string(tag) + ": 4x oversampling is worse than 1x under drive");
+          line += fmt(" (4x gain %.1f dB)", off.aliasAbs - on.aliasAbs);
+          // Phase Geometry is deterministic and must match the note path; a Chaos voice draws its polygon from its own PCG32 stream, so only the 4x benefit is compared.
+          if (kind < 2) require(std::abs(on.aliasAbs - ref.aliasAbs) < 1.0, std::string(tag) + ": driven alias differs from the note path");
+          else require(off.aliasAbs - on.aliasAbs >= 3.0, std::string(tag) + ": 4x oversampling gains less than 3 dB under drive");
+        }
+        note(line);
+      }
+    });
 
   test("Phase Geometry: typical/harsh settings, plain table (mode 0) vs ADAA (mode 2), notes 84/96/103", [] {
     for (std::size_t v = 0; v < 2; ++v)

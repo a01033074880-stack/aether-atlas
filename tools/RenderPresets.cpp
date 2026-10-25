@@ -2,7 +2,7 @@
 // float32 (little endian, channel-interleaved L R) files. Used to prove that a change
 // leaves all factory presets bit-identical: render before, render after, compare.
 //
-//   AetherRenderPresets <output-directory> [block-size=480] [fresh]
+//   AetherRenderPresets <output-directory> [block-size=480] [fresh] [clamp]
 //
 // Events are scheduled at absolute sample positions, so the rendered signal and the MIDI
 // timing are identical for every block size (the default 480 reproduces the original tool).
@@ -19,11 +19,15 @@ int main(int argc, char** argv) {
   out.createDirectory();
   constexpr int rate = 48000, totalSamples = 144000; // 3 s
   const int block = argc > 2 ? std::atoi(argv[2]) : 480;
-  const bool fresh = argc > 3 && std::strcmp(argv[3], "fresh") == 0;
+  bool fresh = false;
+  for (int i = 3; i < argc; ++i) fresh = fresh || std::strcmp(argv[i], "fresh") == 0;
   if (block < 1 || block > 8192) { std::fprintf(stderr, "bad block size\n"); return 2; }
   struct Event { int sample; bool on; int note; float velocity; };
   const Event events[] = {{13, true, 60, 0.8f}, {24000, true, 67, 0.6f}, {57600, false, 60, 0}, {96000, false, 67, 0}};
-  auto make = [&] { auto p = std::make_unique<AetherAudioProcessor>(); p->prepareToPlay(rate, block); return p; };
+  // The mode restriction per plugin type (2.2.0) is off here by default so the tool keeps rendering every stored mode; "clamp" switches it on.
+  bool clamp = false;
+  for (int i = 3; i < argc; ++i) clamp = clamp || std::strcmp(argv[i], "clamp") == 0;
+  auto make = [&] { auto p = std::make_unique<AetherAudioProcessor>(); if (!clamp) p->setModeClamp(AetherAudioProcessor::ModeClamp::none); p->prepareToPlay(rate, block); return p; };
   auto p = make();
   std::uint32_t noise = 12345u;
   const int presets = p->getNumPrograms();

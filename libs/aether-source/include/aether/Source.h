@@ -200,6 +200,12 @@ public:
   virtual void allNotesOff() noexcept = 0;
   // Replaces both channels (distinct pointers). No heap/locks/I/O.
   virtual void process(float* left, float* right, int samples) noexcept = 0;
+  // External continuous drive (Resynth): like process(), and additionally renders one extra voice whose pitch and
+  // level are supplied per sample (hz[i], level[i], both arrays of `samples` values). hz[i] that is not finite or
+  // below 1 means "no valid pitch": the voice keeps the last valid pitch and fades out (no click); a new valid pitch
+  // after silence starts a fresh voice. level is clamped to 0..1. The usual note voices keep working next to it.
+  // No heap/locks/I/O; the output depends only on the inputs, never on the host block size.
+  virtual void processDriven(float* left, float* right, int samples, const float* hz, const float* level) noexcept = 0;
   virtual int activeVoices() const noexcept = 0;
   // Performance values for aether::modular::GraphEngine::setPerformance().
   virtual float lastVelocity() const noexcept = 0;
