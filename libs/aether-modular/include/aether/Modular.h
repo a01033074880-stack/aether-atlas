@@ -3,7 +3,12 @@
 #include <memory>
 
 namespace aether::modular {
-inline constexpr int slotCount=12, algorithmCount=32, sourceCount=10, modulationCount=16, targetCount=84;
+inline constexpr int slotCount=12, algorithmCount=32, sourceCount=10, modulationCount=16;
+// 2.3.0: destinations 85..112 do not belong to the graph. The engine only sums sources*depth of those rows per control tick
+// (extendedModulation) and leaves their meaning (Source / FM parameters) to the host application.
+// Destinations: 0 = none, 1..nodeTargetCount = node x 7 (unchanged since 2.0), then extendedTargetCount host-defined ones.
+// targetCount is the highest destination index (the option list has targetCount+1 entries).
+inline constexpr int nodeTargetCount=84, extendedTargetCount=28, extendedTargetFirst=nodeTargetCount+1, targetCount=nodeTargetCount+extendedTargetCount, maxTarget=targetCount;
 enum class ModuleType : int {
     Thru, Spectral, Modal, Colour, Space, PrismPitch, GrainCloud, Wavefolder,
     WdfDiode, Resonator, String, Ladder, FrequencyShift, RingMod, Comb,
@@ -57,6 +62,16 @@ public:
     std::array<float,slotCount> nodeLevels() const noexcept;
     std::array<float,sourceCount> sourceLevels() const noexcept;
     int intrinsicLatencySamples(int slot) const noexcept;
+    // Sum of sources*depth over the rows that point at destinations 85..112 (index = target-85), as of the latest control
+    // tick; all zero before the first tick and after reset(). It changes only inside process(), at a control tick.
+    const std::array<float,extendedTargetCount>& extendedModulation() const noexcept;
+    // The values extendedModulation() held before the latest tick (zero after reset()). A host that wants a lag that does not
+    // depend on where it cuts process() calls uses extendedModulationPrevious() for samples after a tick inside the same control
+    // period and extendedModulation() for the first sample of a period (samplesUntilControl() == 0).
+    const std::array<float,extendedTargetCount>& extendedModulationPrevious() const noexcept;
+    // Samples until the control tick that happens inside process(): 0 = the next processed sample ticks. Ticks come every
+    // 16 samples from the first sample after reset(), independent of how process() is cut into blocks.
+    int samplesUntilControl() const noexcept;
 private:
     struct Impl; std::unique_ptr<Impl> impl;
 };

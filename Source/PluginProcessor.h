@@ -105,6 +105,17 @@ private:
     void sourceCommon(aether::source::CommonParameters&) const noexcept;
     aether::source::PhaseGeometryParameters phaseGeometryParameters() const noexcept;
     aether::source::ChaosParameters chaosParameters() const noexcept;
+    // Modulation destinations 85..112 (Source / FM parameters). Active only while a graph row points at one of them; then
+    // renderSegment cuts each chunk at the graph control ticks and re-applies the modulated parameters per tick.
+    struct ExtendedTarget { juce::RangedAudioParameter* parameter=nullptr; int rawIndex=-1; };
+    std::array<ExtendedTarget,aether::modulationExtendedCount> extendedTargets{};
+    std::array<float,aether::modulationExtendedCount> extendedBase{},extendedApplied{};
+    aether::fm::Parameters fmBase;
+    aether::source::PhaseGeometryParameters pgBase;
+    aether::source::ChaosParameters chaosBase;
+    bool extendedActive=false;
+    int wantedSourceEngine=0;
+    void applyExtendedModulation(const std::array<float,aether::modulationExtendedCount>& amount,bool force) noexcept;
     void analyseExcitation(float) noexcept;
     void handleMidi(const juce::MidiMessage&) noexcept;
     void renderSegment(juce::AudioBuffer<float>&,int,int,const aether::Parameters&);
