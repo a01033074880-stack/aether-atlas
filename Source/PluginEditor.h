@@ -20,6 +20,11 @@ public:
     struct SourcePaintText { juce::Rectangle<int> area; juce::String text; float size; bool display; juce::Colour colour; };
     std::vector<SourcePaintText> sourcePaintTexts() const;
     juce::String sourceStatus();
+    // Header notice shown right of the tabs on the Patch / FM / Motion pages (empty when none), refreshed from the current parameters. Used by layout tests.
+    juce::String pageNotice();
+    // Modulation destination grouping: group label of a destination name ("Node 3 / Mix" -> "Node 3"; empty for None), and the filler that adds the items (ids = index + 1) with a heading per group.
+    static juce::String modulationTargetGroup(const juce::String& item);
+    static void fillModulationTargets(juce::ComboBox& combo,const juce::StringArray& items);
     // Test / snapshot hook: 0 = effect edition (FX + Resynth), 1 = Synth edition, -1 = compile-time edition (JucePlugin_IsSynth). Call before creating an editor.
     static void setEditionForTesting(int edition);
 private:

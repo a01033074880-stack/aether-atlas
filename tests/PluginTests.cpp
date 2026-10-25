@@ -37,6 +37,22 @@ double contrast(juce::Colour a,juce::Colour b) {const double la=luminance(a),lb=
 // Mode picker helpers: edition 0 = AETHER Micro (FX + Resynth), 1 = AETHER Micro Synth (Synth only). Combo item ids must equal the real parameter index + 1.
 juce::String modeItems(const juce::ComboBox& c) {juce::StringArray a;for(int i=0;i<c.getNumItems();++i)a.add(juce::String(c.getItemId(i))+":"+c.getItemText(i));return a.joinIntoString("|");}
 juce::String modeText(int edition,int raw) {const int shown=edition==1?2:(raw==2?0:juce::jlimit(0,1,raw));return shown==0?"FX":shown==1?"Resynth":"Synth";}
+// PLACEHOLDER modulation destination list for layout validation only: the real list of the new Source / FM destinations is not final (draft from feat/mod-targets-230: ids 85..112 appended to the 85
+// existing options). Names are guesses; nothing here is a parameter ID and nothing reads it from the processor. Replace with the final list when it lands (see "Atlas Motion destination selector").
+juce::StringArray placeholderDestinations() {
+    juce::StringArray items;
+    const auto* spec=[]{for(const auto& s:aether::parameterSpecs()) if(juce::String(s.id)=="modulation.1.target") return &s;return static_cast<const aether::ParameterSpec*>(nullptr);}();
+    if(spec==nullptr) throw std::runtime_error("modulation.1.target spec missing");
+    items=spec->choices;
+    for(const char* n:{"Level","Stereo spread","Transpose","Walsh sequency","Walsh mix","CZ depth","CZ envelope","CZ velocity","VPS D","VPS V","VPS ratio","Phase random","Amplitude step","Duration step","Duration range","Momentum","Amplitude barrier"}) items.add(juce::String("Source / ")+n);
+    for(const char* n:{"Modulation index","Algorithm morph","Feedback","Voice level","Stereo spread","Op1 level","Op2 level","Op3 level","Op4 level","Op5 level","Op6 level"}) items.add(juce::String("FM / ")+n);
+    return items;
+}
+juce::String headingTexts(juce::ComboBox& c) {
+    juce::StringArray a;juce::PopupMenu::MenuItemIterator it(*c.getRootMenu());
+    while(it.next()) if(it.getItem().isSectionHeader) a.add(it.getItem().text);
+    return a.joinIntoString("|");
+}
 struct ScopedEdition {explicit ScopedEdition(int e){AetherAudioProcessorEditor::setEditionForTesting(e);}~ScopedEdition(){AetherAudioProcessorEditor::setEditionForTesting(-1);}};
 // Wording rules: the effect edition never talks about MIDI notes / Synth mode; the Synth edition never mentions Resynth / the input audio.
 void requireEditionWording(int edition,const juce::String& s,const juce::String& where) {
@@ -659,13 +675,15 @@ int main(int argc,char** argv) {
             auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
             // 50% and the small 75% windows use the compact canvas (fit scale < 0.72); larger windows keep the 1440x900 canvas.
             struct Case{const char* zoom;std::vector<std::pair<int,int>> sizes;};
+            int destSlack=100000;juce::String destSlackWhere,destLongest;
             const std::vector<Case> cases={{"zoom.50",{{720,450},{800,450},{720,620},{1000,625},{1030,640},{1100,750}}},{"zoom.75",{{885,585},{1080,675},{1500,900}}},{"zoom.100",{{1180,780},{1440,900},{2200,1500}}}};
             for(const auto& testCase:cases) {
             require(editor->performUiAction(testCase.zoom),"zoom action missing");
-            // pages 0-2 patch/fm/motion, 3-6 Source (Off / Phase Geometry / Chaos / Phase Geometry with Mode=FX), 7 All params.
-            for(int page=0;page<8;++page) for(const auto& sizePair:testCase.sizes) {
-                const int workspace=page<3?page:(page<7?3:4);
+            // pages 0-2 patch/fm/motion, 3-6 Source (Off / Phase Geometry / Chaos / Phase Geometry with Mode=FX), 7 All params, 8 FM with the Six operator engine off, 9 FM with Mode=FX (effect edition).
+            for(int page=0;page<10;++page) for(const auto& sizePair:testCase.sizes) {
+                const int workspace=page<3?page:(page<7?3:(page==7?4:1));
                 const int size[2]={sizePair.first,sizePair.second};
+                p.setParameterValue("fm.enabled",page==8?0.f:1.f);if(workspace!=3)p.setParameterValue("global.mode",(page==9&&edition==0)?0.f:(edition==1?2.f:1.f));
                 if(workspace==3){p.setParameterValue("global.mode",page==6?0.f:(edition==1?2.f:1.f));p.setParameterValue("source.engine",page==3?0.f:(page==5?2.f:1.f));p.setParameterValue("source.enabled",1.f);}
                 editor->setMinimalMode(workspace==4);if(workspace<4)editor->setWorkspace(workspace);editor->setSize(size[0],size[1]);if(workspace==3)(void)editor->sourceStatus();
                 const float scale=content->getTransform().getScaleFactor();
@@ -732,6 +750,39 @@ int main(int argc,char** argv) {
                     require(modeBox->getText()==modeText(edition,int(p.parameterValue("global.mode")+.5f)),"Mode combo shows "+modeBox->getText()+": "+here);
                     require(modeBox->getSelectedId()>0,"Mode combo blank: "+here);
                 }
+                if(workspace<3) {
+                    // Header notice (right of the tabs): which text, which colour, and that it fits its label at the real font.
+                    auto* notice=findShown<juce::Label>(*content,"page.notice");juce::String expected;bool warn=false;
+                    if(page==0&&edition==1) expected="No audio input: IN carries the Source and FM voices.";
+                    else if(workspace==1) {
+                        if(page==8){expected="Six operator engine is off. Turn it on to hear FM.";warn=true;}
+                        else if(page==9&&edition==0){expected="Idle: Mode is FX. Switch Mode to Resynth for FM.";warn=true;}
+                        else expected=edition==1?"FM sounds on MIDI notes in Synth mode.":"FM follows the input audio in Resynth mode.";
+                    } else if(page==2&&edition==1) expected="Envelope follows the voices; Pitch the last MIDI note.";
+                    require((notice!=nullptr)==expected.isNotEmpty(),"page notice presence wrong: "+here+" / "+(notice?notice->getText():juce::String("<none>")));
+                    if(notice!=nullptr) {
+                        require(notice->getText()==expected && editor->pageNotice()==expected,"page notice text wrong: "+here+" / "+notice->getText());
+                        const auto font=notice->getLookAndFeel().getLabelFont(*notice);
+                        require(juce::GlyphArrangement::getStringWidthInt(font,expected)<=notice->getWidth(),"page notice truncated: "+here+" / "+expected);
+                        require(notice->getHeight()>=int(font.getHeight())+2,"page notice clipped vertically: "+here);
+                        const auto colour=notice->findColour(juce::Label::textColourId);
+                        require(colour==juce::Colour(warn?0xff963c24:0xff252b2b),"page notice colour wrong: "+here);
+                        require(contrast(colour,juce::Colour(0xffeee9dc))>=4.5,"page notice contrast below 4.5: "+here);
+                        requireEditionWording(edition,expected,here);
+                        require(notice->getY()<content->getHeight()/4,"page notice is not in the header band: "+here);
+                    }
+                    if(workspace==2) {
+                        // Every Motion row: the destination box must hold the longest destination, the real list and the placeholder list for the new Source / FM groups.
+                        const auto placeholder=placeholderDestinations();
+                        for(int n=1;n<=16;++n) {
+                            auto* cb=findShown<juce::ComboBox>(*content,"modulation."+juce::String(n)+".target");require(cb!=nullptr,"Motion destination box missing: "+here);
+                            const auto font=cb->getLookAndFeel().getComboBoxFont(*cb);int widest=0;juce::String longest;
+                            for(const auto& item:placeholder){const int w=juce::GlyphArrangement::getStringWidthInt(font,item);if(w>widest){widest=w;longest=item;}}
+                            if(cb->getWidth()-40-widest<destSlack){destSlack=cb->getWidth()-40-widest;destSlackWhere=here;destLongest=longest;}
+                            require(widest<=cb->getWidth()-40,"placeholder destination would be truncated ("+longest+", "+juce::String(widest)+"px in "+juce::String(cb->getWidth())+"px): "+here);
+                        }
+                    }
+                }
                 if(workspace==3) {
                     const int engine=page==3?0:(page==5?2:1);
                     auto* status=findShown<juce::Label>(*content,"source.status");
@@ -786,6 +837,101 @@ int main(int argc,char** argv) {
             }
             }
             editor->performUiAction("zoom.100");editor->setMinimalMode(false);editor->setWorkspace(0);
+            std::cout<<"  placeholder destinations: tightest fit "<<destSlack<<" px spare for \""<<destLongest.toStdString()<<"\" at "<<destSlackWhere.toStdString()<<"\n";
+            }
+        });
+        test("Atlas page notices (Patch / FM / Motion) follow edition, Mode and the Six operator engine",[&] {
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);
+                AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+                auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+                auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+                editor->setSize(1440,900);
+                const juce::String fxIdle="Idle: Mode is FX. Switch Mode to Resynth for FM.",off="Six operator engine is off. Turn it on to hear FM.";
+                const juce::String resynth="FM follows the input audio in Resynth mode.",synth="FM sounds on MIDI notes in Synth mode.";
+                auto fmNotice=[&](float mode,float fm){p.setParameterValue("global.mode",mode);p.setParameterValue("fm.enabled",fm);editor->setWorkspace(1);return editor->pageNotice();};
+                if(edition==0) {
+                    require(fmNotice(0.f,1.f)==fxIdle,"effect FX + FM on notice: "+fmNotice(0.f,1.f));
+                    require(fmNotice(1.f,1.f)==resynth,"effect Resynth + FM on notice: "+fmNotice(1.f,1.f));
+                    require(fmNotice(2.f,1.f)==fxIdle,"effect with a stored Synth mode shows FX: "+fmNotice(2.f,1.f));
+                    require(fmNotice(0.f,0.f)==off&&fmNotice(1.f,0.f)==off,"effect FM-off notice wrong");
+                    require(findShown<juce::Label>(*content,"page.notice")!=nullptr,"effect FM notice label hidden");
+                    // FX notice is the Source-panel red; the active notice is the ink colour.
+                    (void)fmNotice(0.f,1.f);require(findShown<juce::Label>(*content,"page.notice")->findColour(juce::Label::textColourId)==juce::Colour(0xff963c24),"FX notice is not earth red");
+                    (void)fmNotice(1.f,1.f);require(findShown<juce::Label>(*content,"page.notice")->findColour(juce::Label::textColourId)==juce::Colour(0xff252b2b),"active FM notice should not be red");
+                    editor->setWorkspace(0);require(editor->pageNotice().isEmpty()&&findShown<juce::Label>(*content,"page.notice")==nullptr,"effect Patch page must stay unchanged");
+                    editor->setWorkspace(2);require(editor->pageNotice().isEmpty(),"effect Motion page must stay unchanged");
+                } else {
+                    for(float mode:{0.f,1.f,2.f}) require(fmNotice(mode,1.f)==synth,"Synth FM notice with stored mode "+juce::String(mode)+": "+fmNotice(mode,1.f));
+                    require(fmNotice(2.f,0.f)==off,"Synth FM-off notice wrong");
+                    editor->setWorkspace(0);require(editor->pageNotice()=="No audio input: IN carries the Source and FM voices.","Synth Patch notice: "+editor->pageNotice());
+                    editor->setWorkspace(2);require(editor->pageNotice()=="Envelope follows the voices; Pitch the last MIDI note.","Synth Motion notice: "+editor->pageNotice());
+                }
+                editor->setWorkspace(3);require(editor->pageNotice().isEmpty()&&findShown<juce::Label>(*content,"page.notice")==nullptr,"Source page must not show the header notice");
+                editor->setWorkspace(1);require(findShown<juce::Label>(*content,"page.notice")!=nullptr,"FM notice not back");
+                editor->setMinimalMode(true);require(findShown<juce::Label>(*content,"page.notice")==nullptr,"All params must not show the header notice");editor->setMinimalMode(false);
+            }
+        });
+        test("Atlas Synth edition: Envelope / Pitch sources and the input sends stay bound to the real parameters and explain themselves",[&] {
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);
+                AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+                auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+                auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+                editor->setSize(1440,900);
+                const auto* sourceSpec=[]{for(const auto& s:aether::parameterSpecs()) if(juce::String(s.id)=="modulation.1.source") return &s;return static_cast<const aether::ParameterSpec*>(nullptr);}();
+                require(sourceSpec!=nullptr,"modulation.1.source spec missing");
+                // Patch: the input send and the global Input gain exist in both editions; the Synth edition explains that the input is the instrument's own voices (neither is greyed or hidden: they route / scale Source and FM).
+                editor->setWorkspace(0);
+                auto* send=findShown<juce::Slider>(*content,"node.1.input");require(send!=nullptr&&send->isEnabled(),"input send must stay visible and enabled");
+                auto* globalInput=findShown<juce::Slider>(*content,"global.input");require(globalInput!=nullptr&&globalInput->isEnabled(),"global input must stay visible and enabled");
+                for(auto* s:{send,globalInput}) {
+                    const auto tip=s->getTooltip();
+                    if(edition==1) require(tip.contains("no audio input")&&tip.contains("Source and FM"),"Synth input tooltip wrong: "+tip);
+                    else require(!tip.containsIgnoreCase("Synth edition")&&!tip.containsIgnoreCase("Source and FM"),"effect input tooltip changed: "+tip);
+                }
+                send->setValue(0.5,juce::sendNotificationSync);require(std::abs(p.parameterValue("node.1.input")-0.5f)<.01f,"input send no longer drives node.1.input");
+                // Motion: the source list is untouched (same items, same indices), still bound, and every source (Envelope, Pitch included) stays selectable.
+                editor->setWorkspace(2);
+                auto* source=findShown<juce::ComboBox>(*content,"modulation.1.source");require(source!=nullptr&&source->isEnabled(),"Motion source box missing or disabled");
+                require(source->getNumItems()==sourceSpec->choices.size(),"Motion source item count changed");
+                for(int i=0;i<source->getNumItems();++i) require(source->getItemText(i)==sourceSpec->choices[i]&&source->getItemId(i)==i+1,"Motion source mapping changed at "+juce::String(i));
+                const int envelope=sourceSpec->choices.indexOf("Envelope"),pitch=sourceSpec->choices.indexOf("Pitch");
+                std::cout<<"  edition "<<edition<<": Motion sources "<<sourceSpec->choices.joinIntoString(", ").toStdString()<<"\n";
+                require(envelope>=0&&pitch>=0,"Envelope / Pitch source names missing: "+sourceSpec->choices.joinIntoString(","));
+                for(int idx:{envelope,pitch}) {
+                    source->setSelectedItemIndex(idx,juce::sendNotificationSync);require(int(p.parameterValue("modulation.1.source")+.5f)==idx,"source "+sourceSpec->choices[idx]+" does not drive the parameter");
+                    if(edition==1) require(source->isEnabled()&&source->getTooltip().contains("no audio input"),"Synth source tooltip wrong: "+source->getTooltip());
+                }
+            }
+        });
+        test("Atlas Motion destination selector: grouped headings, unchanged indices, room for the Source and FM groups (placeholder list)",[&] {
+            using Editor=AetherAudioProcessorEditor;
+            require(Editor::modulationTargetGroup("None").isEmpty()&&Editor::modulationTargetGroup("Node 3 / Mix")=="Node 3"&&Editor::modulationTargetGroup("Source / Walsh mix")=="Source"&&Editor::modulationTargetGroup("FM / Feedback")=="FM","destination group parsing wrong");
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);
+                AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+                auto* editor=dynamic_cast<Editor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+                auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+                editor->setSize(1440,900);editor->setWorkspace(2);
+                const auto real=placeholderDestinations();
+                auto* box=findShown<juce::ComboBox>(*content,"modulation.1.target");require(box!=nullptr,"Motion destination box missing");
+                // Current 85 options: None + 12 nodes x 7, a heading per node, index == item id - 1 == parameter value.
+                require(box->getNumItems()==85,"destination count "+juce::String(box->getNumItems()));
+                juce::StringArray expectedHeadings;for(int n=1;n<=12;++n)expectedHeadings.add("Node "+juce::String(n));
+                require(headingTexts(*box)==expectedHeadings.joinIntoString("|"),"destination headings: "+headingTexts(*box));
+                for(int i=0;i<box->getNumItems();++i) require(box->getItemId(i)==i+1&&box->getItemText(i)==real[i],"destination item mapping changed at "+juce::String(i));
+                for(int idx:{0,1,7,84}) {box->setSelectedItemIndex(idx,juce::sendNotificationSync);require(int(p.parameterValue("modulation.1.target")+.5f)==idx,"destination "+juce::String(idx)+" does not drive modulation.1.target");}
+                p.setParameterValue("modulation.1.target",43.f);require(box->getSelectedItemIndex()==43&&box->getText()==real[43],"host change does not select the right destination");
+                // Placeholder list with the draft's extra 28 destinations (113 options): same container, headings Node 1..12 | Source | FM, ids stay index + 1.
+                require(real.size()==113,"placeholder size "+juce::String(real.size()));
+                juce::ComboBox probe;Editor::fillModulationTargets(probe,real);
+                require(probe.getNumItems()==113,"placeholder combo count");
+                require(headingTexts(probe)==expectedHeadings.joinIntoString("|")+"|Source|FM","placeholder headings: "+headingTexts(probe));
+                for(int i=0;i<probe.getNumItems();++i) require(probe.getItemId(i)==i+1&&probe.getItemText(i)==real[i],"placeholder item mapping at "+juce::String(i));
+                probe.setSelectedItemIndex(102,juce::dontSendNotification);require(probe.getText()=="FM / Modulation index"&&probe.getSelectedId()==103,"placeholder index 102 should be the first FM destination");
+                probe.setSelectedItemIndex(85,juce::dontSendNotification);require(probe.getText()=="Source / Level","placeholder index 85 should be the first Source destination");probe.setSelectedItemIndex(101,juce::dontSendNotification);require(probe.getText()=="Source / Amplitude barrier","placeholder index 101 should be the last Source destination");
+                std::cout<<"  edition "<<edition<<": placeholder destination groups OK (113 options, headings "<<headingTexts(probe).toStdString()<<")\n";
             }
         });
         test("Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)",[&] {
