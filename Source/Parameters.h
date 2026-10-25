@@ -72,8 +72,13 @@ inline constexpr std::array<int,modular::extendedTargetCount> modulationExtended
     sourceOffset+chaosAmpBarrier,                                                                                       // 101
     fmOffset+3, fmOffset+4, fmOffset+5, fmOffset+10, fmOffset+11,                                                       // 102..106
     operatorOffset+0*6+1, operatorOffset+1*6+1, operatorOffset+2*6+1, operatorOffset+3*6+1, operatorOffset+4*6+1, operatorOffset+5*6+1}; // 107..112
-// State / preset schema: 1 = v1 FX only, 2 = Atlas graph + FM, 3 = adds the source layer.
-inline constexpr int stateSchema=3;
+// State / preset schema: 1 = v1 FX only, 2 = Atlas graph + FM, 3 = adds the source layer. 4 (2.3.0) has the same layout as 3 and is
+// written only by a save in which a motion row points at destination 85..112, so that a 2.2.0 build, which would otherwise clamp that
+// index to 84 (Node 12 / Pan) without a message, refuses the save. Every other save is still stamped 3, byte for byte as before.
+inline constexpr int stateSchema=3;                                   // stamp of every save without destinations 85..112
+inline constexpr int stateSchemaDestinations=4;                       // stamp of a save that uses destinations 85..112
+inline constexpr int stateSchemaNewest=stateSchemaDestinations;       // highest schema this build reads (1..4)
+inline constexpr bool modulationTargetNeedsSchema4(double target) { return target>=modulationTargetExtendedFirst-0.5; }
 const std::vector<ParameterSpec>& parameterSpecs();
 juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 juce::StringArray orderNames();

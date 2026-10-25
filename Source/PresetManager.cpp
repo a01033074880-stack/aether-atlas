@@ -115,7 +115,13 @@ void AetherAudioProcessor::loadFactoryPreset(int index) {
     currentProgram.store(index); requestPanic();
 }
 juce::var AetherAudioProcessor::presetObject(const juce::String& name) const {
-    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","2.0.0"); root->setProperty("schema",aether::stateSchema); root->setProperty("name",name);
+    // Schema 4 only when a motion row uses destination 85..112 (see aether::stateSchemaDestinations); every other preset stays schema 3.
+    int presetSchema=aether::stateSchema;
+    for(int n=1;n<=aether::modular::modulationCount;++n) {
+        const float target=state.getRawParameterValue("modulation."+juce::String(n)+".target")->load();
+        if(std::isfinite(target) && aether::modulationTargetNeedsSchema4(target)) presetSchema=aether::stateSchemaDestinations;
+    }
+    auto* root=new juce::DynamicObject(); root->setProperty("product","AetherMicro"); root->setProperty("version","2.0.0"); root->setProperty("schema",presetSchema); root->setProperty("name",name);
     auto* values=new juce::DynamicObject();
     for(const auto& spec:aether::parameterSpecs()) values->setProperty(spec.id,state.getRawParameterValue(spec.id)->load());
     root->setProperty("parameters",juce::var(values)); return juce::var(root);
@@ -142,7 +148,7 @@ juce::Result AetherAudioProcessor::loadPreset(const juce::File& file) {
     juce::var root; auto result=juce::JSON::parse(file.loadFileAsString(),root);
     if(result.failed()) return juce::Result::fail("Invalid preset JSON.");
     const int schema=static_cast<int>(root["schema"]);
-    if(root["product"].toString()!="AetherMicro" || schema<1 || schema>aether::stateSchema || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
+    if(root["product"].toString()!="AetherMicro" || schema<1 || schema>aether::stateSchemaNewest || !root["parameters"].isObject()) return juce::Result::fail("Unsupported preset product or schema.");
     auto values=root["parameters"];
     for(const auto& spec:aether::parameterSpecs()) if(values.hasProperty(spec.id)) {
         auto value=values.getProperty(juce::Identifier(spec.id),{});

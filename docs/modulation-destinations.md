@@ -67,11 +67,14 @@ not running changes nothing (the render is bit-identical to the unmodulated one)
 
 ## Saved state
 
-Both the state XML and `.json` presets store the option index as a number, with no schema change (`schema` stays 3). Reading
-a state or preset that uses target 85..112 with a 2.2.0 build: the preset loader limits every value to the parameter's own
-range (`jlimit(minimum, maximum)`) and the state loader maps it through `convertTo0to1`, which also clamps, so the stored
-index becomes 84 (`Node 12 / Pan`) without a message and the row then modulates Node 12's Pan with that depth. Nothing
-crashes and nothing is refused. (Derived from reading the 2.2.0 source; not run on a 2.2.0 build.)
+Both the state XML and `.json` presets store the option index as a number.
 
-If that silent substitution is unwanted, the writer can raise `schema` to 4 only for saves that contain a row with target > 84.
-A 2.2.0 build then refuses to load them (`schema > stateSchema`), while every older preset stays loadable by both versions.
+* **Write.** A save that has any motion row with `modulation.N.target` > 84 (live tree, A/B snapshot, or preset JSON) is
+  stamped `schema` 4 (`aether::stateSchemaDestinations`). Every other save stays `schema` 3 (`aether::stateSchema`), so
+  old content is byte-identical to 2.2.0. The nested A/B snapshot XML carries the same rule on its own tree.
+* **Read.** This build accepts schemas 1..4 (`aether::stateSchemaNewest` = 4) and refuses 0 and 5+. Schema 1/2 still get
+  the source-layer defaults they always did.
+* **2.2.0.** A 2.2.0 build (schema newest = 3) refuses schema-4 state (`setStateInformation` returns without applying) and
+  schema-4 presets (`loadPreset` fails with "Unsupported preset product or schema."). Verified by running a SchemaProbe
+  against the 991e493 sources. If a 2.2.0 build somehow saw target 85..112 under schema 3, the loaders would clamp the
+  index to 84 (`Node 12 / Pan`); schema 4 is the guard that prevents that silent substitution for new destinations.
