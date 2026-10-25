@@ -1,0 +1,1 @@
+﻿run1 and run2 (separate processes) produced byte-identical files, SHA-256 9105C9E93D5C2C2BA3B5DFB20804CFC46ACE6E2DE0F938B207C605E9C0ED6ADB; fc /b: no differences

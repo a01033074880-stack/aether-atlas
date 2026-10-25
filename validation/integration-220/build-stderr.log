@@ -1,0 +1,14 @@
+powershell.exe : Errors while running CTest
+所在位置 行:1 字符: 113
++ ...  -Format o; & powershell -NoProfile -File scripts\build.ps1 -BuildDir ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Errors while running CTest:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Tests failed.
+所在位置 C:\Users\24168\Documents\Projects\wt-integration-220\scripts\build.ps1:35 字符: 32
++     if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
++                                ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Tests failed.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Tests failed.
+ 

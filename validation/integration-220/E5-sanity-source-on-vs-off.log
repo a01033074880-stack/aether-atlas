@@ -1,0 +1,5 @@
+sanity:
+factory-12 eng=1 SourceOff: sha=6d96587b9b16 | SourceOn: sha=f28642a2ae89 | differ=True
+factory-12 eng=2 SourceOff: sha=6d96587b9b16 | SourceOn: sha=d9638ecb14a0 | differ=True
+default eng=1 SourceOff: sha=a56f415a1c85 | SourceOn: sha=9971c2fa3c7b | differ=True
+default eng=2 SourceOff: sha=a56f415a1c85 | SourceOn: sha=8ad4719bf4c4 | differ=True

@@ -1,0 +1,1084 @@
+2026-10-25T15:28:24.4074145+08:00
+Authoritative version (CMakeLists.txt): 2.2.0
+ALLOWED  Source/PluginProcessor.cpp:27: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:384: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:416: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:118: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+OK: all checked files are consistent with version 2.2.0 (5 allowlisted code literal(s)).
+-- The C compiler identification is MSVC 19.44.35229.0
+-- The CXX compiler identification is MSVC 19.44.35229.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/SDKs/AetherBuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/SDKs/AetherBuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring juceaide
+-- Building juceaide
+-- Exporting juceaide
+-- Testing juceaide
+-- Finished setting up juceaide
+-- Configuring done (78.0s)
+-- Generating done (1.5s)
+-- Build files have been written to: C:/Users/24168/Documents/Projects/wt-integration-220/build-integ-220
+[0/2] Re-checking globbed directories...
+[1/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\decimator.cpp.obj
+[2/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\wavefolder.cpp.obj
+[3/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Sampling\granularplayer.cpp.obj
+[4/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Utility\dcblock.cpp.obj
+[5/383] Generating juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData1.cpp, juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData2.cpp, juce_binarydata_AetherAssets/JuceLibraryCode/BinaryData.h
+[6/383] Building CXX object CMakeFiles\aether_dsp.dir\libs\aether-dsp\src\Engine.cpp.obj
+[7/383] Linking CXX static library aether_dsp.lib
+[8/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Control\phasor.cpp.obj
+[9/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\chorus.cpp.obj
+[10/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\resonator.cpp.obj
+[11/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Dynamics\crossfade.cpp.obj
+[12/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Filters\ladder.cpp.obj
+[13/383] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\KarplusString.cpp.obj
+[14/383] Linking CXX static library atlas_daisy.lib
+[15/383] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData2.cpp.obj
+[16/383] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData1.cpp.obj
+[17/383] Building CXX object CMakeFiles\aether_fm.dir\libs\aether-fm\src\FmSynth.cpp.obj
+[18/383] Linking CXX static library AetherAssets.lib
+[19/383] Linking CXX static library aether_fm.lib
+[20/383] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Metadata.cpp.obj
+[21/383] Building CXX object CMakeFiles\aether_source.dir\libs\aether-source\src\Source.cpp.obj
+[22/383] Linking CXX static library aether_source.lib
+[23/383] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Modular.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-220\libs\aether-modular\src\ModuleState.h(70): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[24/383] Linking CXX static library aether_modular.lib
+[25/383] Building CXX object CMakeFiles\AetherMicro_vst3_helper.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\VST3\juce_VST3ManifestHelper.cpp.obj
+[26/383] Building CXX object CMakeFiles\AetherMicroSynth_vst3_helper.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\VST3\juce_VST3ManifestHelper.cpp.obj
+[27/383] Building CXX object CMakeFiles\AetherMicro.dir\Source\AtlasParameters.cpp.obj
+[28/383] Building CXX object CMakeFiles\AetherMicro.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: “初始化”: 从“_Ty”转换到“_Ty2”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PresetManager.cpp(9): note: 查看对正在编译的函数 模板 实例化“std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept”的引用
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PresetManager.cpp(7): note: 请参阅 "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" 中对 "std::pair<const char *,float>::pair" 的第一个引用
+[29/383] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginProcessor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginProcessor.cpp(364): warning C4100: 'buffer': 未引用的参数
+[30/383] Building C object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[31/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[32/383] Building CXX object CMakeFiles\AetherMicro.dir\Source\Parameters.cpp.obj
+[33/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[34/383] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(36): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(387): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)”时
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: 查看对正在编译的 类 模板 实例化“juce::Line<float>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 在编译 类 模板 成员函数“juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: 请参阅 "juce::RenderingHelpers::closestPointOnInfiniteLine" 中对 "juce::Line<float>::getIntersection" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>”的引用
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const”时
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: 查看对正在编译的函数 模板 实例化“void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const”的引用
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[35/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[36/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[37/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[38/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[39/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[40/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[41/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[42/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+[43/383] Linking CXX executable AetherMicro_vst3_helper.exe
+[44/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[45/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[46/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[47/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\AtlasParameters.cpp.obj
+[48/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\Parameters.cpp.obj
+[49/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: “初始化”: 从“_Ty”转换到“_Ty2”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PresetManager.cpp(9): note: 查看对正在编译的函数 模板 实例化“std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept”的引用
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PresetManager.cpp(7): note: 请参阅 "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" 中对 "std::pair<const char *,float>::pair" 的第一个引用
+[50/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[51/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginProcessor.cpp.obj
+[52/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(36): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(387): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)”时
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: 查看对正在编译的 类 模板 实例化“juce::Line<float>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 在编译 类 模板 成员函数“juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: 请参阅 "juce::RenderingHelpers::closestPointOnInfiniteLine" 中对 "juce::Line<float>::getIntersection" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-220\Source\PluginEditor.cpp(37): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>”的引用
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const”时
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: 查看对正在编译的函数 模板 实例化“void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const”的引用
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[53/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+[54/383] Building C object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[55/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[56/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[57/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[58/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[59/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+[60/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[61/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[62/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[63/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[64/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[65/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+[66/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[67/383] Linking CXX executable AetherMicroSynth_vst3_helper.exe
+[68/383] Generating AetherMicro_artefacts/JuceLibraryCode/AetherMicro_resources.rc
+[69/383] Generating AetherMicroSynth_artefacts/JuceLibraryCode/AetherMicroSynth_resources.rc
+[70/383] Generating AetherPluginTests_artefacts/JuceLibraryCode/AetherPluginTests_resources.rc
+[71/383] Generating AetherPluginTestsSynth_artefacts/JuceLibraryCode/AetherPluginTestsSynth_resources.rc
+[72/383] Generating AetherUiSnapshots_artefacts/JuceLibraryCode/AetherUiSnapshots_resources.rc
+[73/383] Generating AetherRenderPresets_artefacts/JuceLibraryCode/AetherRenderPresets_resources.rc
+[74/383] Generating AetherFixtureTests_artefacts/JuceLibraryCode/AetherFixtureTests_resources.rc
+[75/383] Generating AetherReproTool_artefacts/JuceLibraryCode/AetherReproTool_resources.rc
+[76/383] Generating AetherResynthSplitFx_artefacts/JuceLibraryCode/AetherResynthSplitFx_resources.rc
+[77/383] Generating AetherResynthSplitSynth_artefacts/JuceLibraryCode/AetherResynthSplitSynth_resources.rc
+[78/383] Building CXX object CMakeFiles\AetherAtlasRender.dir\tools\RenderAtlas.cpp.obj
+[79/383] Building CXX object CMakeFiles\AetherRender.dir\tools\RenderAudio.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-220\tools\RenderAudio.cpp(36): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[80/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[81/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[82/383] Building CXX object CMakeFiles\AetherModularTests.dir\tests\ModularTests.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-220\tests\ModularTests.cpp(263): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[83/383] Building CXX object CMakeFiles\AetherDspTests.dir\tests\DspTests.cpp.obj
+[84/383] Building CXX object CMakeFiles\AetherSourceBench.dir\tools\BenchSource.cpp.obj
+[85/383] Building CXX object CMakeFiles\AetherSourceTests.dir\tests\SourceTests.cpp.obj
+[86/383] Building CXX object CMakeFiles\AetherFmTests.dir\tests\FmTests.cpp.obj
+[87/383] Building CXX object CMakeFiles\AetherMicro.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[88/383] Linking CXX static library "AetherMicro_artefacts\Release\AETHER Micro_SharedCode.lib"
+[89/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[90/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[91/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+[92/383] Building C object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[93/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[94/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[95/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[96/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[97/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[98/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[99/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[100/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+[101/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[102/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[103/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[104/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[105/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[106/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[107/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[108/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[109/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[110/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[111/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[112/383] Building RC object CMakeFiles\AetherMicro_rc_lib.dir\AetherMicro_artefacts\JuceLibraryCode\AetherMicro_resources.rc.res
+[113/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[114/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[115/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[116/383] Building CXX object CMakeFiles\AetherMicroSynth.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[117/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[118/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[119/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[120/383] Building C object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[121/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[122/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[123/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[124/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[125/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[126/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[127/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[128/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[129/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[130/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[131/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[132/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[133/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[134/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[135/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[136/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[137/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[138/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[139/383] Linking CXX static library "AetherMicroSynth_artefacts\Release\AETHER Micro Synth_SharedCode.lib"
+[140/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[141/383] Building CXX object CMakeFiles\AetherMicro_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[142/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[143/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[144/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[145/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[146/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[147/383] Building C object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[148/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[149/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[150/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[151/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[152/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[153/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[154/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[155/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[156/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[157/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[158/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[159/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[160/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[161/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[162/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[163/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[164/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[165/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[166/383] Building RC object CMakeFiles\AetherMicroSynth_rc_lib.dir\AetherMicroSynth_artefacts\JuceLibraryCode\AetherMicroSynth_resources.rc.res
+[167/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[168/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[169/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[170/383] Building CXX object CMakeFiles\AetherMicro_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[171/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[172/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[173/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[174/383] Building C object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[175/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[176/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[177/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[178/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[179/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[180/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[181/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[182/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[183/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[184/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[185/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX.cpp.obj
+[186/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_AAX_utils.cpp.obj
+[187/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_ARA.cpp.obj
+[188/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_LV2.cpp.obj
+[189/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Standalone.cpp.obj
+[190/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_Unity.cpp.obj
+[191/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST2.cpp.obj
+[192/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[193/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[194/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[195/383] Building CXX object CMakeFiles\AetherMicroSynth_Standalone.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[196/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[197/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_audio_plugin_client\juce_audio_plugin_client_VST3.cpp.obj
+[198/383] Building CXX object CMakeFiles\AetherPluginTests.dir\tests\PluginTests.cpp.obj
+[199/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[200/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[201/383] Building C object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[202/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[203/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[204/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[205/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[206/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[207/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[208/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[209/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[210/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[211/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[212/383] Building RC object CMakeFiles\AetherPluginTests_rc_lib.dir\AetherPluginTests_artefacts\JuceLibraryCode\AetherPluginTests_resources.rc.res
+[213/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[214/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[215/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[216/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[217/383] Building CXX object CMakeFiles\AetherMicroSynth_VST3.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[218/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[219/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[220/383] Building C object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[221/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[222/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\tests\PluginTests.cpp.obj
+[223/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[224/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[225/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[226/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[227/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[228/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[229/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[230/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[231/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[232/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[233/383] Building RC object CMakeFiles\AetherPluginTestsSynth_rc_lib.dir\AetherPluginTestsSynth_artefacts\JuceLibraryCode\AetherPluginTestsSynth_resources.rc.res
+[234/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[235/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\tools\RenderUiSnapshots.cpp.obj
+[236/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[237/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[238/383] Building CXX object CMakeFiles\AetherPluginTests.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[239/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[240/383] Building C object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[241/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[242/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[243/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[244/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[245/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[246/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[247/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[248/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[249/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[250/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[251/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[252/383] Building RC object CMakeFiles\AetherUiSnapshots_rc_lib.dir\AetherUiSnapshots_artefacts\JuceLibraryCode\AetherUiSnapshots_resources.rc.res
+[253/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[254/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[255/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\tools\RenderPresets.cpp.obj
+[256/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[257/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[258/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[259/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[260/383] Building C object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[261/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[262/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[263/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[264/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[265/383] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[266/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[267/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[268/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[269/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[270/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[271/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[272/383] Building RC object CMakeFiles\AetherRenderPresets_rc_lib.dir\AetherRenderPresets_artefacts\JuceLibraryCode\AetherRenderPresets_resources.rc.res
+[273/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[274/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[275/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\tests\FixtureTests.cpp.obj
+[276/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[277/383] Building CXX object CMakeFiles\AetherUiSnapshots.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[278/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[279/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[280/383] Building C object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[281/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[282/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[283/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[284/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[285/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[286/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[287/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[288/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[289/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[290/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[291/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[292/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_cryptography\juce_cryptography.cpp.obj
+[293/383] Building RC object CMakeFiles\AetherFixtureTests_rc_lib.dir\AetherFixtureTests_artefacts\JuceLibraryCode\AetherFixtureTests_resources.rc.res
+[294/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[295/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[296/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[297/383] Building CXX object CMakeFiles\AetherReproTool.dir\tests\repro\ReproTool.cpp.obj
+[298/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[299/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[300/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[301/383] Building C object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[302/383] Building CXX object CMakeFiles\AetherRenderPresets.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[303/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[304/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[305/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[306/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[307/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[308/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[309/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[310/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[311/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[312/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[313/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_cryptography\juce_cryptography.cpp.obj
+[314/383] Building RC object CMakeFiles\AetherReproTool_rc_lib.dir\AetherReproTool_artefacts\JuceLibraryCode\AetherReproTool_resources.rc.res
+[315/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[316/383] Building CXX object CMakeFiles\AetherFixtureTests.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[317/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[318/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[319/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[320/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj
+[321/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[322/383] Building C object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[323/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[324/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[325/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[326/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[327/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[328/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[329/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[330/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[331/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[332/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[333/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[334/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_cryptography\juce_cryptography.cpp.obj
+[335/383] Building RC object CMakeFiles\AetherResynthSplitFx_rc_lib.dir\AetherResynthSplitFx_artefacts\JuceLibraryCode\AetherResynthSplitFx_resources.rc.res
+[336/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[337/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[338/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[339/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[340/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj
+[341/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_utils\juce_audio_utils.cpp.obj
+[342/383] Building CXX object CMakeFiles\AetherReproTool.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[343/383] Building C object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Sheenbidi.c.obj
+[344/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_events\juce_events.cpp.obj
+[345/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors\juce_audio_processors.cpp.obj
+[346/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core_CompilationTime.cpp.obj
+[347/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_gui_extra\juce_gui_extra.cpp.obj
+[348/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[349/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_ara.cpp.obj
+[350/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless_lv2_libs.cpp.obj
+[351/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_data_structures\juce_data_structures.cpp.obj
+[352/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_basics\juce_audio_basics.cpp.obj
+[353/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_processors_headless\juce_audio_processors_headless.cpp.obj
+[354/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_core\juce_core.cpp.obj
+C:\SDKs\JUCE\modules\juce_core\text/juce_CharacterFunctions.cpp(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[355/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_cryptography\juce_cryptography.cpp.obj
+[356/383] Building RC object CMakeFiles\AetherResynthSplitSynth_rc_lib.dir\AetherResynthSplitSynth_artefacts\JuceLibraryCode\AetherResynthSplitSynth_resources.rc.res
+[357/383] Linking CXX executable AetherAtlasRender.exe
+[358/383] Linking CXX executable AetherRender.exe
+[359/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_dsp\juce_dsp.cpp.obj
+[360/383] Linking CXX executable AetherDspTests.exe
+[361/383] Linking CXX executable AetherFmTests.exe
+[362/383] Linking CXX executable AetherModularTests.exe
+[363/383] Linking CXX executable AetherSourceTests.exe
+[364/383] Linking CXX executable AetherSourceBench.exe
+[365/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_formats\juce_audio_formats.cpp.obj
+[366/383] Linking CXX executable "AetherMicro_artefacts\Release\Standalone\AETHER Micro.exe"
+[367/383] Linking CXX executable "AetherMicroSynth_artefacts\Release\Standalone\AETHER Micro Synth.exe"
+[368/383] Linking CXX shared module "AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-220/build-integ-220/AetherMicro_artefacts/Release/VST3/AETHER Micro.vst3
+[369/383] Linking CXX shared module "AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-220/build-integ-220/AetherMicroSynth_artefacts/Release/VST3/AETHER Micro Synth.vst3
+[370/383] Linking CXX executable AetherPluginTestsSynth_artefacts\Release\AetherPluginTestsSynth.exe
+[371/383] Linking CXX executable AetherPluginTests_artefacts\Release\AetherPluginTests.exe
+[372/383] Linking CXX executable AetherUiSnapshots_artefacts\Release\AetherUiSnapshots.exe
+[373/383] Linking CXX executable AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe
+[374/383] Linking CXX executable AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe
+[375/383] Linking CXX executable AetherReproTool_artefacts\Release\AetherReproTool.exe
+[376/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_audio_devices\juce_audio_devices.cpp.obj
+[377/383] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[378/383] Linking CXX executable AetherResynthSplitFx_artefacts\Release\AetherResynthSplitFx.exe
+[379/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[380/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_graphics\juce_graphics_Harfbuzz.cpp.obj
+C:\SDKs\JUCE\modules\juce_graphics/fonts/harfbuzz/hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-style.h(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-algs.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\Var\VARC\../../../hb-ot-layout-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT\glyf\../../hb-ot-head-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-mvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-common.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-common.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-var-fvar-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\OT/Color/sbix/sbix.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-meta-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-stat-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout-base-table.hh(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-layout.cc(1672): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-math.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-indic.cc(814): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-shaper-thai.cc(1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(376): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+C:\SDKs\JUCE\modules\juce_graphics\fonts\harfbuzz\hb-ot-tag-table.hh(1074): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+[381/383] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\C_\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp.obj
+C:\SDKs\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp(61) : Warning: This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored
+[382/383] Linking CXX executable AetherResynthSplitSynth_artefacts\Release\AetherResynthSplitSynth.exe
+Test project C:/Users/24168/Documents/Projects/wt-integration-220/build-integ-220
+    Start 1: aether_dsp
+1/9 Test #1: aether_dsp .......................   Passed    1.37 sec
+    Start 2: aether_fm
+2/9 Test #2: aether_fm ........................   Passed   38.38 sec
+    Start 3: aether_modular
+3/9 Test #3: aether_modular ...................   Passed    9.53 sec
+    Start 4: aether_source
+4/9 Test #4: aether_source ....................   Passed   12.48 sec
+    Start 5: aether_plugin
+5/9 Test #5: aether_plugin ....................   Passed   39.49 sec
+    Start 6: aether_plugin_synth_ui
+6/9 Test #6: aether_plugin_synth_ui ...........***Failed   32.13 sec
+PASS stable parameter contract
+SKIP host bypass is transparent, including odd blocks (Synth edition): host bypass is an effect-only feature (the instrument edition has no audio input to pass through)
+PASS host parameter display and text entry round trip units
+PASS active space freeze reports infinite host tail
+PASS Atlas freeze modulation and cyclic routing advertise persistent tails
+PASS host tail covers the longest legal six-operator release
+PASS all-parameter keyboard edits activate custom graph and FM routing
+PASS DAW state round trip and invalid payload
+PASS Atlas schema 2 stores custom routing FM and modulation
+PASS v1 schema restores the legacy sound path
+PASS source layer: parameter contract (ids, versions, defaults, old order)
+PASS source layer: schema 3 round trip; schema 1/2 saves return to source Off
+PASS source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path
+  Input -6.0206 dB, engine 1: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -6.0206 dB, engine 2: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -12.0412 dB, engine 1: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input -12.0412 dB, engine 2: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input 6.0206 dB, engine 1: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+  Input 6.0206 dB, engine 2: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+PASS source layer: Input gain scales the source like the FM path
+  clampModeForPluginType: effect {0,1,2}->{0,1,0}, synth {0,1,2}->{2,2,2}; processor renders match the unclamped reference bit for bit
+PASS mode clamp: pure mapping for both plugin types, and the processor applies it where the mode is read
+  engine 1: energy tone1 0, gap 0, tone2 0
+FAIL Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch): Resynth + Source rendered silence for a tonal input
+FAIL Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled): reference render is silent
+  engine 1: energy 854.921 peak 0.589298, repeat diff 0, block 64 diff 0, block 192 diff 0
+  engine 2: energy 455.747 peak 0.42293, repeat diff 0, block 64 diff 0, block 192 diff 0
+PASS source layer: automating seed, antialias and sound parameters is finite, deterministic and block-size independent
+PASS module assignment and custom cabling drive stable parameters
+PASS first custom FM edit preserves the current algorithm morph
+PASS FM remains enabled when the Atlas effects graph is bypassed
+SKIP audio-driven FM and pitch modulation do not depend on host block cuts (Synth edition): needs audio input and Resynth; the instrument edition always runs Synth mode
+PASS all factory presets render finite stereo
+PASS user preset JSON roundtrip and validation
+PASS A/B snapshots restore independent values
+SKIP mono layout, repeated prepare and rates (Synth edition): the test configures mono on the Input bus, which the instrument edition does not have (it has no audio input)
+PASS sample-offset MIDI starts only at its timestamp
+SKIP external FX sidechain excites resonance without direct leakage (Synth edition): needs the external sidechain input bus, which the instrument edition does not have
+PASS editor lifecycle and rendered snapshots
+PASS Atlas editor zoom switches between 50, 75 and 100 percent
+PASS Atlas content fits the window at minimum, default and maximum sizes
+PASS Atlas zoom presets keep content scale equal to the zoom
+  edition AETHER Micro (FX + Resynth)
+  edition AETHER Micro Synth (Synth only)
+PASS Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size (both plugin editions)
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+PASS Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)
+PASS Atlas Mode picker offers only the modes of the plugin edition, keeps real parameter indices and falls back sensibly
+  compile-time edition: AETHER Micro Synth, Mode items 3:Synth
+PASS Atlas Mode picker follows the compile-time plugin edition (JucePlugin_IsSynth) when no override is set
+RESULT 30 tests passed, 2 failed, 4 skipped
+
+    Start 7: aether_fixtures
+7/9 Test #7: aether_fixtures ..................***Failed   55.62 sec
+PASS fixture inventory is complete
+  compared 4671 stored values across 21 fixtures
+PASS all fixtures load and apply their stored values
+PASS v1.0.0 presets (schema 1) select the legacy path
+PASS state fixtures survive load -> save -> load unchanged
+PASS unsupported or damaged payloads are rejected and change nothing
+PASS archived fixtures upgrade to schema 3 with source-layer defaults
+PASS schema 1->3 and 2->3 synthetic upgrades round-trip
+PASS schema 3 payloads are accepted
+PASS fixture renders are finite and audible
+  bit-exact SHA-256 matches: 17 of 21 (informational; pass/fail uses the tolerance)
+FAIL render matches the committed golden summary within tolerance: preset-v1.0.0:Copper Strings rmsL[0] golden 0.000000 now 0.181346; preset-v1.0.0:Copper Strings rmsR[0] golden 0.000000 now 0.175021; preset-v1.0.0:Copper Strings peakL[0] golden 0.000000 now 0.363611; preset-v1.0.0:Copper Strings peakR[0] golden 0.000000 now 0.364123; preset-v1.0.0:Prism Keys rmsL[0] golden 0.000000 now 0.129023; preset-v1.0.0:Prism Keys rmsR[0] golden 0.000000 now 0.129060; preset-v1.0.0:Prism Keys peakL[0] golden 0.000000 now 0.255550; preset-v1.0.0:Prism Keys peakR[0] golden 0.000000 now 0.253119; state-v2.0.1:custom-graph-fm rmsL[0] golden 0.000000 now 0.134925; state-v2.0.1:custom-graph-fm rmsR[0] golden 0.000000 now 0.145625; state-v2.0.1:custom-graph-fm peakL[0] golden 0.000000 now 0.194266; state-v2.0.1:custom-graph-fm peakR[0] golden 0.000000 now 0.210709; state-v2.0.1:factory-11-Copper-Strings rmsL[0] golden 0.000000 now 0.181346; state-v2.0.1:factory-11-Copper-Strings rmsR[0] golden 0.000000 now 0.175021; state-v2.0.1:factory-11-Copper-Strings peakL[0] golden 0.000000 now 0.363611; state-v2.0.1:factory-11-Copper-Strings peakR[0] golden 0.000000 now 0.364123; 
+PASS repeat render in one process is deterministic
+PASS render is consistent across host block sizes
+RESULT 11 tests passed, 1 failed
+
+    Start 8: aether_split_unchanged
+8/9 Test #8: aether_split_unchanged ...........   Passed   46.99 sec
+    Start 9: aether_resynth_split
+9/9 Test #9: aether_resynth_split .............   Passed   48.40 sec
+
+78% tests passed, 2 tests failed out of 9
+
+Total Test time (real) = 284.41 sec
+
+The following tests FAILED:
+	  6 - aether_plugin_synth_ui (Failed)
+	  7 - aether_fixtures (Failed)
+BUILD_EXIT=1
+2026-10-25T15:54:59.9665452+08:00
