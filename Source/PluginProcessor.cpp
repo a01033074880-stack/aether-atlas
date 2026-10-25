@@ -23,6 +23,10 @@ AetherAudioProcessor::AetherAudioProcessor()
     allRaw.reserve(specs.size());
     for(const auto& spec:specs) allRaw.push_back(state.getRawParameterValue(spec.id));
     for(size_t i=0;i<raw.size();++i) raw[i]=allRaw[i];
+    for(size_t k=0;k<extendedTargets.size();++k) {
+        const int index=aether::modulationExtendedParameter[k];
+        extendedTargets[k]={state.getParameter(specs[static_cast<size_t>(index)].id),index};
+    }
     state.state.setProperty("schema",aether::stateSchema,nullptr);
     state.state.setProperty("version","2.0.0",nullptr);
 #if JucePlugin_IsSynth
@@ -165,6 +169,49 @@ int AetherAudioProcessor::readAnalysis(float* dest,int maximum) noexcept {
     std::copy_n(analysis.data()+s1,n1,dest); std::copy_n(analysis.data()+s2,n2,dest+n1);
     analysisFifo.finishedRead(n1+n2); return n1+n2;
 }
+// Builds the modulated FM / Source parameter sets for the offsets the graph holds now (offset = summed source*depth per
+// destination, in units of the parameter's full normalised range) and hands them to the engines. Offset 0 keeps the host
+// value bit for bit. No allocation: fixed arrays and struct copies only.
+void AetherAudioProcessor::applyExtendedModulation(const std::array<float,aether::modulationExtendedCount>& amount,bool force) noexcept {
+    if(!force && amount==extendedApplied) return;
+    extendedApplied=amount;
+    auto fm=fmBase; auto pg=pgBase; auto ch=chaosBase;
+    for(size_t k=0;k<amount.size();++k) {
+        const float a=amount[k];
+        if(!(a!=0.f) || !std::isfinite(a)) continue;
+        const auto* parameter=extendedTargets[k].parameter;
+        const float m=parameter->convertFrom0to1(juce::jlimit(0.f,1.f,parameter->convertTo0to1(extendedBase[k])+a));
+        if(!std::isfinite(m)) continue;
+        switch(k) {
+            case 0: pg.gain=m; ch.gain=m; break;
+            case 1: pg.spread=m; ch.spread=m; break;
+            case 2: pg.transpose=m; ch.transpose=m; break;
+            case 3: pg.walshSequency=m; break;
+            case 4: pg.walshMix=m; break;
+            case 5: pg.czDepth=m; break;
+            case 6: pg.czEnvelope=m; break;
+            case 7: pg.czVelocity=m; break;
+            case 8: pg.vpsD=m; break;
+            case 9: pg.vpsV=m; break;
+            case 10: pg.vpsRatio=m; break;
+            case 11: pg.phaseRandom=m; break;
+            case 12: ch.ampStep=m; break;
+            case 13: ch.durStep=m; break;
+            case 14: ch.durRange=m; break;
+            case 15: ch.momentum=m; break;
+            case 16: ch.ampBarrier=m; break;
+            case 17: fm.index=m; break;
+            case 18: fm.morph=m; break;
+            case 19: fm.feedback=m; break;
+            case 20: fm.gain=m; break;
+            case 21: fm.spread=m; break;
+            default: fm.operators[k-22].level=m; break;
+        }
+    }
+    fmEngine.setParameters(fm);
+    if(wantedSourceEngine==1) phaseGeometry.setParameters(pg);
+    else if(wantedSourceEngine==2) chaosSource.setParameters(ch);
+}
 void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int start,int count,const aether::Parameters& p) {
     auto main=getBusBuffer(buffer,false,0);
 #if !JucePlugin_IsSynth
@@ -198,7 +245,6 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
 #endif
             n);
         if(atlasSourceActive) {
-            bool graphRendered=false;
             // Resynth + Source: the excitation analysis of this block runs once up front (it depends only on the input
             // samples), the FM loop and the graph loop below replay the stored per-sample state, and the same pitch and
             // envelope drive the Source voice. Without a Source nothing here runs, so plain Resynth is untouched.
@@ -222,8 +268,10 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
                     excitationPitch=excitationPitchAt[k]; excitationEnvelope=excitationEnvelopeAt[k]; excitationClock=excitationClockAt[k];
                 } else analyseExcitation(excitationInput(i));
             };
+            auto renderRange=[&](const int b,const int e) {
+                const int cnt=e-b; bool graphRendered=false;
             if(fmActive && p.mode!=0) {
-                if(p.mode==1) for(int i=0;i<n;++i) {
+                if(p.mode==1) for(int i=b;i<e;++i) {
                     excite(i);
                     if((excitationClock%16)==1) {
                         fmEngine.setAudioExcitation(excitationPitch,juce::jlimit(0.f,1.f,excitationEnvelope*2.f));
@@ -244,24 +292,24 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
                     }
                 } else {
                     fmEngine.setAudioExcitation(0,0);
-                    fmEngine.process(left.data(),right.data(),n);
+                    fmEngine.process(left.data()+b,right.data()+b,cnt);
                 }
                 if(p.mode==2) {
                     const float target=juce::Decibels::decibelsToGain(p.inputDb);
-                    for(int i=0;i<n;++i) { fmInputGain+=inputGainSmoothing*(target-fmInputGain);left[static_cast<size_t>(i)]*=fmInputGain;right[static_cast<size_t>(i)]*=fmInputGain; }
+                    for(int i=b;i<e;++i) { fmInputGain+=inputGainSmoothing*(target-fmInputGain);left[static_cast<size_t>(i)]*=fmInputGain;right[static_cast<size_t>(i)]*=fmInputGain; }
                 }
             }
             if(auto* src=activeSource()) {
                 // Source layer (Synth: MIDI voices; Resynth: additionally one voice driven by the input's pitch and envelope).
                 // It replaces the buffer when FM is not rendering, otherwise it is added to FM.
-                if(sourceDriven) src->processDriven(sourceLeft.data(),sourceRight.data(),n,driveHz.data(),driveLevel.data());
-                else src->process(sourceLeft.data(),sourceRight.data(),n);
+                if(sourceDriven) src->processDriven(sourceLeft.data()+b,sourceRight.data()+b,cnt,driveHz.data()+b,driveLevel.data()+b);
+                else src->process(sourceLeft.data()+b,sourceRight.data()+b,cnt);
                 // Same Input-gain semantics as the FM path: target = Input (dB), 5 ms one-pole smoothing, applied after the
                 // voices render. The source keeps its own smoothing state so FM and source ramp independently.
                 const float inputTarget=juce::Decibels::decibelsToGain(p.inputDb);
-                for(size_t i=0;i<static_cast<size_t>(n);++i) { sourceInputGain+=inputGainSmoothing*(inputTarget-sourceInputGain);sourceLeft[i]*=sourceInputGain;sourceRight[i]*=sourceInputGain; }
+                for(size_t i=static_cast<size_t>(b);i<static_cast<size_t>(e);++i) { sourceInputGain+=inputGainSmoothing*(inputTarget-sourceInputGain);sourceLeft[i]*=sourceInputGain;sourceRight[i]*=sourceInputGain; }
                 const bool replace=!(fmActive&&p.mode!=0);
-                for(size_t i=0;i<static_cast<size_t>(n);++i) {
+                for(size_t i=static_cast<size_t>(b);i<static_cast<size_t>(e);++i) {
                     left[i]=(replace?0.f:left[i])+sourceLeft[i]; right[i]=(replace?0.f:right[i])+sourceRight[i];
                 }
             }
@@ -270,14 +318,14 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
                 float performanceVelocity=fmEngine.activeVoices()>0?lastVelocity:0.f,performanceHz=lastNoteHz;
                 if(auto* src=activeSource()) if(fmEngine.activeVoices()==0 && src->activeVoices()>0) { performanceVelocity=src->lastVelocity(); performanceHz=src->lastPitchHz(); }
                 graph.setPerformance(performanceVelocity,performanceHz);
-                graph.process(left.data(),right.data(),
+                graph.process(left.data()+b,right.data()+b,
 #if JucePlugin_IsSynth
                 nullptr,
 #else
-                external.getNumChannels()>0?side.data():nullptr,
+                external.getNumChannels()>0?side.data()+b:nullptr,
 #endif
-                  n);
-              } else for(int i=0;i<n;++i) {
+                  cnt);
+              } else for(int i=b;i<e;++i) {
                 excite(i);
                 if((excitationClock%16)==1) graph.setPerformance(fmEngine.activeVoices()>0?lastVelocity:0.f,excitationPitch>0?excitationPitch:lastNoteHz);
                 graph.process(left.data()+i,right.data()+i,
@@ -288,6 +336,21 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
 #endif
                     1);
               }
+            }
+            };
+            if(!extendedActive) renderRange(0,n);
+            else {
+                // Modulation destinations 85..112: the graph updates them every 16 samples, inside graph.process. Cut the chunk at those
+                // ticks and apply the offsets the graph holds at the start of each piece, so the result does not depend on how the host
+                // (or MIDI timing) cuts the buffer.
+                for(int b=0;b<n;) {
+                    const int untilTick=graph.samplesUntilControl();
+                    const int e=b+juce::jmin(n-b,untilTick>0?untilTick:16);
+                    // Samples [T,T+16) use the offsets of the tick at T-16: at a period start (the tick fires inside this very
+                    // sample) that is the graph's latest value, further into the period the one before the latest tick.
+                    applyExtendedModulation(untilTick>0?graph.extendedModulationPrevious():graph.extendedModulation(),false);
+                    renderRange(b,e); b=e;
+                }
             }
             for(int i=0;i<n;++i) {
                 left[static_cast<size_t>(i)]=(1-p.mix)*dryLeft[static_cast<size_t>(i)]+p.mix*left[static_cast<size_t>(i)];
@@ -331,10 +394,31 @@ void AetherAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::M
         auto output=p;for(auto& enabled:output.enabled) enabled=false;output.enabled[4]=p.enabled[4];
         output.inputDb=0;output.mode=0;output.mix=1;outputStage.setParameters(output);
         auto configuration=graphParameters();configuration.tempo=p.tempo;graph.setParameters(configuration);
-        fmEngine.setParameters(fmParameters());
-        if(wantedSource==1) phaseGeometry.setParameters(phaseGeometryParameters());
-        else if(wantedSource==2) chaosSource.setParameters(chaosParameters());
-    } else engine.setParameters(p);
+        // Destinations 85..112 are live only while a graph row points at one of them (and something can consume them).
+        // Otherwise the original path below runs untouched, so patches without such a row render exactly as in 2.2.0.
+        extendedActive=false; wantedSourceEngine=wantedSource;
+        if(p.mode!=0 && (fmActive||wantedSource>0))
+            for(const auto& row:configuration.modulation)
+                if(row.source!=0 && row.target>=aether::modulationTargetExtendedFirst && row.depth!=0) { extendedActive=true; break; }
+        if(extendedActive) {
+            // The host values are the baseline; the modulated copies are rebuilt from them at every graph control tick and
+            // never written back to the parameters.
+            fmBase=fmParameters();
+            if(wantedSource==1) pgBase=phaseGeometryParameters(); else if(wantedSource==2) chaosBase=chaosParameters();
+            for(size_t k=0;k<extendedTargets.size();++k) {
+                const float v=allRaw[static_cast<size_t>(extendedTargets[k].rawIndex)]->load(std::memory_order_relaxed);
+                extendedBase[k]=std::isfinite(v)?v:aether::parameterSpecs()[static_cast<size_t>(extendedTargets[k].rawIndex)].defaultValue;
+            }
+            // Hand the engines the host values NOW, before this block's MIDI is dispatched (a note started in this block reads the
+            // Source parameters, e.g. the seed, when it starts). The offsets are those of the period the previous sample was in, so the
+            // state a note sees does not depend on where the host cut the buffer. Later periods are applied by renderSegment.
+            applyExtendedModulation(graph.extendedModulationPrevious(),true);
+        } else {
+            fmEngine.setParameters(fmParameters());
+            if(wantedSource==1) phaseGeometry.setParameters(phaseGeometryParameters());
+            else if(wantedSource==2) chaosSource.setParameters(chaosParameters());
+        }
+    } else { extendedActive=false; engine.setParameters(p); }
     int offset=0; const int total=buffer.getNumSamples();
     for(const auto metadata:midi) {
         const int position=juce::jlimit(offset,total,metadata.samplePosition);
