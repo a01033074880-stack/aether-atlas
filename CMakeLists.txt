@@ -123,4 +123,23 @@ if(AETHER_BUILD_TESTS)
   target_sources(AetherReproTool PRIVATE tests/repro/ReproTool.cpp)
   target_link_libraries(AetherReproTool PRIVATE AetherMicro juce::juce_cryptography)
   target_compile_definitions(AetherReproTool PRIVATE AETHER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  # 2.2.0 Resynth+Source / mode-split tests. One source file, built once per plugin form because JucePlugin_IsSynth is compile-time.
+  # CTest names: aether_split_unchanged (must stay green) and aether_resynth_split (new behaviour; run alone with
+  # `ctest -R aether_resynth_split`, skip with `ctest -E aether_resynth_split`).
+  foreach(form IN ITEMS Fx Synth)
+    if(form STREQUAL "Fx")
+      set(split_plugin AetherMicro)
+      set(split_synth 0)
+    else()
+      set(split_plugin AetherMicroSynth)
+      set(split_synth 1)
+    endif()
+    juce_add_console_app(AetherResynthSplit${form} PRODUCT_NAME "Aether Resynth Split ${form}")
+    target_sources(AetherResynthSplit${form} PRIVATE tests/ResynthSplitTests.cpp)
+    target_link_libraries(AetherResynthSplit${form} PRIVATE ${split_plugin} juce::juce_cryptography)
+    target_compile_definitions(AetherResynthSplit${form} PRIVATE AETHER_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" AETHER_EXPECT_SYNTH=${split_synth})
+  endforeach()
+  add_test(NAME aether_split_unchanged COMMAND ${CMAKE_COMMAND} -DFX_EXE=$<TARGET_FILE:AetherResynthSplitFx> -DSYNTH_EXE=$<TARGET_FILE:AetherResynthSplitSynth> -DGROUP=unchanged -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/RunSplitGroup.cmake)
+  add_test(NAME aether_resynth_split COMMAND ${CMAKE_COMMAND} -DFX_EXE=$<TARGET_FILE:AetherResynthSplitFx> -DSYNTH_EXE=$<TARGET_FILE:AetherResynthSplitSynth> -DGROUP=split -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/RunSplitGroup.cmake)
 endif()
+
