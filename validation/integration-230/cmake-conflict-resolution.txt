@@ -1,0 +1,5 @@
+# CMakeLists.txt merge conflict resolution (Asia/Shanghai 2026-10-25 21:10)
+# Conflict: additive only. HEAD (feat) had add_test aether_mod_targets for AetherModTargets*;
+# docs/test-adapt-230 had a separate AetherModContract* foreach + aether_modtargets_{invariant,new,schema4}.
+# Resolution: UNION — keep both the engineer's aether_mod_targets and the contract targets/tests.
+# No semantic conflict in Source/PluginEditor/Parameters.

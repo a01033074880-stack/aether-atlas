@@ -1,0 +1,6 @@
+27828 exit= elapsed_s=1409
+7144 exit= elapsed_s=1409.4
+18160 exit= elapsed_s=1409.4
+1040 exit= elapsed_s=1409.4
+9864 exit= elapsed_s=1409.4
+28044 exit= elapsed_s=1409.4

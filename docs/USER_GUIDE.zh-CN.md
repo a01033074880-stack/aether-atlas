@@ -2,16 +2,48 @@
 
 顶部缩放选择器提供 **50%／75%／100%** 三档。它只改变编辑器窗口和绘制比例，不改变音频、参数、自动化或宿主状态。50%适合查看完整结构，100%适合精细调节。
 
-Atlas 把第一版五级串联扩展为：12 个可重复模块槽、32 种效果路由、六算子/32算法 FM、16 条调制分配和36个预设。三个主要工作区为 **Patch 接线、FM 声源、Motion 调制**。
+Atlas 把第一版五级串联扩展为：12 个可重复模块槽、32 种效果路由、六算子/32算法 FM、16 条调制分配和36个预设。三个主要工作区为 **Patch 接线、FM 声源、Motion 调制**。 另有第四个工作区 **Source**（见 §5），提供 Phase Geometry / Chaos 两种声源引擎。
 
 ## 1. 安装与插件选择
 
-解压发布包运行 `install.ps1`，或把 `VST3` 内两个完整 `.vst3` 目录复制到 `%LOCALAPPDATA%\Programs\Common\VST3`。关闭 DAW 后再升级，脚本保留旧目录备份。重新扫描插件；宿主未扫描该位置时手动添加搜索路径。
+> 本节和 §5（Source）、§6 末尾的“新增调制目的地”属于 2.3.0 阶段 A 的文档草稿（分支 `docs/test-adapt-230`）。版本号尚未升级，安装包名称仍以实际发布为准。
 
-| 插件 | 放置位置 | 用途 |
-|---|---|---|
-| AETHER Micro | 音频/效果轨 | FX、侧链激励、音频 Resynth |
-| AETHER Micro Synth | MIDI/乐器轨 | 16声部六算子FM，没有主音频输入 |
+### 安装位置与 `install.ps1`
+
+2.3.0 起推荐安装到系统 VST3 目录 `C:\Program Files\Common Files\VST3`，写入该目录需要管理员权限。
+
+`scripts/install.ps1` 的实际行为（逐行读自脚本，本分支未修改它）：
+
+- 只有一个参数 `-Destination`，默认值是当前用户目录 `%LOCALAPPDATA%\Programs\Common\VST3`，**不是**系统目录。要装到系统目录，必须在“以管理员身份运行”的 PowerShell 里显式指定：`.\install.ps1 -Destination 'C:\Program Files\Common Files\VST3'`。
+- 脚本必须在解压后的发布包里运行（旁边要有 `VST3` 文件夹），否则报错退出。
+- 目标目录不存在会自动创建；`VST3` 下每个 `.vst3` 目录依次复制。
+- 如果目标位置已有同名 `.vst3`，脚本不覆盖也不删除，而是先改名为 `<原名>.vst3.backup-<yyyyMMdd-HHmmss-fff>`，再复制新版本。备份目录留在同一个 VST3 目录里。
+- 脚本不检查管理员权限，也不会清理其他目录里的旧版本。
+
+**旧版本必须先移除或替换。** 2.2.0 的默认位置是用户目录，因此从 2.2.0 升级到系统目录时，用户目录里的旧版本不会被脚本处理：
+
+1. 关闭 DAW（以及所有 AETHER 独立程序）。
+2. 删除或移走用户目录 `%LOCALAPPDATA%\Programs\Common\VST3` 下的 `AETHER Micro.vst3` 和 `AETHER Micro Synth.vst3`（以及其中残留的 `*.backup-*` 备份目录）。
+3. 如果系统目录里已有旧版 `.vst3`，用脚本替换（旧版会被改名为 `.backup-*`），确认新版工作后手动删除备份。
+4. 重新扫描插件；宿主未扫描该位置时手动添加搜索路径。
+
+同一插件同时存在于用户目录和系统目录时，宿主可能列出两份或加载到旧版（具体行为取决于宿主，本文未逐一验证），所以不要两处并存。备份目录名不以 `.vst3` 结尾，但各宿主是否会忽略它们未验证，建议确认后清理。
+
+脚本默认目录是否在 2.3.0 正式版改为系统目录：待定。
+
+### 两个插件与模式拆分
+
+| 插件 | 放置位置 | 可用模式 | 用途 |
+|---|---|---|---|
+| AETHER Micro（效果器） | 音频/效果轨 | 只有 FX 和 Resynth | FX、侧链激励、音频 Resynth；Source 声源只在 Resynth 下发声 |
+| AETHER Micro Synth（乐器） | MIDI/乐器轨 | 只有 Synth | 16声部六算子FM和 Source 声源，没有主音频输入 |
+
+模式选择器只列出当前版本适用的项目。`global.mode` 参数的选项列表和参数ID没有变（0 = FX，1 = Resynth，2 = Synth）；限制发生在处理器读取模式的那一处（`clampModeForPluginType`），不会改写已保存的状态。**旧工程回退规则：**
+
+- AETHER Micro（效果器）读到保存的 Mode = 2（Synth）→ 按 FX（0）运行；0 和 1 保持不变。
+- AETHER Micro Synth（乐器）读到保存的 Mode = 0 或 1 → 按 Synth（2）运行。
+
+因此在 AETHER Micro 里打开原来保存为 Synth 的工程，会听到 FX 渲染而不是合成声。
 
 独立程序位于 `Standalone`，从设备设置选择声卡和MIDI。FX独立程序初始静音输入，先确认没有声反馈再启用。插件版本由DAW负责路由。
 
@@ -130,7 +162,83 @@ MIDI支持16声部、力度、按通道弯音（宿主约±2半音）、CC64、�
 
 FM内部4×处理和输出滤波，超高频算子衰减。极端指数/反馈仍可能混叠。Gain/Index/Feedback约5ms平滑；Morph、比例、拓扑和其他算子变化仍可能即时跳变，应避免突变或先淡出。
 
-## 5. Motion：来源与目的地
+## 5. Source：Phase Geometry 与 Chaos 声源
+
+第四个工作区 `04  Source`。Source 层是与六算子FM并列的多声部声源（16声部、固定数组、无运行时分配），输出进入同一个 Atlas 图。本节的参数名、范围和默认值读自 `Source/Parameters.cpp`，界面文字读自 `Source/PluginEditor.cpp`，处理链描述来自 `libs/aether-source/README.md`；各参数的精确听感没有在此逐项验证，请以试听为准。
+
+### 引擎与可用条件
+
+Engine 菜单：**Off**（默认）/ **Phase Geometry** / **Chaos**。选 Off 时右侧显示“No engine selected”，此时 Source 不参与声音；选引擎后只显示该引擎的参数。切换引擎会同时复位两个引擎，声音不会在引擎之间泄漏。
+
+| 版本 | 何时发声 | 界面状态文字 |
+|---|---|---|
+| AETHER Micro（效果器） | Mode = Resynth，Engine 不为 Off，Source on 打开 | `Active: <引擎> follows the input audio in Resynth mode.` |
+| AETHER Micro Synth（乐器） | Engine 不为 Off，Source on 打开（Synth 模式由插件固定） | `Active: <引擎> sounds on MIDI notes in Synth mode.` |
+
+AETHER Micro 处于 FX 模式时，Source 页显示 `Idle: Mode is FX. Switch Mode to Resynth in the footer to run this layer.`；Source on 关闭时显示 `Switched off. Turn Source on to hear <引擎>.`。
+
+### Resynth 驱动的 Source（AETHER Micro）
+
+在 Resynth 模式下，Source 声部由输入音频驱动：
+
+- 音高（包含 Transpose）跟随检测到的输入音高，幅度跟随输入包络。
+- 输入失去有效音高时，保持最后一次的音高，并以 30 ms 淡出；音高恢复时 4 ms 淡入，无爆音。
+- Engine 为 Off 时输出与没有 Source 完全一致（逐位相同）。
+- MIDI 音符在 Resynth 下仍然会触发 Source 声部。
+
+### 公共控制（两个引擎共用）
+
+| 控制 | 范围 | 默认 |
+|---|---|---|
+| Engine | Off / Phase Geometry / Chaos | Off |
+| Source on | 开/关 | 开 |
+| Attack | 0.001–5 s | 0.005 s |
+| Decay | 0.01–5 s | 0.3 s |
+| Sustain | 0–100% | 70% |
+| Release | 0.01–12 s | 0.3 s |
+| Level | 0–100% | 65% |
+| Stereo spread | 0–100% | 25% |
+| Transpose | −24…+24 半音 | 0 |
+| Anti-alias 4x | 开/关 | 开 |
+| Seed | 0–65535 | 0 |
+
+所有 Source 参数都可自动化。Seed 只在音符开始时读取，已按住的声部保持原来的种子；Anti-alias 在下一个块边界生效，切换时重新调谐运行中的声部并清空抽取滤波器，会产生一个短暂瞬变（README 记录的测量值为同量级的波形台阶，不是超出波形本身的爆音）。Anti-alias 打开时每个声部以4倍采样率运行再抽取。
+
+### Phase Geometry 引擎（10个参数）
+
+处理链：斜坡 → 相位乘数 → VPS 折点映射 → CZ 风格相位失真（含共振窗）→ 余弦/Walsh 表。界面三列：`WALSH / PHASE`、`CASIO CZ`、`VARIABLE PHASE SHAPING`。
+
+| 参数 | 范围 | 默认 |
+|---|---|---|
+| Walsh sequency | 0–63 | 0 |
+| Walsh mix | 0–100% | 0 |
+| CZ shape | Saw / Square / Pulse / Resonant saw / Resonant triangle / Resonant trapezoid | Saw |
+| CZ depth | 0–100% | 50% |
+| CZ envelope | 0–100% | 0 |
+| CZ velocity | 0–100% | 0 |
+| VPS breakpoint D | 0.1–99.9% | 50% |
+| VPS breakpoint V | 0–100% | 50% |
+| VPS ratio | 1–16 x | 1 x |
+| Phase random | 0–100% | 0 |
+
+Walsh 阶跃用一阶 ADAA 做带限；最低分音超过 Nyquist 的序列度无法表示，会被低通而不是折叠回来。
+
+### Chaos 引擎（7个参数）
+
+GENDYN 式随机波形：折点的幅度和时长按随机游走变化，带镜像边界，每个周期生成一个多边形。界面三列：`SEGMENTS`、`STEP SIZES`、`MEMORY / LIMITS`。
+
+| 参数 | 范围 | 默认 |
+|---|---|---|
+| Segments | 2–32 | 12 |
+| Distribution | Cauchy / Logistic / Hyperbolic cosine / Arcsine / Exponential / Uniform | Cauchy |
+| Amplitude step | 0–100% | 15% |
+| Duration step | 0–100% | 10% |
+| Duration range | 0–100% | 50% |
+| Momentum | 0–95% | 0 |
+| Amplitude barrier | 5–100% | 100% |
+
+随机数是确定性的（PCG32，种子来自 Seed 和声部年龄），输出不依赖宿主块大小。
+## 6. Motion：来源与目的地
 
 四LFO提供Sine/Triangle/Saw/Pulse/Random。未同步Rate为Hz；Beat sync时为每拍循环数，随BPM变化，无播放头信息时120BPM。Phase偏移周期。曲线是形状预览，活动点来自实际引擎。
 
@@ -144,7 +252,52 @@ FM内部4×处理和输出滤波，超高频算子衰减。极端指数/反馈�
 
 起点：给Ladder的截止宏分配LFO1深度0.2；给Grain速度分配LFO2并调慢。Freeze也可被调制，可能周期捕获并产生无限尾音。
 
-## 6. 全局、旧工程和预设
+### 新增调制目的地（2.3.0 草案 · 待实现确认）
+
+> **状态：草案。** 以下内容来自声源工程师的方案（分支 `feat/mod-targets-230`，基线 991e493），**尚未在本文档所在分支实现，也没有对照实现验证**。名称、编号和语义以该分支落地后的代码为准；落地前请勿把它当作已发布功能。2.2.0 实际可用的仍是上面的 12×7 = 84 个目的地。
+
+**编号规则（草案）。** `modulation.N.target` 是选项参数：0 = None，1…84 = 12个节点 × 7项（Macro A–D / Mix / Level / Pan），共16行分配。草案只在末尾追加28项，编号 85…112，选项总数从 85 变为 113；已有编号和参数ID不变。
+
+| 编号 | 分组 | 被调制的现有参数（参数ID／界面名称） |
+|---|---|---|
+| 85 | Source | `source.gain` / Level |
+| 86 | Source | `source.spread` / Stereo spread |
+| 87 | Source | `source.transpose` / Transpose |
+| 88 | Source（Phase Geometry） | `source.pg.sequency` / Walsh sequency |
+| 89 | Source（Phase Geometry） | `source.pg.walshmix` / Walsh mix |
+| 90 | Source（Phase Geometry） | `source.pg.czdepth` / CZ depth |
+| 91 | Source（Phase Geometry） | `source.pg.czenvelope` / CZ envelope |
+| 92 | Source（Phase Geometry） | `source.pg.czvelocity` / CZ velocity |
+| 93 | Source（Phase Geometry） | `source.pg.vpsd` / VPS breakpoint D |
+| 94 | Source（Phase Geometry） | `source.pg.vpsv` / VPS breakpoint V |
+| 95 | Source（Phase Geometry） | `source.pg.vpsratio` / VPS ratio |
+| 96 | Source（Phase Geometry） | `source.pg.phaserandom` / Phase random |
+| 97 | Source（Chaos） | `source.chaos.ampstep` / Amplitude step |
+| 98 | Source（Chaos） | `source.chaos.durstep` / Duration step |
+| 99 | Source（Chaos） | `source.chaos.durrange` / Duration range |
+| 100 | Source（Chaos） | `source.chaos.momentum` / Momentum |
+| 101 | Source（Chaos） | `source.chaos.ampbarrier` / Amplitude barrier |
+| 102–106 | FM | `fm.index`、`fm.morph`、`fm.feedback`、`fm.gain`、`fm.spread`（调制指数、算法 Morph、反馈、声部电平、立体声分布，依次对应 102、103、104、105、106） |
+| 107–112 | FM | `fm.op.1.level` … `fm.op.6.level`（算子 1…6 的 Level） |
+
+**名称（待定）。** 目的地在 Motion 页下拉里的最终名称由声源工程师在 `modulationTargetNames()` 中确定，约定格式为：85–101 以 `Source / ` 开头，102–112 以 `FM / ` 开头，总长不超过 24 个字符；1–84 的名称（`Node N / Macro A…`）保持不变。最终名称出来之前，本文不列出具体名称。
+
+“被调制的现有参数”一列是测试代码里为每个编号假定的目标参数（来自方案的编号表，需与实现核对）；该列里的名称是现有参数的界面名称，不是目的地名称。
+
+**语义（草案）：**
+
+- Depth = 1 表示整个旋钮行程，在参数的归一化（含 skew）域里相加；Depth 为负则反向。
+- 基线仍是宿主里的参数值。调制只作用于内部副本，**不会写回**宿主参数或保存的状态；关闭分配即回到基线。
+- 结果钳制在该参数自身的范围内。
+- 调制每16个采样更新一次（与现有84个目的地相同）。
+- 目的地不属于当前引擎时静音且不报错：例如引擎为 Chaos 时，指向 Phase Geometry 参数（88–96）的分配不起作用，反之亦然。
+
+**待确认（本文没有验证）：**
+
+- 最终名称（见上）和各编号对应的参数。分组边界（1–84 节点、85–101 Source、102–112 FM）与选项总数 113 是已商定的草案。
+- 新目的地是否同样要求 Atlas graph 为开：现有的调制矩阵只在 `graph.enabled` 打开时运行，测试里按这个前提构造场景；若 Source/FM 目的地要求在“Atlas graph 关闭”时也能调制，需要实现方确认。
+- 宿主自动化：`modulation.N.target` 的选项总数从 85 变为 113，按“下标/(总数−1)”归一化的宿主自动化值会随之变化；保存的状态里存的是选项下标，所以旧工程里 ≤84 的目的地读回后下标不变（由测试覆盖，需实现落地后转绿）。
+## 7. 全局、旧工程和预设
 
 全局Input/Output/Dry/Wet控制输入/最终输出/与原音混合；Master仍在最后，宽度、Ceiling、Release、Dither在All params。Mix=0仍经过Output和Master；完全透明比较用Bypass。
 
@@ -156,7 +309,7 @@ schema-1工程/文件自动关闭Atlas graph与Six operator engine，使用v1声
 
 Save/Open使用JSON `.aether`，拒绝非法产品/schema/非有限值/超大文件。完整保存包含全部参数；手工部分文件只覆盖提供的值。双击旋钮回默认，可编辑数值，悬停看说明。
 
-## 7. 延迟、负载与限制
+## 8. 延迟、负载与限制
 
 **TEXTURE为已启用节点最大的单模块固有延迟，PDC为宿主补偿。** 默认48kHz的Prism/Spectral Freeze实测2560采样（约53.3ms）；Frequency Shift为63采样。当前创作图不做全图路径对齐，PDC=0，串联多个频谱节点总延迟可大于TEXTURE；干湿/并联存在相位和时间差，需要主动选择。
 

@@ -1,0 +1,36 @@
+# A/B/C results - docs/test-adapt-230 (Asia/Shanghai)
+# Generated 2026-10-25 21:05 Asia/Shanghai
+
+## A. d2 fix + rename (collision with feat/mod-targets-230)
+- Renamed tests/ModTargetTests.cpp -> tests/ModDestinationContractTests.cpp
+- CMake targets AetherModTargets* -> AetherModContract* (ctest names aether_modtargets_* kept)
+- d2: GraphEngine observability restricted to destinations 1..84 (frozen). 85..112 are processor-consumed and asserted by new-group d4 (and d3 oracle). No knownUnobservable.
+- d2 needs module-type rotation (parallelGraph 0..19): a single assignment left destination 23 (Node 4 Macro B) silent when that slot held a module that ignores Macro B. Assertion for 1..84 is not weakened.
+- Baseline 991e493 (build-adapt-230): invariant 60/60 fx, 60/60 synth. See contract-*-invariant.log / contract-summary.txt
+
+## B. schema4 pending group (aether_modtargets_schema4, label pending-2.3.0-schema4)
+- Plan under test: write schema 4 ONLY when a save holds target>84, else schema 3; 2.3.0 reads 1..4; refuse schema 5 / corrupt schema 4 without changing state.
+- Fixtures: tests/fixtures/mod-targets/saved-v2.2.0-{fx,synth}.txt = FNV-1a64/length of canonical getStateInformation XML after loading each sample (per form; global.mode differs).
+### On 991e493 baseline (stateSchema=3, targetCount=84):
+  fx:   RESULT [schema4] 27 passed, 6 failed
+  synth: RESULT [schema4] 27 passed, 6 failed
+  PASS: all s1 (24 samples), s3a (read schema 1/2/3), s4a (refuse 5/99), s4b (refuse 0/-1)
+  FAIL: s2a,s2b,s2c,s3b,s4c,s4d - all require destination 85..112 to exist (and schema-4 writer). Expected red until feat lands.
+### On 13c6e73 scratch (destinations 85..112 present, schema writer still 3; overlay of my tests, NOT committed there):
+  fx schema4:  RESULT [schema4] 27 passed, 6 failed
+  synth schema4: RESULT [schema4] 27 passed, 6 failed
+  fx new:      RESULT [new] 101 passed, 0 failed
+  synth new:   RESULT [new] 101 passed, 0 failed
+  FAIL reasons on 13c6e73 (destinations exist): s2a/s2b/s2c/s3b "saved schema is 3, want 4"; s4c/s4d setup fails because a schema-4 save cannot be produced yet. s1/s3a/s4a/s4b still green. Expected until schema-4 writer lands.
+  invariant on 13c6e73: stopped early at commit time (not required; baseline 991e493 already 60/60).
+
+## C. 2.2.0 reading schema 4 = reject, state unchanged (runtime, not source-only)
+- Method: AetherModContract* --probe-schema N on the 991e493-identical build-adapt-230 (Source/libs identical to 991e493; verified by git diff 991e493 -- Source libs = empty).
+- Save stamped schema N with modulation.2.target=90; load into a processor that had mix=0.8 / target=7.
+  schema 1/2/3: ACCEPTED (state CHANGED); stored 90 clamped to 84 (option count 85); mix becomes 0.37.
+  schema 4/5: REJECTED (state UNCHANGED); mix stays 0.8, target stays 7.
+- Log: probe-schema-baseline-991e493.txt. Source confirms: setStateInformation returns early when schema>aether::stateSchema (3).
+- Side note (source + probe): a schema<=3 save that stores target>84 is silently clamped to 84 (Node 12 / Pan), not refused - matches modulation-destinations.md.
+
+## D. feat/mod-targets-230 HEAD at commit time
+- Still 13c6e73 (no schema-4 writer commit yet). Per steering: do NOT start full integration validation; may pre-merge ui+docs only.
