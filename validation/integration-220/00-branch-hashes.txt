@@ -1,0 +1,5 @@
+﻿expected hashes:
+integration/2.1.0-rc 80165fc91f43bf3c03ab52a4d08b37af889625eb
+feat/resynth-source-split c981bfa03804de7c112983c7faad55fc994baf5b
+ui/mode-split 4ee412f96e3d0670351bce11cfa339ed89a18a07
+test/resynth-split-tests b789167407c942c94523a4a1e72278dd668806ce
