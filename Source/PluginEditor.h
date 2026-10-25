@@ -1,5 +1,7 @@
 #pragma once
 #include "PluginProcessor.h"
+#include "RandomizePanel.h"
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -27,6 +29,13 @@ public:
     static void fillModulationTargets(juce::ComboBox& combo,const juce::StringArray& items);
     // Test / snapshot hook: 0 = effect edition (FX + Resynth), 1 = Synth edition, -1 = compile-time edition (JucePlugin_IsSynth). Call before creating an editor.
     static void setEditionForTesting(int edition);
+    // Randomize (2.3.0 stage B). Without a backend factory the editor shows no Randomize controls at all (the engine side is not wired yet);
+    // tests and snapshot tools install aether::ui::makeMockBackend. Install before creating an editor; an empty function removes it.
+    using RandomizeBackendFactory=std::function<std::unique_ptr<aether::ui::RandomizeBackend>(AetherAudioProcessor&)>;
+    static void setRandomizeBackendFactory(RandomizeBackendFactory);
+    // The popover (nullptr without a backend), and every text it paints or hosts with the size actually drawn (nominal size raised to the legible floor). Used by layout tests.
+    aether::ui::RandomizePanel* randomizePanel();
+    std::vector<aether::ui::RandomizeTextItem> randomizeTexts();
 private:
     struct Impl;
     std::unique_ptr<Impl> ui;

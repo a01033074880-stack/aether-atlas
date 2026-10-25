@@ -88,7 +88,7 @@ function(aether_plugin target product synth code)
     COPY_PLUGIN_AFTER_BUILD FALSE FORMATS VST3 Standalone
     VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
-    Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+    Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp Source/RandomizePanel.cpp)
   target_include_directories(${target} PUBLIC Source)
   target_compile_definitions(${target} PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0
