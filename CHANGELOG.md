@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.0 — 2026-10-25 (release candidate)
+
+- Resynth + Source: in Resynth mode (AETHER Micro) the Source layer (Phase Geometry / Chaos) is now driven by the input audio: pitch (including transpose) follows the detected pitch, amplitude follows the input envelope. With no valid pitch the last pitch is kept (30 ms fade out, 4 ms fade in, no click). Source Off leaves the output bit-identical. MIDI notes still trigger Source voices in Resynth.
+- Mode split by plugin type: AETHER Micro Synth (instrument) only offers and runs Synth; AETHER Micro (effect) only offers and runs FX and Resynth. The global.mode option list and parameter ID are unchanged; the mode is clamped in the processor (single read point) and the editor only lists the applicable items. Nothing is written back to the saved state.
+- Old saves: in AETHER Micro a stored mode=2 (Synth) now falls back to FX; in AETHER Micro Synth a stored mode 0/1 is treated as Synth.
+- Editor: Mode picker shows only the applicable items per edition; the Source tab is usable in Micro Resynth and shows an explicit 'Switch Mode to Resynth' notice in Micro FX.
+- Expected golden change (tests/fixtures/golden/render-48000.json): exactly 4 archived-state samples whose stored mode is 2 now render as FX in AETHER Micro: preset-v1.0.0:Copper Strings, preset-v1.0.0:Prism Keys, state-v2.0.1:custom-graph-fm, state-v2.0.1:factory-11-Copper-Strings. All other entries are byte-identical; the previous file is kept as golden-old-80165fc.json.
+- Tests: new aether_split_unchanged and aether_resynth_split (both plugin forms), new aether_plugin_synth_ui (UI test against the Synth edition; effect-only cases are skipped there with a printed reason).
+
 ## 2.1.0 — 2026-10-24
 
 - Merged Delay::read wrap fix (out-of-bounds read at buffer wrap).
