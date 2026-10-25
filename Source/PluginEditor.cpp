@@ -432,6 +432,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     }
     void paint(juce::Graphics& g)override{
         uiTextScale=getTransform().getScaleFactor();
+        refreshRandomHint();
         if(compact){paintCompact(g);return;}
         g.fillAll(paper);g.setColour(line.withAlpha(.07f));for(int y=0;y<getHeight();y+=11)g.drawHorizontalLine(y,0,float(getWidth()));
         text(g,"Atlas",{26,4,162,57},51,ink,juce::Justification::centredLeft,true);text(g,"AETHER",{29,66,172,17},10,earth);text(g,"THE IMPOSSIBLE INSTRUMENT",{204,17,390,20},10,muted);
@@ -599,6 +600,7 @@ void AetherAudioProcessorEditor::setRandomizeBackendFactory(RandomizeBackendFact
 aether::ui::RandomizePanel* AetherAudioProcessorEditor::randomizePanel(){return ui->randomPanel.get();}
 std::vector<aether::ui::RandomizeTextItem> AetherAudioProcessorEditor::randomizeTexts(){
     if(!ui->randomPanel)return {};
+    ui->refreshRandomHint();
     auto items=ui->randomPanel->textItems();const float floorSize=legibleFloor(scaleOf(*ui->randomPanel));
     for(auto& item:items)item.size=juce::jmax(floorSize,item.size);
     return items;

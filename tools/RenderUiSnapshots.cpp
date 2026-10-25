@@ -204,6 +204,52 @@ int main(int argc,char** argv) {
         AetherAudioProcessorEditor::setEditionForTesting(-1);
         return good?0:1;
     }
+    // "rand" mode: 2.3.0 stage B Randomize popover on the mock backend. Closed header, popover open, after a roll, lock mode, full undo history (16/16), Randomize into B and the FX hint,
+    // for both plugin editions at the minimum size, the default size and the 50% compact layout, 1x and 2x. Usage: AetherUiSnapshots <dir> rand
+    if(argc>2&&juce::String(argv[2])=="rand") {
+        base.reset(); editor=nullptr;
+        bool good=true;
+        AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeMockBackend(proc); });
+        for(int edition=0;edition<2;++edition) {
+            AetherAudioProcessorEditor::setEditionForTesting(edition);
+            AetherAudioProcessor q; q.prepareToPlay(48000,512);
+            std::unique_ptr<juce::AudioProcessorEditor> eBase(q.createEditor());
+            auto* ed=dynamic_cast<AetherAudioProcessorEditor*>(eBase.get());
+            if(ed==nullptr||ed->randomizePanel()==nullptr) return 3;
+            auto* panel=ed->randomizePanel();
+            const juce::String tag=edition==1?"synth":"micro";
+            auto shot=[&](const juce::String& name) {
+                for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-rand-"+tag+"-"+name+"-"+juce::String(int(scale))+"x.png"),ed->createComponentSnapshot(ed->getLocalBounds(),true,scale))&&good;
+            };
+            auto sizes=[&](const juce::String& name,bool withDefault) {
+                ed->performUiAction("zoom.100"); ed->setSize(1180,780); shot(name+"-min-1180x780");
+                if(withDefault) { ed->setSize(1440,900); shot(name+"-default-1440x900"); }
+                ed->performUiAction("zoom.50"); shot(name+"-zoom.50-720x450");
+                ed->performUiAction("zoom.100"); ed->setSize(1180,780);
+            };
+            setParam(q,"global.mode",edition==1?2.f:1.f);
+            ed->setMinimalMode(false); ed->setWorkspace(0);
+            sizes("closed",false);
+            ed->performUiAction("random.open"); sizes("open",true);
+            // A roll with a pinned seed: the preset box reads "(Random) <seed>".
+            panel->setPinned(true); panel->setSeedText("A7F3-92C1"); panel->setAmount(.6f); panel->roll(false); sizes("rolled",true);
+            ed->performUiAction("random.close"); sizes("rolled-closed",false);
+            ed->performUiAction("random.open");
+            // Lock mode: Nodes, Motion and FM locked next to the default Global lock.
+            panel->setLocked("Nodes",true); panel->setLocked("Motion",true); panel->setLocked("FM",true); sizes("locks",true);
+            // Full undo ring: twenty rolls leave 16 steps.
+            panel->setPinned(false); for(int i=0;i<20;++i) panel->roll(false); sizes("history-full",false);
+            panel->setLocked("Nodes",false); panel->setLocked("Motion",false); panel->setLocked("FM",false);
+            // Randomize into B: the result sits in the B slot, A keeps the patch.
+            panel->setPinned(true); panel->setSeedText("0Z9K-4Q7M"); panel->roll(true); sizes("into-b",false);
+            while(panel->undo()) {}
+            if(edition==0) { setParam(q,"global.mode",0.f); ed->performUiAction("random.open"); sizes("fx-hint",false); }
+            ed->performUiAction("random.close");
+        }
+        AetherAudioProcessorEditor::setEditionForTesting(-1);
+        AetherAudioProcessorEditor::setRandomizeBackendFactory({});
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
     const char* workspaces[]={"patch","fm","motion","source","all"};
