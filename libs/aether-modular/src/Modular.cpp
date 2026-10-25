@@ -11,6 +11,7 @@ struct GraphEngine::Impl {
   std::array<double, 4> phase{};
   std::array<float, 4> randomLfo{};
   std::array<Slot, slotCount> effective{};
+  std::array<float, extendedTargetCount> extended{}, extendedPrevious{};
   float sr = 48000, velocity = 0, pitch = 440, envelope = 0, outputScale = 1,
         trim = 1, held = 0;
   float envelopeAttack = 0, envelopeRelease = 0, pitchSource = 0;
@@ -36,6 +37,8 @@ struct GraphEngine::Impl {
     envelope = 0;
     held = 0;
     holdSamples = control = 0;
+    extended.fill(0);
+    extendedPrevious.fill(0);
     random = 0x6f37a219;
     chaosX = .1f;
     chaosY = .2f;
@@ -90,9 +93,17 @@ struct GraphEngine::Impl {
   }
   void updateControls() noexcept {
     effective = parameters.slots;
+    extendedPrevious = extended;
+    extended.fill(0);
     for (auto row : parameters.modulation) {
       if (row.source == 0 || row.target == 0 || row.depth == 0)
         continue;
+      if (row.target > nodeTargetCount) {
+        const float amount = sources[row.source] * row.depth;
+        if (std::isfinite(amount))
+          extended[row.target - extendedTargetFirst] += amount;
+        continue;
+      }
       int slot = (row.target - 1) / 7, attr = (row.target - 1) % 7;
       float amount = sources[row.source] * row.depth;
       auto &s = effective[slot];
@@ -172,7 +183,7 @@ void GraphEngine::setParameters(const Parameters &p) noexcept {
   }
   for (auto &m : q.modulation) {
     m.source = std::clamp(m.source, 0, 9);
-    m.target = std::clamp(m.target, 0, 84);
+    m.target = std::clamp(m.target, 0, maxTarget);
     m.depth = clamp(m.depth, -1, 1);
   }
   // Parameter updates do not reset the sample-clocked modulation cadence.
@@ -226,6 +237,17 @@ void GraphEngine::process(float *left, float *right, const float *sidechain,
 }
 std::array<float, slotCount> GraphEngine::nodeLevels() const noexcept {
   return impl->meters;
+}
+const std::array<float, extendedTargetCount> &
+GraphEngine::extendedModulation() const noexcept {
+  return impl->extended;
+}
+const std::array<float, extendedTargetCount> &
+GraphEngine::extendedModulationPrevious() const noexcept {
+  return impl->extendedPrevious;
+}
+int GraphEngine::samplesUntilControl() const noexcept {
+  return std::max(impl->control, 0);
 }
 std::array<float, sourceCount> GraphEngine::sourceLevels() const noexcept {
   return impl->sources;

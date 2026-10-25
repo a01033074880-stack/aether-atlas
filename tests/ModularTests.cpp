@@ -409,6 +409,53 @@ int main() {
   e.setParameters(p);
   e.reset();
   render(e, 4096);
+  // 2.3.0: destinations 85..112 only accumulate inside the engine (the plugin applies them to the Source / FM parameters).
+  {
+    check(extendedTargetFirst == 85 && extendedTargetCount == 28 && maxTarget == 112,
+          "extended destination constants");
+    GraphEngine g;
+    g.prepare(48000, 256);
+    Parameters q = single(ModuleType::Thru);
+    q.modulation[0] = {6, 85, .5f};
+    q.modulation[1] = {6, 85, .25f};
+    q.modulation[2] = {6, 112, -1.f};
+    q.modulation[3] = {6, 200, .5f};  // beyond the last destination: clamped to 112
+    q.modulation[4] = {0, 86, 1.f};   // source None contributes nothing
+    q.modulation[5] = {6, 87, std::numeric_limits<float>::quiet_NaN()};
+    g.setParameters(q);
+    g.setPerformance(1.f, 440.f);
+    g.reset();
+    check(g.samplesUntilControl() == 0, "first sample after reset is a control tick");
+    bool allZero = true;
+    for (float v : g.extendedModulation()) allZero = allZero && v == 0.f;
+    check(allZero, "extended offsets are zero after reset");
+    std::array<float, 16> a{}, c{};
+    g.process(a.data(), c.data(), nullptr, 1);
+    check(g.samplesUntilControl() == 15, "15 samples to the next tick after one tick");
+    const auto& ext = g.extendedModulation();
+    check(std::abs(ext[0] - .75f) < 1e-6f, "rows on the same destination are summed");
+    check(g.extendedModulationPrevious()[0] == 0.f, "previous offsets are zero at the first tick");
+    check(std::abs(ext[27] + .5f) < 1e-6f, "112 and out-of-range targets share the last slot");
+    bool others = true;
+    for (size_t i = 1; i < 27; ++i) others = others && ext[i] == 0.f;
+    check(others, "source None and non-finite depth add nothing");
+    g.process(a.data(), c.data(), nullptr, 15);
+    check(g.samplesUntilControl() == 0, "counter reaches the next tick after 16 samples");
+    g.process(a.data(), c.data(), nullptr, 1);
+    check(g.samplesUntilControl() == 15, "cadence continues across calls");
+    check(std::abs(g.extendedModulationPrevious()[0] - .75f) < 1e-6f && std::abs(g.extendedModulation()[0] - .75f) < 1e-6f,
+          "previous offsets hold the values before the latest tick");
+    q.modulation = {};
+    g.setParameters(q);
+    g.process(a.data(), c.data(), nullptr, 16);
+    check(g.samplesUntilControl() == 15, "setParameters does not reset the tick cadence");
+    allZero = true;
+    for (float v : g.extendedModulation()) allZero = allZero && v == 0.f;
+    check(allZero, "offsets return to zero at the next tick when the rows are removed");
+    g.process(a.data(), c.data(), nullptr, 5);
+    g.reset();
+    check(g.samplesUntilControl() == 0, "reset restarts the cadence");
+  }
   if (failures) {
     std::cerr << failures << " failures\n";
     return 1;
