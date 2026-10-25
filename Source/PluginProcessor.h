@@ -43,6 +43,10 @@ public:
     juce::String currentPresetName() const;
     juce::Result savePreset(const juce::File&);
     juce::Result loadPreset(const juce::File&);
+    // Mode restriction by plugin type (aether::clampModeForPluginType). It follows the plugin form this code is compiled
+    // for (JucePlugin_IsSynth) from construction on; tools and tests can override it (none = every mode as stored).
+    enum class ModeClamp { none, fxPlugin, synthPlugin };
+    void setModeClamp(ModeClamp kind) noexcept { modeClamp.store(kind,std::memory_order_relaxed); }
     void toggleAB();
     bool isSnapshotB() const noexcept { return snapshotB.load(); }
     void requestPanic() noexcept { panic.store(true); }
@@ -74,10 +78,14 @@ private:
     std::array<float,scratchSize> left{},right{},side{};
     std::array<float,scratchSize> dryLeft{},dryRight{};
     std::array<float,scratchSize> sourceLeft{},sourceRight{};
+    // Resynth drive of the Source layer: excitation analysis of one block, computed once and replayed per sample.
+    std::array<float,scratchSize> driveHz{},driveLevel{},excitationPitchAt{},excitationEnvelopeAt{};
+    std::array<std::uint64_t,scratchSize> excitationClockAt{};
     std::array<float,analysisSize> analysis{};
     juce::AbstractFifo analysisFifo{analysisSize};
     std::atomic<bool> panic{false},graphReset{false},snapshotB{false};
     std::atomic<int> currentProgram{0};
+    std::atomic<ModeClamp> modeClamp{JucePlugin_IsSynth ? ModeClamp::synthPlugin : ModeClamp::fxPlugin};
     juce::ValueTree snapshot;
     mutable juce::CriticalSection metadataLock;
     juce::String presetName="Atlas / Init";
@@ -89,6 +97,7 @@ private:
     float excitationAttack=0.005f,excitationRelease=0.0003f,excitationLowpass=0.2f;
     double excitationCrossing=-1;
     std::uint64_t excitationClock=0;
+    int effectiveMode(float storedMode) const noexcept; // the single place where the stored mode is interpreted
     aether::Parameters parameters() const noexcept;
     aether::modular::Parameters graphParameters() const noexcept;
     aether::fm::Parameters fmParameters() const noexcept;

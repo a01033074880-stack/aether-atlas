@@ -58,7 +58,7 @@ void AetherAudioProcessor::reset() {
 }
 double AetherAudioProcessor::getTailLengthSeconds() const {
     double finiteTail=30.0;
-    if(!allRaw.empty() && allRaw[aether::fmOffset]->load(std::memory_order_relaxed)>0.5f && raw[aether::mode]->load(std::memory_order_relaxed)>0.5f) {
+    if(!allRaw.empty() && allRaw[aether::fmOffset]->load(std::memory_order_relaxed)>0.5f && effectiveMode(raw[aether::mode]->load(std::memory_order_relaxed))>0) {
         float releaseScale=0;
         for(int op=0;op<aether::fm::operatorCount;++op)
             releaseScale=juce::jmax(releaseScale,allRaw[static_cast<size_t>(aether::operatorOffset+op*6+5)]->load(std::memory_order_relaxed));
@@ -99,11 +99,20 @@ bool AetherAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout) con
 #endif
     return true;
 }
+int AetherAudioProcessor::effectiveMode(float storedMode) const noexcept {
+    const int stored=std::isfinite(storedMode) ? static_cast<int>(storedMode) : 0;
+    switch(modeClamp.load(std::memory_order_relaxed)) {
+        case ModeClamp::fxPlugin: return aether::clampModeForPluginType(stored,false);
+        case ModeClamp::synthPlugin: return aether::clampModeForPluginType(stored,true);
+        case ModeClamp::none: break;
+    }
+    return stored;
+}
 aether::Parameters AetherAudioProcessor::parameters() const noexcept {
     using namespace aether;
     auto v=[&](ParamIndex index) { const float value=raw[index]->load(std::memory_order_relaxed); return std::isfinite(value) ? value:parameterSpecs()[index].defaultValue; };
     Parameters p;
-    p.inputDb=v(input); p.outputDb=v(output); p.mix=v(mix); p.mode=static_cast<int>(v(mode)); p.order=static_cast<int>(v(order));
+    p.inputDb=v(input); p.outputDb=v(output); p.mix=v(mix); p.mode=effectiveMode(v(mode)); p.order=static_cast<int>(v(order));
     p.enabled[0]=v(spectralOn)>0.5f; p.enabled[1]=v(modalOn)>0.5f; p.enabled[2]=v(colourOn)>0.5f; p.enabled[3]=v(spaceOn)>0.5f; p.enabled[4]=v(masterOn)>0.5f;
     p.spectralAmount=v(spectralAmount); p.spectralThreshold=v(spectralThreshold); p.spectralFocus=v(spectralFocus); p.transientProtect=v(transientProtect);
     p.modalMix=v(modalMix); p.modalDecay=v(modalDecay); p.modalTune=v(modalTune); p.modalBrightness=v(modalBrightness); p.modalMaterial=static_cast<int>(v(modalMaterial));
@@ -190,14 +199,32 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
             n);
         if(atlasSourceActive) {
             bool graphRendered=false;
+            // Resynth + Source: the excitation analysis of this block runs once up front (it depends only on the input
+            // samples), the FM loop and the graph loop below replay the stored per-sample state, and the same pitch and
+            // envelope drive the Source voice. Without a Source nothing here runs, so plain Resynth is untouched.
+            auto excitationInput=[&](int i) noexcept {
+#if JucePlugin_IsSynth
+                return 0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]);
+#else
+                return external.getNumChannels()>0?side[static_cast<size_t>(i)]:0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]);
+#endif
+            };
+            const bool sourceDriven=p.mode==1 && activeSource()!=nullptr;
+            if(sourceDriven) for(int i=0;i<n;++i) {
+                analyseExcitation(excitationInput(i));
+                const auto k=static_cast<size_t>(i);
+                excitationPitchAt[k]=excitationPitch; excitationEnvelopeAt[k]=excitationEnvelope; excitationClockAt[k]=excitationClock;
+                driveHz[k]=excitationPitch; driveLevel[k]=juce::jlimit(0.f,1.f,excitationEnvelope*2.f);
+            }
+            auto excite=[&](int i) noexcept {
+                if(sourceDriven) {
+                    const auto k=static_cast<size_t>(i);
+                    excitationPitch=excitationPitchAt[k]; excitationEnvelope=excitationEnvelopeAt[k]; excitationClock=excitationClockAt[k];
+                } else analyseExcitation(excitationInput(i));
+            };
             if(fmActive && p.mode!=0) {
                 if(p.mode==1) for(int i=0;i<n;++i) {
-#if JucePlugin_IsSynth
-                    const float sample=0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]);
-#else
-                    const float sample=external.getNumChannels()>0?side[static_cast<size_t>(i)]:0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]);
-#endif
-                    analyseExcitation(sample);
+                    excite(i);
                     if((excitationClock%16)==1) {
                         fmEngine.setAudioExcitation(excitationPitch,juce::jlimit(0.f,1.f,excitationEnvelope*2.f));
                         if(graphActive) graph.setPerformance(fmEngine.activeVoices()>0?lastVelocity:0.f,excitationPitch>0?excitationPitch:lastNoteHz);
@@ -225,8 +252,10 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
                 }
             }
             if(auto* src=activeSource()) {
-                // Source layer (mode 2 only). It replaces the buffer when FM is not rendering, otherwise it is added to FM.
-                src->process(sourceLeft.data(),sourceRight.data(),n);
+                // Source layer (Synth: MIDI voices; Resynth: additionally one voice driven by the input's pitch and envelope).
+                // It replaces the buffer when FM is not rendering, otherwise it is added to FM.
+                if(sourceDriven) src->processDriven(sourceLeft.data(),sourceRight.data(),n,driveHz.data(),driveLevel.data());
+                else src->process(sourceLeft.data(),sourceRight.data(),n);
                 // Same Input-gain semantics as the FM path: target = Input (dB), 5 ms one-pole smoothing, applied after the
                 // voices render. The source keeps its own smoothing state so FM and source ramp independently.
                 const float inputTarget=juce::Decibels::decibelsToGain(p.inputDb);
@@ -249,11 +278,7 @@ void AetherAudioProcessor::renderSegment(juce::AudioBuffer<float>& buffer,int st
 #endif
                   n);
               } else for(int i=0;i<n;++i) {
-#if JucePlugin_IsSynth
-                analyseExcitation(0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]));
-#else
-                analyseExcitation(external.getNumChannels()>0?side[static_cast<size_t>(i)]:0.5f*(dryLeft[static_cast<size_t>(i)]+dryRight[static_cast<size_t>(i)]));
-#endif
+                excite(i);
                 if((excitationClock%16)==1) graph.setPerformance(fmEngine.activeVoices()>0?lastVelocity:0.f,excitationPitch>0?excitationPitch:lastNoteHz);
                 graph.process(left.data()+i,right.data()+i,
 #if JucePlugin_IsSynth
@@ -293,11 +318,11 @@ void AetherAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::M
     if(auto* playhead=getPlayHead()) if(auto pos=playhead->getPosition()) if(auto bpm=pos->getBpm()) p.tempo=*bpm;
     graphActive=allRaw[aether::graphOffset]->load(std::memory_order_relaxed)>0.5f;
     fmActive=allRaw[aether::fmOffset]->load(std::memory_order_relaxed)>0.5f;
-    // Source layer: only in Synth mode (2). Switching engine resets both so no voice leaks across engines.
+    // Source layer: Resynth (1, driven by the input) or Synth (2, MIDI). Switching engine resets both so no voice leaks across engines.
     const float engineRaw=allRaw[static_cast<size_t>(aether::sourceOffset+aether::sourceEngine)]->load(std::memory_order_relaxed);
     const int engineChoice=std::isfinite(engineRaw)?juce::jlimit(0,2,static_cast<int>(std::lround(engineRaw))):0;
     const bool sourceEnabledNow=allRaw[static_cast<size_t>(aether::sourceOffset+aether::sourceEnabled)]->load(std::memory_order_relaxed)>0.5f;
-    const int wantedSource=(sourceEnabledNow && engineChoice>0 && p.mode==2) ? engineChoice:0;
+    const int wantedSource=(sourceEnabledNow && engineChoice>0 && (p.mode==1||p.mode==2)) ? engineChoice:0;
     if(wantedSource!=activeSourceEngine) { phaseGeometry.reset(); chaosSource.reset(); activeSourceEngine=wantedSource; }
     atlasSourceActive=graphActive||((fmActive||wantedSource>0)&&p.mode!=0);
     if(atlasSourceActive) {
@@ -403,3 +428,4 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     panic.store(true,std::memory_order_relaxed);
 }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new AetherAudioProcessor(); }
+
