@@ -239,11 +239,18 @@ bool close(double a,double b) { return std::abs(a-b)<=kStatAbsTol+kStatRelTol*st
 juce::File goldenFile() { return fixtureDir().getChildFile("golden").getChildFile(kSynth?"render-split-synth-48000.json":"render-split-micro-48000.json"); }
 
 // ---- shared body: "this mode request must sound exactly like that mode request" -------------------------------------------
-void requireSameRender(const std::string& what,const Setup& actual,const Setup& expected,const Audio& in,const std::vector<MidiEvent>& midi) {
+// Returns "" when the two setups render bit-identically, otherwise a one-line description. Loops collect every problem
+// (collect) instead of stopping at the first one, so a red run lists all failing scenarios.
+std::string sameRenderProblem(const std::string& what,const Setup& actual,const Setup& expected,const Audio& in,const std::vector<MidiEvent>& midi) {
     const auto a=render(actual,in,midi),b=render(expected,in,midi);
-    require(finiteAll(a)&&finiteAll(b),what+": non-finite output");
+    if(!finiteAll(a)||!finiteAll(b)) return what+": non-finite output";
     const double d=maxAbsDiff(a,b);
-    require(d==0.0,what+": renders differ, max |diff| "+num(d)+" (rms A "+num(rms(a,0,static_cast<int>(a.l.size())))+", rms B "+num(rms(b,0,static_cast<int>(b.l.size())))+")");
+    if(d==0.0) return {};
+    return what+": renders differ, max |diff| "+num(d)+" (rms A "+num(rms(a,0,static_cast<int>(a.l.size())))+", rms B "+num(rms(b,0,static_cast<int>(b.l.size())))+")";
+}
+void collect(std::string& bad,const std::string& problem) { if(!problem.empty()) bad+="\n      - "+problem; }
+void requireSameRender(const std::string& what,const Setup& actual,const Setup& expected,const Audio& in,const std::vector<MidiEvent>& midi) {
+    const auto m=sameRenderProblem(what,actual,expected,in,midi); require(m.empty(),m);
 }
 }
 
@@ -354,16 +361,18 @@ int main(int argc,char** argv) {
         if(!kSynth) {
             test("split","effect form: a requested/stored mode 2 (Synth) behaves exactly as FX (0)",[] {
                 const Audio in=noiseSine(kScenarioFrames);
-                for(const auto& sc:scenarios()) requireSameRender("mode 2 vs mode 0, "+sc.name,withMode(sc.setup,kSynthMode),withMode(sc.setup,kFx),in,notes());
+                std::string bad; for(const auto& sc:scenarios()) collect(bad,sameRenderProblem("mode 2 vs mode 0, "+sc.name,withMode(sc.setup,kSynthMode),withMode(sc.setup,kFx),in,notes())); require(bad.empty(),bad);
             });
             test("split","effect form: old states/presets saved with mode 2 load and fall back to FX (0)",[] {
                 const Audio in=noiseSine(kScenarioFrames);
                 const std::vector<Fixture> old{stateFixture("custom-graph-fm"),stateFixture("factory-11-Copper-Strings"),presetFixture("Copper Strings"),presetFixture("Prism Keys")};
+                std::string bad;
                 for(const auto& f:old) {
                     require(storedMode(f)==kSynthMode,"fixture drift: "+f.label+" no longer stores mode 2");
-                    requireSameRender("load "+f.label+" (stored mode 2) vs same + mode 0",[&](Processor& p) { loadFixture(p,f); },
-                                      [&](Processor& p) { loadFixture(p,f); put(p,"global.mode",kFx); },in,notes());
+                    collect(bad,sameRenderProblem("load "+f.label+" (stored mode 2) vs same + mode 0",[&](Processor& p) { loadFixture(p,f); },
+                                      [&](Processor& p) { loadFixture(p,f); put(p,"global.mode",kFx); },in,notes()));
                 }
+                require(bad.empty(),bad);
             });
             test("split","effect form: old state with mode 2 does not crash across prepare/reset and keeps rendering finite",[] {
                 const Audio in=noiseSine(kScenarioFrames); const auto f=stateFixture("custom-graph-fm");
@@ -435,6 +444,8 @@ int main(int argc,char** argv) {
                 for(const int engine:{1,2}) {
                     auto setup=[engine](Processor& p) { resynthSource(engine,true)(p); put(p,"source.gain",1); put(p,"source.pg.czdepth",1); put(p,"source.pg.vpsratio",16); put(p,"source.chaos.ampstep",1); put(p,"source.chaos.durstep",1); put(p,"source.chaos.segments",32); put(p,"global.input",12); };
                     const auto a=render(setup,in,noMidi());
+                    auto setupOff=[setup](Processor& p) { setup(p); put(p,"source.enabled",0); };
+                    require(rmsDiff(a,render(setupOff,in,noMidi()),24000,kToneOff)>0.01,"engine "+std::to_string(engine)+": Source had no effect in Resynth, bounds test would prove nothing");
                     require(finiteAll(a),"engine "+std::to_string(engine)+": non-finite with extreme parameters");
                     require(peak(a,0,kToneFrames)<=32.0,"engine "+std::to_string(engine)+": unbounded output");
                     require(rms(a,24000,kToneOff)>0.01,"engine "+std::to_string(engine)+": silent with extreme parameters");
@@ -443,28 +454,35 @@ int main(int argc,char** argv) {
         } else {
             test("split","synth form: a requested/stored mode 0 (FX) or 1 (Resynth) behaves exactly as Synth (2)",[] {
                 const Audio in=noiseSine(kScenarioFrames);
+                std::string bad;
                 for(const auto& sc:scenarios()) for(const int mode:{kFx,kResynth})
-                    requireSameRender("mode "+std::to_string(mode)+" vs mode 2, "+sc.name,withMode(sc.setup,mode),withMode(sc.setup,kSynthMode),in,notes());
+                    collect(bad,sameRenderProblem("mode "+std::to_string(mode)+" vs mode 2, "+sc.name,withMode(sc.setup,mode),withMode(sc.setup,kSynthMode),in,notes()));
+                require(bad.empty(),bad);
             });
             test("split","synth form: old states/presets saved with mode 0 or 1 load and render as Synth",[] {
                 const Audio in=noiseSine(kScenarioFrames);
                 const std::vector<Fixture> old{stateFixture("default"),stateFixture("ab-snapshot-b"),stateFixture("factory-00-Gentle-Orbit"),stateFixture("factory-05-Iron-Drum-Room"),
                     stateFixture("factory-12-Atlas---Suspended-Paper"),stateFixture("factory-20-Atlas---Frozen-Architecture"),stateFixture("factory-35-Motion---Stochastic-Room"),
                     presetFixture("Resynth Halo"),presetFixture("Clean Canvas"),presetFixture("Glass Resonator")};
+                std::string bad;
                 for(const auto& f:old) {
                     const int stored=storedMode(f); require(stored==kFx||stored==kResynth,"fixture drift: "+f.label+" no longer stores mode 0/1");
-                    requireSameRender("load "+f.label+" (stored mode "+std::to_string(stored)+") vs same + mode 2",[&](Processor& p) { loadFixture(p,f); },
-                                      [&](Processor& p) { loadFixture(p,f); put(p,"global.mode",kSynthMode); },in,notes());
+                    collect(bad,sameRenderProblem("load "+f.label+" (stored mode "+std::to_string(stored)+") vs same + mode 2",[&](Processor& p) { loadFixture(p,f); },
+                                      [&](Processor& p) { loadFixture(p,f); put(p,"global.mode",kSynthMode); },in,notes()));
                 }
+                require(bad.empty(),bad);
             });
             test("split","synth form: factory presets (including the two stored with mode 1) all render as Synth",[] {
                 const Audio in=noiseSine(kScenarioFrames); const int count=Processor::factoryPresetNames().size();
+                std::string bad;
                 for(int k=0;k<count;++k)
-                    requireSameRender("factory preset "+std::to_string(k)+" as loaded vs mode 2",[k](Processor& p) { p.loadFactoryPreset(k); },
-                                      [k](Processor& p) { p.loadFactoryPreset(k); put(p,"global.mode",kSynthMode); },in,notes());
+                    collect(bad,sameRenderProblem("factory preset "+std::to_string(k)+" as loaded vs mode 2",[k](Processor& p) { p.loadFactoryPreset(k); },
+                                      [k](Processor& p) { p.loadFactoryPreset(k); put(p,"global.mode",kSynthMode); },in,notes()));
+                require(bad.empty(),bad);
             });
         }
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed"<<std::endl; return failed?1:0;
     } catch(const std::exception& error) { std::cout<<"FATAL "<<error.what()<<std::endl; return 1; }
 }
+
 
