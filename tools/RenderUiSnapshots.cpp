@@ -173,6 +173,37 @@ int main(int argc,char** argv) {
         AetherAudioProcessorEditor::setEditionForTesting(-1);
         return good?0:1;
     }
+    // "v7" mode: 2.3.0 page notices. FM hints (effect edition with Mode=FX, Six operator engine off, active), Motion page of both editions, Patch page of both editions; minimum size and 50% compact, 1x and 2x. Usage: AetherUiSnapshots <dir> v7
+    if(argc>2&&juce::String(argv[2])=="v7") {
+        base.reset(); editor=nullptr;
+        bool good=true;
+        struct Case { const char* name; int edition; int workspace; float mode; float fmEnabled; };
+        const Case cases[]={
+            {"fm-micro-fx-notice",0,1,0,1},{"fm-micro-six-operator-off",0,1,1,0},{"fm-micro-resynth-active",0,1,1,1},
+            {"fm-synth-active",1,1,2,1},{"fm-synth-six-operator-off",1,1,2,0},
+            {"motion-micro",0,2,1,1},{"motion-synth",1,2,2,1},
+            {"patch-micro",0,0,1,1},{"patch-synth",1,0,2,1}};
+        for(int edition=0;edition<2;++edition) {
+            AetherAudioProcessorEditor::setEditionForTesting(edition);
+            AetherAudioProcessor q; q.prepareToPlay(48000,512);
+            std::unique_ptr<juce::AudioProcessorEditor> eBase(q.createEditor());
+            auto* ed=dynamic_cast<AetherAudioProcessorEditor*>(eBase.get());
+            if(ed==nullptr) return 3;
+            auto shot=[&](const juce::String& name) {
+                for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-v7-"+name+"-"+juce::String(int(scale))+"x.png"),ed->createComponentSnapshot(ed->getLocalBounds(),true,scale))&&good;
+            };
+            for(const auto& c:cases) {
+                if(c.edition!=edition) continue;
+                setParam(q,"global.mode",c.mode); setParam(q,"fm.enabled",c.fmEnabled);
+                ed->setMinimalMode(false); ed->setWorkspace(c.workspace);
+                ed->performUiAction("zoom.100"); ed->setSize(1180,780); shot(juce::String(c.name)+"-min-1180x780");
+                ed->performUiAction("zoom.50"); shot(juce::String(c.name)+"-zoom.50-720x450");
+            }
+            ed->performUiAction("zoom.100");
+        }
+        AetherAudioProcessorEditor::setEditionForTesting(-1);
+        return good?0:1;
+    }
     struct Size { const char* name; int w,h; };
     const Size sizes[]={{"min-1180x780",1180,780},{"default-1440x900",1440,900},{"max-2200x1500",2200,1500}};
     const char* workspaces[]={"patch","fm","motion","source","all"};
