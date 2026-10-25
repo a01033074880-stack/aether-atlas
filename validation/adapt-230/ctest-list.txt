@@ -1,0 +1,110 @@
+﻿Test project C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherDspTests.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherDspTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherDspTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherDspTests.exe.exe
+  Test  #1: aether_dsp
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherFmTests.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherFmTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherFmTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherFmTests.exe.exe
+  Test  #2: aether_fm
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherModularTests.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherModularTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherModularTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherModularTests.exe.exe
+  Test  #3: aether_modular
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherSourceTests.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Release/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Debug/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/MinSizeRel/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/RelWithDebInfo/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Deployment/AetherSourceTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherSourceTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/Development/AetherSourceTests.exe.exe
+  Test  #4: aether_source
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/AetherPluginTests.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Release/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Release/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Debug/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Debug/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/MinSizeRel/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/MinSizeRel/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/RelWithDebInfo/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/RelWithDebInfo/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Deployment/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Deployment/AetherPluginTests.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Development/AetherPluginTests.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTests_artefacts/Release/Development/AetherPluginTests.exe.exe
+  Test  #5: aether_plugin
+Could not find executable C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/AetherPluginTestsSynth.exe
+Looked in the following places:
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Release/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Release/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Debug/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Debug/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/MinSizeRel/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/MinSizeRel/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/RelWithDebInfo/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/RelWithDebInfo/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Deployment/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Deployment/AetherPluginTestsSynth.exe.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Development/AetherPluginTestsSynth.exe
+C:/Users/24168/Documents/Projects/wt-adapt-230/build-adapt-230/AetherPluginTestsSynth_artefacts/Release/Development/AetherPluginTestsSynth.exe.exe
+  Test  #6: aether_plugin_synth_ui
+  Test  #7: aether_fixtures
+  Test  #8: aether_split_unchanged
+  Test  #9: aether_resynth_split
+  Test #10: aether_modtargets_invariant
+  Test #11: aether_modtargets_new
+
+Total Tests: 11
