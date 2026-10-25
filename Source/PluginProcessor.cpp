@@ -457,15 +457,31 @@ juce::AudioProcessorEditor* AetherAudioProcessor::createEditor() { return new Ae
 int AetherAudioProcessor::getNumPrograms() { return factoryPresetNames().size(); }
 void AetherAudioProcessor::setCurrentProgram(int index) { loadFactoryPreset(index); }
 const juce::String AetherAudioProcessor::getProgramName(int index) { return factoryPresetNames()[juce::jlimit(0,getNumPrograms()-1,index)]; }
+// True when a motion row of this state tree points at destination 85..112 (such a save is stamped aether::stateSchemaDestinations).
+static bool treeUsesExtendedDestination(const juce::ValueTree& tree) {
+    for(int n=1;n<=aether::modular::modulationCount;++n) {
+        const auto row=tree.getChildWithProperty("id","modulation."+juce::String(n)+".target");
+        if(!row.isValid()) continue;
+        const double value=static_cast<double>(row.getProperty("value",0.0));
+        if(std::isfinite(value) && aether::modulationTargetNeedsSchema4(value)) return true;
+    }
+    return false;
+}
 void AetherAudioProcessor::getStateInformation(juce::MemoryBlock& data) {
     auto tree=state.copyState();
+    bool extended=treeUsesExtendedDestination(tree);
     { const juce::ScopedLock lock(metadataLock);
       tree.setProperty("preset",presetName,nullptr);
       tree.setProperty("snapshotB",snapshotB.load(),nullptr);
-      if(snapshot.isValid()) tree.setProperty("alternateSnapshot",snapshot.toXmlString(),nullptr);
+      if(snapshot.isValid()) {
+          auto other=snapshot.createCopy(); const bool otherExtended=treeUsesExtendedDestination(other);
+          other.setProperty("schema",otherExtended?aether::stateSchemaDestinations:aether::stateSchema,nullptr);
+          extended=extended||otherExtended;
+          tree.setProperty("alternateSnapshot",other.toXmlString(),nullptr);
+      }
     }
     tree.setProperty("program",currentProgram.load(),nullptr);
-    tree.setProperty("schema",aether::stateSchema,nullptr); tree.setProperty("version","2.0.0",nullptr);
+    tree.setProperty("schema",extended?aether::stateSchemaDestinations:aether::stateSchema,nullptr); tree.setProperty("version","2.0.0",nullptr);
     auto xml=tree.createXml(); copyXmlToBinary(*xml,data);
 }
 void AetherAudioProcessor::setStateInformation(const void* data,int size) {
@@ -474,7 +490,7 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     if(!xml || !xml->hasTagName("AetherState")) return;
     auto tree=juce::ValueTree::fromXml(*xml);
     const int schema=static_cast<int>(tree.getProperty("schema",1));
-    if(schema<1||schema>aether::stateSchema) return;
+    if(schema<1||schema>aether::stateSchemaNewest) return;
     // Merge only recognized finite values into the current canonical tree.
     auto canonical=state.copyState();
     auto merge=[&](const juce::ValueTree& sourceTree) {

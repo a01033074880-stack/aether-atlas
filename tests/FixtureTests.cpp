@@ -308,7 +308,7 @@ int main(int argc,char** argv) {
                 juce::ValueTree item("PARAM"); item.setProperty("id","colour.drive",nullptr); item.setProperty("value",3.0f,nullptr); tree.addChild(item,-1,nullptr);
                 juce::MemoryBlock data; auto xml=tree.createXml(); if(product=="wrong") xml->setTagName("Other"); juce::AudioProcessor::copyXmlToBinary(*xml,data); return data;
             };
-            for(const int schema:{999,0,4,-1}) {
+            for(const int schema:{999,0,5,-1}) {   // 4 is a valid schema since 2.3.0 (a save that uses modulation destinations 85..112)
                 auto data=stateWith(schema,"ok"); p.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
                 require(p.parameterValue("colour.drive")==17,"state with schema "+std::to_string(schema)+" was accepted");
             }
@@ -316,7 +316,7 @@ int main(int argc,char** argv) {
             require(p.parameterValue("colour.drive")==17,"state with wrong root tag was accepted");
             p.setStateInformation("garbage",7); require(p.parameterValue("colour.drive")==17,"garbage state changed parameters");
             const auto dir=juce::File::getSpecialLocation(juce::File::tempDirectory);
-            for(const juce::String body:{"{\"product\":\"AetherMicro\",\"schema\":999,\"parameters\":{}}","{\"product\":\"AetherMicro\",\"schema\":0,\"parameters\":{}}",
+            for(const juce::String body:{"{\"product\":\"AetherMicro\",\"schema\":999,\"parameters\":{}}","{\"product\":\"AetherMicro\",\"schema\":0,\"parameters\":{}}","{\"product\":\"AetherMicro\",\"schema\":5,\"parameters\":{}}",
                 "{\"product\":\"Other\",\"schema\":1,\"parameters\":{}}","{\"product\":\"AetherMicro\",\"schema\":2}","not json"}) {
                 auto file=dir.getNonexistentChildFile("aether-fixture-negative",".aether"); file.replaceWithText(body);
                 const bool rejected=p.loadPreset(file).failed(); file.deleteFile(); require(rejected,("preset accepted: "+body).toStdString());

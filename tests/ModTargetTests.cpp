@@ -324,7 +324,68 @@ double timeScenario(const Setup& setup,int voices) {
     }
     return best;
 }
-int bench() {
+// ---- saved state: schema 3 unless a motion row uses destination 85..112, then 4 (state XML and .json presets) ----
+int stateSchemaOf(Processor& p) {
+    juce::MemoryBlock b; p.getStateInformation(b);
+    const auto xml=juce::AudioProcessor::getXmlFromBinary(b.getData(),static_cast<int>(b.getSize())); require(xml!=nullptr,"state is not xml");
+    return xml->getIntAttribute("schema");
+}
+juce::MemoryBlock stateStamped(Processor& p,int schema) {
+    juce::MemoryBlock b; p.getStateInformation(b);
+    auto xml=juce::AudioProcessor::getXmlFromBinary(b.getData(),static_cast<int>(b.getSize())); require(xml!=nullptr,"state is not xml");
+    xml->setAttribute("schema",schema); juce::MemoryBlock out; juce::AudioProcessor::copyXmlToBinary(*xml,out); return out;
+}
+juce::var presetVar(Processor& p) {
+    const auto file=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("aether-modtargets-schema",".aether");
+    require(p.savePreset(file).wasOk(),"savePreset failed"); juce::var root; const auto r=juce::JSON::parse(file.loadFileAsString(),root); file.deleteFile();
+    require(r.wasOk() && root.isObject(),"saved preset is not json"); return root;
+}
+bool presetLoads(Processor& p,juce::var root,int schema) {
+    root.getDynamicObject()->setProperty("schema",schema);
+    const auto file=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("aether-modtargets-schema",".aether");
+    file.replaceWithText(juce::JSON::toString(root,false)); const bool ok=p.loadPreset(file).wasOk(); file.deleteFile(); return ok;
+}
+void savedSchema() {
+    { Processor p; require(stateSchemaOf(p)==3,"default state is not schema 3"); require(static_cast<int>(presetVar(p)["schema"])==3,"default preset is not schema 3"); }
+    for(int target:{0,1,40,84}) {
+        Processor p; put(p,"modulation.1.target",static_cast<float>(target)); put(p,"modulation.1.source",3); put(p,"modulation.1.depth",0.5f);
+        require(stateSchemaOf(p)==3,"state with target "+std::to_string(target)+" is not schema 3");
+        require(static_cast<int>(presetVar(p)["schema"])==3,"preset with target "+std::to_string(target)+" is not schema 3");
+    }
+    for(int row:{1,9,16}) for(int target:{85,86,101,102,112}) {
+        Processor p; put(p,"modulation."+juce::String(row)+".target",static_cast<float>(target));
+        put(p,"modulation."+juce::String(row)+".source",2); put(p,"modulation."+juce::String(row)+".depth",-0.25f);
+        const std::string what="row "+std::to_string(row)+" target "+std::to_string(target);
+        require(stateSchemaOf(p)==4,"state with "+what+" is not schema 4");
+        const auto preset=presetVar(p); require(static_cast<int>(preset["schema"])==4,"preset with "+what+" is not schema 4");
+        { Processor q; const auto state=stateStamped(p,4); q.setStateInformation(state.getData(),static_cast<int>(state.getSize()));
+          require(static_cast<int>(q.parameterValue("modulation."+juce::String(row)+".target"))==target,"state round trip lost "+what);
+          require(std::abs(q.parameterValue("modulation."+juce::String(row)+".depth")+0.25f)<1.0e-5f,"state round trip lost depth of "+what);
+          require(stateSchemaOf(q)==4,"re-saved state is not schema 4 for "+what); }
+        { Processor q; require(presetLoads(q,preset,4),"schema 4 preset refused: "+what);
+          require(static_cast<int>(q.parameterValue("modulation."+juce::String(row)+".target"))==target,"preset round trip lost "+what); }
+    }
+    // The A/B snapshot counts too: the other slot may hold a destination 85..112 while the live one does not, and the other way round.
+    { Processor p; put(p,"modulation.2.target",100); p.toggleAB(); put(p,"modulation.2.target",0);
+      require(stateSchemaOf(p)==4,"state whose A/B snapshot uses 85..112 is not schema 4");
+      p.toggleAB(); put(p,"modulation.2.target",0); p.toggleAB(); put(p,"modulation.2.target",0);
+      require(stateSchemaOf(p)==3,"state without any destination 85..112 is not schema 3 after toggling"); }
+    { Processor p; put(p,"modulation.2.target",100); p.toggleAB(); require(stateSchemaOf(p)==4,"live and snapshot both use 85..112"); }
+    // Reading: schema 1..4 accepted, 0 / 5 / 999 / -1 refused without changing anything.
+    { Processor src; put(src,"colour.drive",3); put(src,"modulation.3.target",100); put(src,"modulation.3.source",2);
+      const auto preset=presetVar(src);
+      for(int schema=-1;schema<=999;schema=schema==5?999:schema+1) {
+          const bool accepted=schema>=1&&schema<=4;
+          { Processor q; put(q,"colour.drive",17); put(q,"modulation.3.target",5);
+            const auto state=stateStamped(src,schema); q.setStateInformation(state.getData(),static_cast<int>(state.getSize()));
+            if(accepted) require(q.parameterValue("colour.drive")==3 && static_cast<int>(q.parameterValue("modulation.3.target"))==100,"state schema "+std::to_string(schema)+" not read");
+            else require(q.parameterValue("colour.drive")==17 && static_cast<int>(q.parameterValue("modulation.3.target"))==5,"state schema "+std::to_string(schema)+" was accepted"); }
+          { Processor q; put(q,"colour.drive",17); put(q,"modulation.3.target",5); const bool loaded=presetLoads(q,preset,schema);
+            require(loaded==accepted,"preset schema "+std::to_string(schema)+(accepted?" refused":" accepted"));
+            if(accepted) require(q.parameterValue("colour.drive")==3 && static_cast<int>(q.parameterValue("modulation.3.target"))==100,"preset schema "+std::to_string(schema)+" not read");
+            else require(q.parameterValue("colour.drive")==17 && static_cast<int>(q.parameterValue("modulation.3.target"))==5,"refused preset schema "+std::to_string(schema)+" changed parameters"); }
+      } }
+}int bench() {
     struct Case { const char* name; int engine; bool fm; std::vector<int> targets; };
     const std::vector<Case> cases{{"Phase Geometry only",PhaseGeometry,false,{85,86,88,89,90,91,93,95}},{"Chaos only",Chaos,false,{85,86,97,98,99,100,101,87}},
         {"FM only",NoSource,true,{102,103,104,105,107,108,109,110}},{"Phase Geometry + FM",PhaseGeometry,true,{85,88,90,93,102,103,104,107}},{"Chaos + FM",Chaos,true,{85,97,99,100,102,103,104,107}}};
@@ -356,6 +417,7 @@ int main(int argc,char** argv) {
     test("determinism (bit identical)",determinism);
     test("tail length independent of destinations 85..112",tailUnaffected);
     test("zero allocation after prepare (new and old path)",noAllocation);
+    test("saved state: schema 3, or 4 when a row uses 85..112; reads 1..4, refuses 0/5",savedSchema);
     if(selectedGroup=="list") return 0;
     std::cout<<(kSynth?"[Synth form] ":"[Fx form] ")<<passed<<" passed, "<<failed<<" failed\n";
     return failed==0?0:1;
