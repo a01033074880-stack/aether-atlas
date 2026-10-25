@@ -41,6 +41,10 @@ public:
     for (auto& f : filter_) f.prepare();
     for (auto& d : dc_) d.prepare(sampleRate_);
     smoothing_ = static_cast<float>(1 - std::exp(-1 / (.005 * sampleRate_)));
+    extGateUp_ = static_cast<float>(1 - std::exp(-1 / (.004 * sampleRate_)));    // 4 ms
+    extGateDown_ = static_cast<float>(1 - std::exp(-1 / (.030 * sampleRate_)));  // 30 ms fade when the pitch is lost
+    extLevelSmooth_ = static_cast<float>(1 - std::exp(-1 / (.002 * sampleRate_))); // 2 ms
+    extGlide_ = static_cast<float>(1 - std::exp(-1 / (.008 * sampleRate_)));     // 8 ms pitch glide
     reset();
     setParameters(target_);
   }
@@ -49,6 +53,10 @@ public:
     bends_ = {};
     pedals_ = {};
     serial_ = 0;
+    ext_ = Voice{};
+    extOn_ = false;
+    extGate_ = extLevel_ = extHeld_ = 0;
+    extHz_ = 0;
     lastVelocity_ = lastHz_ = 0;
     cur_ = target_;
     for (auto& f : filter_) f.clear();
@@ -59,7 +67,7 @@ public:
     Params p = incoming;
     sanitizeCommon(p);
     T::sanitize(p);
-    const bool silent = activeVoices() == 0;
+    const bool silent = activeVoices() == 0 && !extOn_;
     if (p.antiAlias != target_.antiAlias) {
       for (auto& f : filter_) f.clear();
     }
@@ -142,7 +150,13 @@ public:
   float lastVelocity() const noexcept override { return lastVelocity_; }
   float lastPitchHz() const noexcept override { return lastHz_; }
 
-  void process(float* left, float* right, int samples) noexcept override {
+  void process(float* left, float* right, int samples) noexcept override { render(left, right, samples, nullptr, nullptr); }
+  void processDriven(float* left, float* right, int samples, const float* hz, const float* level) noexcept override {
+    render(left, right, samples, hz, level);
+  }
+
+private:
+  void render(float* left, float* right, int samples, const float* hz, const float* level) noexcept {
     if (!left || !right || samples <= 0) return;
     const Tables& tab = tables();
     for (int n = 0; n < samples; ++n) {
@@ -157,6 +171,8 @@ public:
         if (v.env.stage == Adsr::off) { v.active = false; v.level = 0; }
       }
       const float scale = cur_.gain * .5f;
+      float extAmp = 0;
+      if (hz && level) extAmp = driveExternal(hz[n], level[n]);
       float l = 0, r = 0;
       for (int sub = 0; sub < factor_; ++sub) {
         float sl = 0, sr = 0;
@@ -166,6 +182,11 @@ public:
           const float s = T::tick(v, cur_, tab) * v.level * v.velocity * v.audible;
           sl += s * panLeft_[i];
           sr += s * panRight_[i];
+        }
+        if (extOn_) {
+          const float s = T::tick(ext_, cur_, tab) * extAmp * ext_.audible;
+          sl += s * centrePan;
+          sr += s * centrePan;
         }
         sl *= scale;
         sr *= scale;
@@ -185,7 +206,33 @@ public:
     }
   }
 
-private:
+  // Per-sample state of the external voice: pitch glide, gate, level; returns the amplitude for this sample.
+  float driveExternal(float hzIn, float levelIn) noexcept {
+    const bool valid = std::isfinite(hzIn) && hzIn >= 1.f;
+    const float lvl = bound(levelIn, 0, 1);
+    if (valid) extHeld_ = std::min(hzIn, 24000.f);
+    if (!extOn_ && valid && lvl > 0) {
+      ext_ = Voice{};
+      ext_.active = true;
+      ext_.velocity = 1;
+      ext_.age = ++serial_;
+      ext_.rng.seed(splitmix64(static_cast<std::uint64_t>(target_.seed) ^ splitmix64(ext_.age)), voiceCount); // stream 16: distinct from the note voices (slots 0..15)
+      T::start(ext_, cur_);
+      extOn_ = true;
+      extGate_ = extLevel_ = 0;
+      extHz_ = extHeld_;
+    }
+    if (!extOn_) return 0;
+    extGate_ += (valid ? extGateUp_ : extGateDown_) * ((valid ? 1.f : 0.f) - extGate_);
+    extLevel_ += extLevelSmooth_ * (lvl - extLevel_);
+    extHz_ += extGlide_ * (static_cast<double>(extHeld_) - extHz_);
+    const float amp = extGate_ * extLevel_;
+    if (amp < 1e-5f && (!valid || lvl <= 0)) { extOn_ = false; extGate_ = extLevel_ = 0; return 0; }
+    const double f = extHz_ * std::exp2(static_cast<double>(cur_.transpose) / 12.0);
+    ext_.increment = std::min(f / rate_, .49);
+    ext_.audible = static_cast<float>(std::clamp((.48 * sampleRate_ - f) / (.13 * sampleRate_), 0., 1.));
+    return amp;
+  }
   double hertz(const Voice& v) const noexcept {
     return 440 * std::exp2((v.note - 69 + target_.transpose + bends_[static_cast<std::size_t>(v.channel)]) / 12.0);
   }
@@ -207,5 +254,12 @@ private:
   std::array<DecimationFilter, 2> filter_{};
   std::array<DcBlocker, 2> dc_{};
   std::uint64_t serial_ = 0;
+  // External (driven) voice, see Source::processDriven. Fixed storage, no allocation.
+  static constexpr float centrePan = 0.70710678f; // cos(pi/4): same law as a note voice at pan 0
+  Voice ext_{};
+  bool extOn_ = false;
+  float extGate_ = 0, extLevel_ = 0, extHeld_ = 0;
+  double extHz_ = 0;
+  float extGateUp_ = .01f, extGateDown_ = .001f, extLevelSmooth_ = .01f, extGlide_ = .005f;
 };
 } // namespace aether::source
