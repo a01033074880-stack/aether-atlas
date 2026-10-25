@@ -340,7 +340,7 @@ int main(int argc,char** argv) {
               require(sameBits(renderIn(Clamp::fxPlugin,2,0,480,false),renderIn(Clamp::none,0,0,480,false)),"old save plays as FX"); }
             std::cout<<"  clampModeForPluginType: effect {0,1,2}->{0,1,0}, synth {0,1,2}->{2,2,2}; processor renders match the unclamped reference bit for bit\n";
         });
-        test("Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch)",[=] {
+        testFxOnly("Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch)","Resynth needs audio input; the instrument edition has no audio input and always runs Synth (its Source behaviour is covered by aether_resynth_split, Synth form)",[=] {
             for(const int engine:{1,2}) {
                 const auto a=renderIn(Clamp::none,1,engine,480,false),b=renderIn(Clamp::none,1,engine,480,false);
                 const auto c=renderIn(Clamp::none,1,engine,64,false),d=renderIn(Clamp::none,1,engine,37,false);
@@ -380,7 +380,7 @@ int main(int argc,char** argv) {
               std::cout<<"  transpose +12 st: input 220 Hz -> "<<measured<<" Hz\n";
               require(std::abs(measured/440.0-1)<0.03,"source.transpose does not shift the driven pitch"); }
         });
-        test("Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled)",[=] {
+        testFxOnly("Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled)","FX/Resynth reference renders need audio input, which the instrument edition does not have (reference would be silent); Synth Source-off identity is covered by aether_split_unchanged, Synth form",[=] {
             for(const int mode:{0,1,2}) for(const bool midi:{false,true}) {
                 const auto ref=renderIn(Clamp::none,mode,0,480,midi);
                 if(mode!=2) require(energyOf(ref,0,96000)>1.e-6,"reference render is silent"); // Synth without FM/graph/source is legitimately silent
