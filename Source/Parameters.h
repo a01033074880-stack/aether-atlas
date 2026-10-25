@@ -1,5 +1,6 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <array>
 #include <vector>
 #include <aether/Modular.h>
 #include <aether/FmSynth.h>
@@ -54,6 +55,23 @@ enum SourceParamIndex {
     sourceParameterCount
 };
 inline constexpr int totalParameterCount=sourceOffset+sourceParameterCount;
+// Modulation destinations (modulation.N.target). 0 = None, 1..84 = node x 7 (unchanged since 2.0), 85..112 = Source / FM
+// parameters (2.3.0). The option list only ever grows at the end; the stored value is the option index.
+inline constexpr int modulationTargetNodeLast=modular::nodeTargetCount;                     // 84
+inline constexpr int modulationTargetExtendedFirst=modular::extendedTargetFirst;         // 85
+inline constexpr int modulationTargetExtendedLast=modular::maxTarget;                    // 112
+inline constexpr int modulationExtendedCount=modular::extendedTargetCount;               // 28
+inline constexpr int modulationTargetCount=modulationTargetExtendedLast+1;               // 113 options
+// Parameter (index into parameterSpecs()/allRaw) that destination 85+i modulates. Source/FM engines read the parameter
+// value plus the summed source*depth in the parameter's own normalised range (see docs/modulation-destinations.md).
+inline constexpr std::array<int,modular::extendedTargetCount> modulationExtendedParameter{
+    sourceOffset+sourceGain, sourceOffset+sourceSpread, sourceOffset+sourceTranspose,                                   // 85..87
+    sourceOffset+pgSequency, sourceOffset+pgWalshMix, sourceOffset+pgCzDepth, sourceOffset+pgCzEnvelope,                // 88..91
+    sourceOffset+pgCzVelocity, sourceOffset+pgVpsD, sourceOffset+pgVpsV, sourceOffset+pgVpsRatio, sourceOffset+pgPhaseRandom, // 92..96
+    sourceOffset+chaosAmpStep, sourceOffset+chaosDurStep, sourceOffset+chaosDurRange, sourceOffset+chaosMomentum,       // 97..100
+    sourceOffset+chaosAmpBarrier,                                                                                       // 101
+    fmOffset+3, fmOffset+4, fmOffset+5, fmOffset+10, fmOffset+11,                                                       // 102..106
+    operatorOffset+0*6+1, operatorOffset+1*6+1, operatorOffset+2*6+1, operatorOffset+3*6+1, operatorOffset+4*6+1, operatorOffset+5*6+1}; // 107..112
 // State / preset schema: 1 = v1 FX only, 2 = Atlas graph + FM, 3 = adds the source layer.
 inline constexpr int stateSchema=3;
 const std::vector<ParameterSpec>& parameterSpecs();

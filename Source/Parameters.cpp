@@ -17,6 +17,16 @@ juce::StringArray modulationTargetNames() {
     juce::StringArray names{"None"};
     for(int n=1;n<=modular::slotCount;++n) for(const auto* target:{"Macro A","Macro B","Macro C","Macro D","Mix","Level","Pan"})
         names.add("Node "+juce::String(n)+" / "+target);
+    // 85..112 (2.3.0): Source and FM parameters, same order as modulationExtendedParameter.
+    static const char* const extended[]={
+        "Source / Level","Source / Spread","Source / Transpose",
+        "Source / Walsh seq","Source / Walsh mix","Source / CZ depth","Source / CZ env",
+        "Source / CZ velocity","Source / VPS D","Source / VPS V","Source / VPS ratio","Source / Phase random",
+        "Source / Amp step","Source / Dur step","Source / Dur range","Source / Momentum","Source / Amp barrier",
+        "FM / Mod index","FM / Morph","FM / Feedback","FM / Voice level","FM / Spread",
+        "FM / Op 1 level","FM / Op 2 level","FM / Op 3 level","FM / Op 4 level","FM / Op 5 level","FM / Op 6 level"};
+    static_assert(sizeof(extended)/sizeof(extended[0])==modulationExtendedCount,"one name per extended destination");
+    for(const auto* name:extended) names.add(name);
     return names;
 }
 juce::StringArray sourceEngineNames() { return {"Off","Phase Geometry","Chaos"}; }
