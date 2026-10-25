@@ -119,3 +119,7 @@ sizes (1e-4 to 1.2 maximum sample difference), and the test only warned (`KNOWN-
 
 * Cross-compiler / cross-CPU float drift; only MSVC Release on one machine.
 * A real v1.0.0 binary render, a real v2.0.0 state, the synth build, sample rates other than 48 kHz, no CI run.
+
+## 6. 2.2.0-rc golden update
+
+* golden/render-48000.json was regenerated for the mode split (AETHER Micro treats a stored mode=2 as FX). Only 4 samples changed: preset-v1.0.0:Copper Strings, preset-v1.0.0:Prism Keys, state-v2.0.1:custom-graph-fm, state-v2.0.1:factory-11-Copper-Strings (plus the codeVersion header). New SHA-256 $h; previous file kept as alidation/integration-220/golden/golden-old-80165fc.json (SHA-256 $ho). Details: alidation/integration-220/golden/README.md.
