@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 namespace {
-int passed=0,failed=0;
+int passed=0,failed=0,skipped=0;
 void require(bool ok,const char* why) { if(!ok) throw std::runtime_error(why); }
 void require(bool ok,const juce::String& why) { if(!ok) throw std::runtime_error(why.toStdString()); }
 void set(AetherAudioProcessor& p,const char* id,float value) {
@@ -47,6 +47,15 @@ template<class F> void test(const char* name,F f) {
     try { f(); ++passed; std::cout<<"PASS "<<name<<'\n'; }
     catch(const std::exception& error) { ++failed; std::cerr<<"FAIL "<<name<<": "<<error.what()<<'\n'; }
 }
+// Effect-only cases: they need audio input / bypass / sidechain / mono FX layout, which the instrument edition (JucePlugin_IsSynth=1) does not offer.
+// In the instrument build they are skipped with a printed reason; in the effect build they run unchanged.
+template<class F> void testFxOnly(const char* name,const char* synthSkipReason,F f) {
+#if JucePlugin_IsSynth
+    ++skipped; std::cout<<"SKIP "<<name<<" (Synth edition): "<<synthSkipReason<<'\n'; (void)f;
+#else
+    (void)synthSkipReason; test(name,f);
+#endif
+}
 }
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
@@ -61,7 +70,7 @@ int main(int argc,char** argv) {
                 require(std::abs(v->convertFrom0to1(1)-spec.maximum)<0.01f,"parameter max");
             }
         });
-        test("host bypass is transparent, including odd blocks",[] {
+        testFxOnly("host bypass is transparent, including odd blocks","host bypass is an effect-only feature (the instrument edition has no audio input to pass through)",[] {
             AetherAudioProcessor p; p.prepareToPlay(48000,64); set(p,"global.bypass",1);
             juce::MidiBuffer midi;
             for(const int n:{1,17,64,513,4097}) {
@@ -446,7 +455,7 @@ int main(int argc,char** argv) {
             require(b.getMagnitude(0,0,256)<1.e-7f,"graph bypass incorrectly replaced FM with the legacy oscillator");
             require(p.fmVoiceCount.load()>0,"graph bypass stopped FM voice rendering");
         });
-        test("audio-driven FM and pitch modulation do not depend on host block cuts",[] {
+        testFxOnly("audio-driven FM and pitch modulation do not depend on host block cuts","needs audio input and Resynth; the instrument edition always runs Synth mode",[] {
             auto render=[](int block) {
                 AetherAudioProcessor p;p.setParameterValue("global.mode",1);p.setParameterValue("master.enabled",0);
                 for(int n=1;n<=12;++n) {p.setParameterValue("node."+juce::String(n)+".type",0);p.setParameterValue("node."+juce::String(n)+".on",0);}
@@ -498,7 +507,7 @@ int main(int argc,char** argv) {
             require(std::abs(p.parameterValue("route.5.10")-0.25f)<0.0001f,"A/B lost custom graph edges");
             require(std::abs(p.parameterValue("fm.edge.2.1")-0.4f)<0.0001f,"A/B lost custom FM edges");
         });
-        test("mono layout, repeated prepare and rates",[] {
+        testFxOnly("mono layout, repeated prepare and rates","the test configures mono on the Input bus, which the instrument edition does not have (it has no audio input)",[] {
             AetherAudioProcessor p; auto layout=p.getBusesLayout();
             layout.inputBuses.set(0,juce::AudioChannelSet::mono()); layout.outputBuses.set(0,juce::AudioChannelSet::mono());
             require(p.setBusesLayout(layout),"mono unsupported");
@@ -519,7 +528,7 @@ int main(int argc,char** argv) {
             for(int i=73;i<128;++i) after+=std::abs(b.getSample(0,i));
             require(after>0.0001f,"note did not sound");
         });
-        test("external FX sidechain excites resonance without direct leakage",[] {
+        testFxOnly("external FX sidechain excites resonance without direct leakage","needs the external sidechain input bus, which the instrument edition does not have",[] {
             AetherAudioProcessor p; auto layout=p.getBusesLayout();
             layout.inputBuses.set(1,juce::AudioChannelSet::mono());
             require(p.setBusesLayout(layout),"mono sidechain unsupported");
@@ -901,6 +910,6 @@ int main(int argc,char** argv) {
             require(modeItems(*mode)==(edition==1?"3:Synth":"1:FX|2:Resynth"),"compile-time Mode items: "+modeItems(*mode));
             for(int raw=0;raw<=2;++raw){p.setParameterValue("global.mode",static_cast<float>(raw));require(mode->getText()==modeText(edition,raw),"compile-time Mode text for "+juce::String(raw)+": "+mode->getText());}
         });
-        std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed\n"; return failed?1:0;
+        std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed, "<<skipped<<" skipped\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }
 }
