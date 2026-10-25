@@ -1,0 +1,6 @@
+Fx-schema4 exit=1 elapsed_s=2.3
+Fx-new exit=0 elapsed_s=64.5
+Fx-invariant exit=-1 elapsed_s=173.5
+Synth-schema4 exit=1 elapsed_s=173.5
+Synth-new exit=0 elapsed_s=173.5
+Synth-invariant exit=-1 elapsed_s=173.5

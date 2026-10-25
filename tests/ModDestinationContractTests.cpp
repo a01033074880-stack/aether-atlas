@@ -1,8 +1,8 @@
 // 2.3.0 modulation-destination tests, written BEFORE the destination extension (baseline: integration/2.2.0-rc, 84 destinations).
 //
 // Built twice from this one file (JucePlugin_IsSynth is a compile-time macro):
-//   AetherModTargetsFx     links "AETHER Micro"        (effect form)
-//   AetherModTargetsSynth  links "AETHER Micro Synth"  (instrument form)
+//   AetherModContractFx     links "AETHER Micro"        (effect form)
+//   AetherModContractSynth  links "AETHER Micro Synth"  (instrument form)
 //
 // Groups (command line  --group invariant|new|all , default all):
 //   invariant  must be GREEN on the 2.2.0 baseline and stay green after the destination extension (2.3.0 may only APPEND destinations).
@@ -270,28 +270,78 @@ void requireDestinationExists(int index) {
     Processor p; const int options=optionCount(p,"modulation.1.target");
     require(options>index,"destination "+std::to_string(index)+" does not exist: modulation.N.target has "+std::to_string(options)+" options (indices 0.."+std::to_string(options-1)+"), mod::targetCount="+std::to_string(mod::targetCount));
 }
-} // namespace
+// ---- saved-state helpers (schema group) ----------------------------------------
+juce::MemoryBlock saveState(Processor& p) { juce::MemoryBlock b; p.getStateInformation(b); return b; }
+std::unique_ptr<juce::XmlElement> xmlOf(const juce::MemoryBlock& b) { auto x=juce::AudioProcessor::getXmlFromBinary(b.getData(),static_cast<int>(b.getSize())); require(x!=nullptr,"saved state is not binary XML"); return x; }
+int schemaOf(const juce::MemoryBlock& b) { return xmlOf(b)->getIntAttribute("schema",-1); }
+juce::MemoryBlock stamped(const juce::MemoryBlock& b,int schema) { auto x=xmlOf(b); x->setAttribute("schema",schema); juce::MemoryBlock o; juce::AudioProcessor::copyXmlToBinary(*x,o); return o; }
+void feed(Processor& p,const juce::MemoryBlock& b) { p.setStateInformation(b.getData(),static_cast<int>(b.getSize())); }
+std::string digest(Processor& p) {   // FNV-1a 64 of the canonical XML text (juce_cryptography is not linked) + its length
+    const auto b=saveState(p); const auto x=xmlOf(b); const auto text=x->toString(juce::XmlElement::TextFormat().singleLine()).toStdString();
+    std::uint64_t h=1469598103934665603ull; for(unsigned char ch:text) { h^=ch; h*=1099511628211ull; } char out[48]; std::snprintf(out,sizeof out,"%016llx/%zu",static_cast<unsigned long long>(h),text.size()); return out;
+}
+// Sixteen rows, every destination <= 84 (same rows as b3).
+void lowRows(Processor& a) {
+    for(int n=1;n<=mod::modulationCount;++n) { a.setParameterValue(rowId(n,"source"),static_cast<float>(n%10)); a.setParameterValue(rowId(n,"target"),static_cast<float>(n==16?kBaselineTargets:n*5)); a.setParameterValue(rowId(n,"depth"),(n%2?1.f:-1.f)*0.0625f*static_cast<float>(n)); }
+}
+// Same, but rows 1..4 point at 85, 100, 102 and 112 (needs the 2.3.0 option list).
+void highRows(Processor& a) {
+    lowRows(a); const int high[]{85,100,102,kDraftTargets}; for(int i=0;i<4;++i) a.setParameterValue(rowId(i+1,"target"),static_cast<float>(high[i]));
+}
+// The states whose 2.2.0 saved form is frozen: every committed fixture plus three synthetic states with destinations <= 84.
+struct SavedCase { std::string name; std::function<void(Processor&)> make; };
+std::vector<SavedCase> savedCases() {
+    std::vector<SavedCase> v;
+    for(const auto& s:samples()) v.push_back({s.name,[s](Processor& p){ load(p,s); }});
+    v.push_back({"synthetic/default",[](Processor&){}});
+    v.push_back({"synthetic/rows-le84",[](Processor& p){ lowRows(p); }});
+    v.push_back({"synthetic/rows-le84-graph-on-mix",[](Processor& p){ lowRows(p); put(p,"graph.enabled",1); put(p,"global.mix",0.37f); }});
+    return v;
+}
+juce::File savedTableFile() { return juce::File(AETHER_SOURCE_DIR).getChildFile("tests").getChildFile("fixtures").getChildFile("mod-targets").getChildFile(kSynth?"saved-v2.2.0-synth.txt":"saved-v2.2.0-fx.txt"); }
+std::map<std::string,std::string> loadSavedTable() {
+    const auto f=savedTableFile(); require(f.existsAsFile(),"missing saved-state table "+f.getFullPathName().toStdString());
+    std::map<std::string,std::string> m; std::istringstream in(f.loadFileAsString().toStdString()); std::string line;
+    while(std::getline(in,line)) { if(!line.empty()&&line.back()=='\r') line.pop_back(); if(line.empty()||line[0]=='#') continue; const auto tab=line.find('\t'); require(tab!=std::string::npos,"bad saved-table line"); m[line.substr(0,tab)]=line.substr(tab+1); }
+    return m;
+}} // namespace
 
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
-    std::string generateTo;
+    std::string generateTo,generateSavedTo; int probeSchema=-1;
     for(int i=1;i<argc;++i) {
         const std::string a=argv[i];
         if(a=="--group" && i+1<argc) selectedGroup=argv[++i];
         else if(a=="--list") selectedGroup="list";
         else if(a=="--only" && i+1<argc) onlyFilter=argv[++i];
         else if(a=="--generate-target-table" && i+1<argc) generateTo=argv[++i];
+        else if(a=="--generate-saved-table" && i+1<argc) generateSavedTo=argv[++i];
+        else if(a=="--probe-schema" && i+1<argc) probeSchema=std::atoi(argv[++i]);
     }
     if(!generateTo.empty()) {
         std::ostringstream o; o<<"# Frozen modulation destination / source tables of the 2.2.0 baseline (integration/2.2.0-rc, 991e493).\n"
-            "# Generated by AetherModTargets*  --generate-target-table.  T<index><TAB><name> = modulation.N.target options, S<index><TAB><name> = modulation.N.source options.\n"
+            "# Generated by AetherModContract*  --generate-target-table.  T<index><TAB><name> = modulation.N.target options, S<index><TAB><name> = modulation.N.source options.\n"
             "# 2.3.0 may only APPEND destinations: the first 85 target lines must keep reading exactly like this.\n";
         const auto names=currentTargetNames(); for(int i=0;i<names.size();++i) o<<'T'<<i<<'\t'<<names[i].toStdString()<<'\n';
         for(int i=0;i<mod::sourceCount;++i) o<<'S'<<i<<'\t'<<mod::sourceName(i)<<'\n';
         juce::File f(generateTo); f.getParentDirectory().createDirectory(); f.replaceWithText(juce::String(o.str()));
         std::cout<<"wrote "<<generateTo<<" ("<<names.size()<<" targets)\n"; return 0;
     }
-    require(kSynth==(AETHER_EXPECT_SYNTH!=0),"plugin form mismatch");
+    if(!generateSavedTo.empty()) {
+        std::ostringstream o; o<<"# FNV-1a64/length of the canonical saved state (XmlElement::toString single-line of getStateInformation) after loading each sample, as written by the 2.2.0 baseline (991e493, stateSchema 3).\n"
+            "# Generated by AetherModContract*  --generate-saved-table.  <sample name><TAB><fnv1a64/length>.  One file per plugin form (the stored global.mode differs). Used by the schema4 group (s1): old saves must keep saving as exactly this.\n";
+        for(const auto& c:savedCases()) { Processor p; c.make(p); const auto b=saveState(p); require(schemaOf(b)==3,"baseline sample does not save as schema 3: "+c.name); o<<c.name<<'\t'<<digest(p)<<'\n'; }
+        juce::File f(generateSavedTo); f.getParentDirectory().createDirectory(); f.replaceWithText(juce::String(o.str())); std::cout<<"wrote "<<generateSavedTo<<"\n"; return 0;
+    }
+    if(probeSchema>=0) {   // diagnostic only (not a test): how does THIS build treat a state stamped with the given schema whose row 2 stores destination 90?
+        Processor a; lowRows(a); put(a,"global.mix",0.37f); auto xml=xmlOf(saveState(a)); auto tree=juce::ValueTree::fromXml(*xml);
+        auto row=tree.getChildWithProperty("id","modulation.2.target"); require(row.isValid(),"no row"); row.setProperty("value",90.0,nullptr);
+        auto edited=tree.createXml(); edited->setAttribute("schema",probeSchema); juce::MemoryBlock block; juce::AudioProcessor::copyXmlToBinary(*edited,block);
+        Processor b; put(b,"global.mix",0.8f); put(b,"modulation.2.target",7); const auto before=digest(b); feed(b,block);
+        std::cout<<"PROBE schema="<<probeSchema<<" stored modulation.2.target=90 (text "<<(optionCount(b,"modulation.2.target")>90?"option exists":"option 90 does not exist in this build")<<")  state "<<(digest(b)==before?"UNCHANGED (rejected)":"CHANGED (accepted)")
+            <<"  global.mix "<<b.parameterValue("global.mix")<<" (0.8 before, 0.37 in the save)  modulation.2.target "<<b.parameterValue("modulation.2.target")<<" (7 before)  options "<<optionCount(b,"modulation.2.target")<<std::endl;
+        return 0;
+    }    require(kSynth==(AETHER_EXPECT_SYNTH!=0),"plugin form mismatch");
 
     // ================================ (a) table snapshot ===========================================
     test("invariant","a1 frozen 2.2.0 destination table is a prefix of the current table",[] {
@@ -408,16 +458,22 @@ int main(int argc,char** argv) {
         std::cout<<"  d1: worst |modulation - direct write| = "<<num(worstMismatch)<<"; destinations whose direct write is inaudible with the 3 module rotations: "<<(list.empty()?"none":list)<<std::endl;
         require(inert.empty(),"destinations with no observable effect in this configuration: "+list);
     });
-    test("invariant","d2 engine: destinations beyond 84 (none on 2.2.0) change the output when modulated by a constant source, else must be listed",[] {
-        static const std::set<int> knownUnobservable{};   // new engine-level destinations without an observable (empty on purpose: list them here with the reason)
-        for(int t=kBaselineTargets+1;t<=mod::targetCount;++t) {
-            if(knownUnobservable.count(t)) continue;
-            auto base=parallelGraph(0); const auto reference=engineRender(base,1.f); bool changed=false;
-            for(float d:{-1.f,1.f}) { auto m=base; m.modulation[0]={6,t,d}; changed=changed||maxAbsDiff(engineRender(m,1.f),reference)>1e-4; }
-            require(changed,"graph-engine destination "+std::to_string(t)+" has no observable effect");
+    test("invariant","d2 engine: destinations 1..84 (frozen range) change the GraphEngine output when modulated by a constant source",[] {
+        // Scope: only the frozen 2.2.0 range 1..84.  Destinations 85..112 (2.3.0) are consumed by the PROCESSOR (Source/FM parameters), not by the
+        // GraphEngine audio, so a GraphEngine render cannot show them; they are asserted at processor level by the `new` group (d4: modulation
+        // changes the target's observable exactly when a direct parameter write does; d5/d6/d7 for engine mismatch, extreme depth, saved index).
+        // Every one of 1..84 must be audible, no exceptions.  A macro destination only sounds when the module in its slot reads that macro, so each
+        // destination is tried with the module assignments parallelGraph(0..19) (every module type visits every slot) until one shows an effect.
+        // (On 2.2.0 the former loop started at 85 and was empty; the first strict run with a single assignment failed at destination 23 = node 4 Macro B.)
+        for(int t=1;t<=std::min(mod::targetCount,kBaselineTargets);++t) {
+            bool changed=false;
+            for(int rotation=0;rotation<20&&!changed;++rotation) {
+                auto base=parallelGraph(rotation); const auto reference=engineRender(base,1.f);
+                for(float d:{-1.f,1.f}) { auto m=base; m.modulation[0]={6,t,d}; changed=changed||maxAbsDiff(engineRender(m,1.f),reference)>1e-4; }
+            }
+            require(changed,"graph-engine destination "+std::to_string(t)+" has no observable effect with any module type in its slot");
         }
-    });
-    // oracle self-check + observability of the draft destinations (plugin level)
+    });    // oracle self-check + observability of the draft destinations (plugin level)
     for(const auto& d:drafts()) {
         const std::string label="destination "+std::to_string(d.index)+" ("+d.parameter+")";
         test("invariant","d3 oracle sensitive (baseline-valid): writing "+std::string(d.parameter)+" to full travel changes the output ["+label+"]",[d] {
@@ -474,6 +530,62 @@ int main(int argc,char** argv) {
         require(p.state.getParameter("modulation.16.target")!=nullptr,"row 16 id");
     });
 
+    // ================================ saved-state schema plan (pending, group `schema4`) ===========================
+    // Plan: write schema 4 ONLY when a save holds a modulation target > 84, otherwise still schema 3; 2.3.0 reads schema 1..4;
+    // 2.2.0 refuses schema 4 (stateSchema is 3 there).  These tests are NOT in `invariant`: s2/s3b/s4c/s4d are red until schema 4 exists.
+    for(const auto& c:savedCases()) test("schema4","s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: "+c.name,[c] {
+        const auto table=loadSavedTable(); const auto it=table.find(c.name); require(it!=table.end(),"no 2.2.0 digest recorded for "+c.name);
+        Processor p; c.make(p); const auto saved=saveState(p);
+        require(schemaOf(saved)==3,"saved schema is "+std::to_string(schemaOf(saved))+", must stay 3 for a state without destination > 84");
+        require(digest(p)==it->second,"saved state differs from the 2.2.0 form ("+digest(p)+" vs "+it->second+")");
+    });
+    test("schema4","s2a a save with a destination > 84 is written as schema 4",[] {
+        requireDestinationExists(kBaselineTargets+1); Processor a; highRows(a); require(static_cast<int>(a.parameterValue("modulation.1.target"))==85,"setup: destination 85 not stored");
+        const auto saved=saveState(a); require(schemaOf(saved)==4,"saved schema is "+std::to_string(schemaOf(saved))+", want 4");
+    });
+    test("schema4","s2b schema 4 reads back with every destination index unchanged, and saving again keeps schema 4",[] {
+        requireDestinationExists(kDraftTargets); Processor a; highRows(a); put(a,"global.mix",0.37f); const auto want=routing(a); require(want[3].target==kDraftTargets,"setup: destination 112 not stored");
+        const auto saved=saveState(a); require(schemaOf(saved)==4,"first save is schema "+std::to_string(schemaOf(saved)));
+        Processor b; feed(b,saved); requireRouting(routing(b),want,"schema 4 read back");
+        const auto again=saveState(b); require(schemaOf(again)==4,"re-save is schema "+std::to_string(schemaOf(again)));
+        Processor c; feed(c,again); requireRouting(routing(c),want,"second generation");
+        require(digest(b)==digest(c),"re-saved state differs after a second round trip");
+    });
+    test("schema4","s2c the schema follows the content: moving every destination back to <= 84 saves schema 3 again",[] {
+        requireDestinationExists(kBaselineTargets+1); Processor a; highRows(a); require(schemaOf(saveState(a))==4,"setup: schema 4 not written");
+        lowRows(a); require(schemaOf(saveState(a))==3,"after removing destinations > 84 the save is still schema "+std::to_string(schemaOf(saveState(a))));
+    });
+    test("schema4","s3a 2.3.0 reads schema 1, 2 and 3",[] {
+        Processor a; lowRows(a); put(a,"global.mix",0.37f); const auto saved=saveState(a); Processor fresh; require(std::abs(fresh.parameterValue("global.mix")-0.37)>1e-3,"setup: marker equals the default");
+        for(int schema:{1,2,3}) { Processor b; feed(b,stamped(saved,schema)); require(std::abs(b.parameterValue("global.mix")-0.37)<1e-6,"schema "+std::to_string(schema)+" was not accepted (global.mix="+num(b.parameterValue("global.mix"))+")");
+            requireRouting(routing(b),routing(a),"schema "+std::to_string(schema)); }
+    });
+    test("schema4","s3b 2.3.0 reads schema 4",[] {
+        requireDestinationExists(kBaselineTargets+1); Processor a; highRows(a); put(a,"global.mix",0.37f); const auto saved=saveState(a); require(schemaOf(saved)==4,"setup: save is schema "+std::to_string(schemaOf(saved)));
+        Processor b; feed(b,saved); require(std::abs(b.parameterValue("global.mix")-0.37)<1e-6,"schema 4 was not accepted (global.mix="+num(b.parameterValue("global.mix"))+")"); requireRouting(routing(b),routing(a),"schema 4");
+    });
+    // s4: a refused state leaves the running state untouched (digest of getStateInformation before == after).  The digest is first shown to be sensitive.
+    const auto refusedLeavesStateAlone=[](const juce::MemoryBlock& bad,const std::string& what) {
+        Processor target; lowRows(target); put(target,"global.mix",0.61f); const auto before=digest(target); feed(target,bad);
+        require(digest(target)==before,what+" changed the running state (global.mix="+num(target.parameterValue("global.mix"))+")");
+        Processor other; lowRows(other); put(other,"global.mix",0.2f); feed(target,saveState(other)); require(digest(target)!=before,"test is blind: a good state did not change the digest");
+    };
+    test("schema4","s4a schema 5 (and 99) is refused and does not change the running state",[refusedLeavesStateAlone] {
+        Processor a; lowRows(a); put(a,"global.mix",0.2f); const auto saved=saveState(a);
+        for(int schema:{5,99}) refusedLeavesStateAlone(stamped(saved,schema),"schema "+std::to_string(schema));
+    });
+    test("schema4","s4b schema 0 / negative schema stays refused (unchanged rule)",[refusedLeavesStateAlone] {
+        Processor a; lowRows(a); put(a,"global.mix",0.2f); const auto saved=saveState(a); for(int schema:{0,-1}) refusedLeavesStateAlone(stamped(saved,schema),"schema "+std::to_string(schema));
+    });
+    test("schema4","s4c a truncated schema 4 save is refused and does not change the running state",[refusedLeavesStateAlone] {
+        requireDestinationExists(kBaselineTargets+1); Processor a; highRows(a); put(a,"global.mix",0.2f); const auto saved=saveState(a); require(schemaOf(saved)==4,"setup: save is schema "+std::to_string(schemaOf(saved)));
+        for(const size_t keep:{saved.getSize()/2,saved.getSize()-3,size_t(12)}) { juce::MemoryBlock cut(saved.getData(),keep); refusedLeavesStateAlone(cut,"schema 4 cut to "+std::to_string(keep)+" bytes"); }
+    });
+    test("schema4","s4d a schema 4 save with a wrong root tag, or garbage after the header, is refused and does not change the running state",[refusedLeavesStateAlone] {
+        requireDestinationExists(kBaselineTargets+1); Processor a; highRows(a); put(a,"global.mix",0.2f); const auto saved=saveState(a); require(schemaOf(saved)==4,"setup: save is schema "+std::to_string(schemaOf(saved)));
+        { auto x=xmlOf(saved); x->setTagName("NotAether"); juce::MemoryBlock b; juce::AudioProcessor::copyXmlToBinary(*x,b); refusedLeavesStateAlone(b,"schema 4 with wrong root tag"); }
+        { juce::MemoryBlock junk(saved.getData(),saved.getSize()); auto* bytes=static_cast<char*>(junk.getData()); for(size_t i=12;i<junk.getSize();++i) bytes[i]=static_cast<char>(0x80|(i*37)); refusedLeavesStateAlone(junk,"schema 4 header + garbage"); }
+    });
     std::cout<<"RESULT ["<<selectedGroup<<"] "<<passed<<" passed, "<<failed<<" failed ("<<(kSynth?"synth":"fx")<<" form)"<<std::endl;
     return failed==0?0:1;
 }
