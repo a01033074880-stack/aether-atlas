@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.0 — Unreleased (DRAFT, no release date)
+
+Draft, phase A only. The CMake/plugin version is still 2.2.0; nothing below is released, and items marked "TBD" are not decided.
+
+- Modulation destinations (draft, owner: sound engineer, branch `feat/mod-targets-230`; not implemented on this branch): append 28 destinations numbered 85..112 to `modulation.N.target` (option count 85 -> 113). Groups: 1-84 node destinations (unchanged), 85-101 Source (Source Level/Stereo spread/Transpose, Phase Geometry and Chaos parameters), 102-112 FM (FM parameters and Op1..Op6 Level). Existing numbers and parameter IDs stay unchanged. Final labels: TBD (they are set in `modulationTargetNames()` on the implementing branch; planned format `Source / ...` and `FM / ...`, at most 24 characters).
+- Modulation semantics (draft): depth 1 = full parameter travel in the normalized/skew domain; the host parameter value stays the baseline and is never written back; result clamped to the parameter range; update every 16 samples; a Source destination that does not belong to the active engine is silent without an error. Whether the new destinations also need the Atlas graph switched on: TBD.
+- UI hints and per-edition hiding: planned, scope TBD (owner: UI work, not part of this branch).
+- Docs (USER_GUIDE.zh-CN.md): new Source page (Phase Geometry / Chaos parameters), plugin mode split with the fallback rule for old saved modes, Resynth-driven Source, install location `C:\Program Files\Common Files\VST3` (administrator rights; remove or replace old versions first), and a draft section for the new modulation destinations marked "pending implementation".
+- Installer: `scripts/install.ps1` is unchanged on this branch (default destination is still `%LOCALAPPDATA%\Programs\Common\VST3`; `-Destination` selects another directory). Whether the default changes in 2.3.0: TBD.
+- Tests (new): `tests/ModTargetTests.cpp`, built per plugin form as AetherModTargetsFx / AetherModTargetsSynth, with ctest entries `aether_modtargets_invariant` (guards the frozen 2.2.0 destination table, old-save routing, extreme depth) and `aether_modtargets_new` (checks for the draft destinations 85..112; red until the destination extension lands). The frozen table lives in `tests/fixtures/mod-targets/targets-v2.2.0.txt`.
+- Compatibility note (draft): because `modulation.N.target` is a choice parameter, the saved value is the option index, so saves with destinations <= 84 keep their routing; the normalized value a host sees for automation changes when the option count grows (index / (count - 1)).
 ## 2.2.0 — 2026-10-25 (release candidate)
 
 - Resynth + Source: in Resynth mode (AETHER Micro) the Source layer (Phase Geometry / Chaos) is now driven by the input audio: pitch (including transpose) follows the detected pitch, amplitude follows the input envelope. With no valid pitch the last pitch is kept (30 ms fade out, 4 ms fade in, no click). Source Off leaves the output bit-identical. MIDI notes still trigger Source voices in Resynth.
