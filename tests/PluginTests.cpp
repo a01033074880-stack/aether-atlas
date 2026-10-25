@@ -72,6 +72,40 @@ template<class F> void testFxOnly(const char* name,const char* synthSkipReason,F
     (void)synthSkipReason; test(name,f);
 #endif
 }
+// ---- Stage B: Randomize popover on the mock backend (the editor shows no Randomize controls without an installed factory) ----
+struct ScopedRandomBackend {
+    ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeMockBackend(proc); }); }
+    ~ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory({}); }
+};
+// Same grouping rule as the mock backend (id prefixes); the test checks that each group really holds parameters.
+juce::String randomGroupOf(const juce::String& id) {
+    if(id.startsWith("global.")) return "Global";
+    if(id.startsWith("node.")||id.startsWith("route.")||id.startsWith("routing.")||id.startsWith("graph.")) return "Nodes";
+    if(id.startsWith("lfo.")||id.startsWith("modulation.")) return "Motion";
+    if(id.startsWith("fm.")) return "FM";
+    if(id.startsWith("source.")) return "Source";
+    return "Texture";
+}
+const juce::StringArray randomGroups{"Global","Nodes","Motion","FM","Source","Texture"};
+std::map<juce::String,float> randomValues(AetherAudioProcessor& p) {
+    std::map<juce::String,float> values;
+    for(const auto& spec:aether::parameterSpecs()) if(!spec.boolean&&spec.choices.size()==0) values[spec.id]=p.parameterValue(spec.id);
+    return values;
+}
+bool sameValues(const std::map<juce::String,float>& a,const std::map<juce::String,float>& b) {
+    for(const auto& [id,v]:a) if(std::abs(v-b.at(id))>1.0e-4f) return false;
+    return true;
+}
+struct RandomRig {
+    AetherAudioProcessor p; std::unique_ptr<juce::AudioProcessorEditor> base; AetherAudioProcessorEditor* editor=nullptr; aether::ui::RandomizePanel* panel=nullptr; juce::Component* content=nullptr;
+    RandomRig() {
+        base.reset(p.createEditor()); editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get()); require(editor!=nullptr,"Atlas editor missing");
+        panel=editor->randomizePanel(); require(panel!=nullptr,"Randomize panel missing with a backend factory"); content=editor->getChildComponent(0); require(content!=nullptr,"Atlas content missing");
+        editor->setSize(1440,900);
+        std::uint64_t counter=0; panel->setSeedSource([counter]() mutable { return (++counter)*0x9E3779B97F4A7C15ULL; });
+    }
+    juce::String textOf(const juce::String& id) { for(const auto& t:editor->randomizeTexts()) if(t.id==id) return t.text; return "<missing "+id+">"; }
+};
 }
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI gui;
@@ -1055,6 +1089,177 @@ int main(int argc,char** argv) {
             std::cout<<"  compile-time edition: "<<(edition==1?"AETHER Micro Synth":"AETHER Micro")<<", Mode items "<<modeItems(*mode).toStdString()<<"\n";
             require(modeItems(*mode)==(edition==1?"3:Synth":"1:FX|2:Resynth"),"compile-time Mode items: "+modeItems(*mode));
             for(int raw=0;raw<=2;++raw){p.setParameterValue("global.mode",static_cast<float>(raw));require(mode->getText()==modeText(edition,raw),"compile-time Mode text for "+juce::String(raw)+": "+mode->getText());}
+        });
+        test("Randomize: no controls without a backend factory (release behaviour unchanged)",[&] {
+            AetherAudioProcessorEditor::setRandomizeBackendFactory({});
+            AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+            auto* editor=dynamic_cast<AetherAudioProcessorEditor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+            require(editor->randomizePanel()==nullptr&&editor->randomizeTexts().empty(),"Randomize panel exists without a factory");
+            std::function<void(juce::Component&)> walk=[&](juce::Component& c){require(!c.getComponentID().startsWith("random."),"Randomize control without a factory: "+c.getComponentID());for(auto* k:c.getChildren())walk(*k);};walk(*editor);
+        });
+        test("Randomize: seeds are 8 Crockford characters, parse tolerates typing slips, label is \"(Random) XXXX-XXXX\"",[&] {
+            std::uint64_t seed=0;
+            require(aether::ui::parseRandomSeed("A7F3-92C1",seed)&&aether::ui::formatRandomSeed(seed)=="A7F3-92C1","parse/format round trip of A7F3-92C1");
+            std::uint64_t lower=0;require(aether::ui::parseRandomSeed("  a7f3 92c1 ",lower)&&lower==seed,"lowercase / spaces not tolerated");
+            std::uint64_t slips=0;require(aether::ui::parseRandomSeed("OOOO-IIIL",slips)&&aether::ui::formatRandomSeed(slips)=="0000-1111","O -> 0, I/L -> 1 mapping");
+            std::uint64_t keep=7;require(!aether::ui::parseRandomSeed("A7F3-92C!",keep)&&!aether::ui::parseRandomSeed("",keep)&&!aether::ui::parseRandomSeed("123456789",keep)&&keep==7,"bad seed text was accepted");
+            juce::Random rnd(1234);
+            for(int i=0;i<2000;++i) {
+                const std::uint64_t value=((std::uint64_t(std::uint32_t(rnd.nextInt()))<<8)^std::uint32_t(rnd.nextInt()))&aether::ui::randomSeedMask;
+                const auto text=aether::ui::formatRandomSeed(value);std::uint64_t back=0;
+                require(text.length()==9&&text[4]=='-'&&aether::ui::parseRandomSeed(text,back)&&back==value,"seed round trip failed: "+text);
+                require(aether::ui::randomPresetLabel(value)=="(Random) "+text&&aether::ui::randomPresetLabel(value).length()<=23,"preset label format: "+text);
+            }
+        });
+        test("Randomize: a pinned seed repeats exactly, another seed differs, the seed field rejects junk",[&] {
+            ScopedRandomBackend backend;
+            RandomRig a,b;std::map<juce::String,float> start=randomValues(a.p);
+            for(auto* rig:{&a,&b}) {rig->panel->setPinned(true);require(rig->panel->setSeedText("A7F3-92C1"),"seed text refused");rig->panel->setAmount(.6f);rig->panel->roll(false);}
+            require(sameValues(randomValues(a.p),randomValues(b.p)),"same seed gave different values");require(!sameValues(randomValues(a.p),start),"roll changed nothing");
+            require(!a.panel->setSeedText("not a seed!")&&a.panel->seedText()=="A7F3-92C1","junk seed replaced the old seed");
+            // Mutate + amount 0 => empty patch (§6.2): values stay, recipe still records the roll.
+            RandomRig z;z.panel->setPinned(true);z.panel->setSeedText("A7F3-92C1");z.panel->setAmount(0.f);auto z0=randomValues(z.p);const auto empty=z.panel->roll(false);
+            require(empty.changedValues==0&&sameValues(z0,randomValues(z.p))&&z.panel->presetLabel().startsWith("(Random) "),"amount 0 Mutate was not an empty patch");
+            RandomRig c;c.panel->setPinned(true);c.panel->setSeedText("0000-0001");c.panel->setAmount(.6f);c.panel->roll(false);
+            require(!sameValues(randomValues(a.p),randomValues(c.p)),"another seed gave the same values");
+            // unpinned rolls draw a new seed each time and show it
+            RandomRig d;d.panel->roll(false);const auto first=d.panel->seedText();d.panel->roll(false);require(first!=d.panel->seedText(),"unpinned seed did not change");
+        });
+        test("Randomize: locked groups keep their values, every group is lockable and non-empty",[&] {
+            ScopedRandomBackend backend;
+            RandomRig rig;auto& panel=*rig.panel;
+            require(panel.lockedGroups()==juce::StringArray({"Global"}),"Global is not the only default lock: "+panel.lockedGroups().joinIntoString(","));
+            panel.setPinned(true);panel.setSeedText("1234-5678");panel.setAmount(.8f);
+            // default: Global untouched, something else moves
+            auto before=randomValues(rig.p);panel.roll(false);auto after=randomValues(rig.p);int moved=0;
+            for(const auto& [id,v]:before) {if(randomGroupOf(id)=="Global")require(std::abs(after[id]-v)<1.0e-6f,"locked Global value moved: "+id);else if(std::abs(after[id]-v)>1.0e-6f)++moved;}
+            require(moved>10,"too few values moved with only Global locked: "+juce::String(moved));
+            // one open group at a time: only that group changes
+            for(const auto& open:randomGroups) {
+                for(const auto& g:randomGroups) panel.setLocked(g,g!=open);
+                before=randomValues(rig.p);const auto recipe=panel.roll(false);after=randomValues(rig.p);int inGroup=0;
+                for(const auto& [id,v]:before) {const bool changed=std::abs(after[id]-v)>1.0e-6f;if(randomGroupOf(id)==open){if(changed)++inGroup;}else require(!changed,"value outside the open group "+open+" moved: "+id);}
+                require(inGroup>0,"group "+open+" has no movable parameter");
+                require(recipe.changedValues==inGroup&&recipe.touchedGroups==juce::StringArray({open}),"recipe does not match the roll for "+open+": "+juce::String(recipe.changedValues)+" vs "+juce::String(inGroup));
+            }
+            // everything locked: nothing changes and the panel says so
+            for(const auto& g:randomGroups) panel.setLocked(g,true);
+            before=randomValues(rig.p);const auto none=panel.roll(false);require(sameValues(before,randomValues(rig.p))&&none.changedValues==0,"all-locked roll changed values");
+            require(rig.textOf("last")=="Nothing changed (all locked)","all-locked message: "+rig.textOf("last"));
+            panel.resetLocks();require(panel.lockedGroups()==juce::StringArray({"Global"}),"resetLocks");
+            panel.setLocked("Motion",true);require(panel.isLocked("Motion")&&rig.textOf("lock.count")=="2 locked","lock count text: "+rig.textOf("lock.count"));
+            panel.setLocked("Nope",true);require(!panel.isLocked("Nope"),"unknown group accepted");
+        });
+        test("Randomize: undo history is capped at 16, steps restore the exact states, button shows x/16",[&] {
+            ScopedRandomBackend backend;
+            RandomRig rig;auto& panel=*rig.panel;panel.setAmount(.7f);
+            require(panel.undoDepth()==0&&rig.textOf("random.undo")=="Undo Random  0/16"&&!panel.undo(),"fresh undo state: "+rig.textOf("random.undo"));
+            std::vector<std::map<juce::String,float>> states;states.push_back(randomValues(rig.p));
+            for(int i=1;i<=20;++i) {
+                panel.roll(false);states.push_back(randomValues(rig.p));
+                require(panel.undoDepth()==std::min(i,16)&&rig.textOf("random.undo")=="Undo Random  "+juce::String(std::min(i,16))+"/16","undo depth after roll "+juce::String(i)+": "+rig.textOf("random.undo"));
+            }
+            for(int step=1;step<=16;++step) {
+                require(panel.undo(),"undo "+juce::String(step)+" refused");
+                require(sameValues(randomValues(rig.p),states[size_t(20-step)]),"undo "+juce::String(step)+" did not restore the previous roll");
+                require(panel.undoDepth()==16-step&&rig.textOf("random.undo")=="Undo Random  "+juce::String(16-step)+"/16","undo text after step "+juce::String(step)+": "+rig.textOf("random.undo"));
+            }
+            require(!panel.undo()&&sameValues(randomValues(rig.p),states[4]),"undo went past the 16th step");
+            // the same through the editor action and the real button
+            panel.roll(false);require(rig.editor->performUiAction("random.undo")&&panel.undoDepth()==0&&sameValues(randomValues(rig.p),states[4]),"undo action");
+        });
+        test("Randomize: the preset name reads \"(Random) <seed>\", remembers the source and returns to the preset name",[&] {
+            ScopedRandomBackend backend;
+            RandomRig rig;auto& panel=*rig.panel;
+            auto* combo=findShown<juce::ComboBox>(*rig.content,"preset.factory");require(combo!=nullptr,"preset combo missing");
+            const auto original=rig.p.currentPresetName();require(combo->getText()==original,"preset combo before roll: "+combo->getText());
+            panel.setPinned(true);panel.setSeedText("a7f3-92c1");panel.roll(false);
+            require(panel.presetLabel()=="(Random) A7F3-92C1"&&combo->getText()=="(Random) A7F3-92C1","preset name after roll: "+combo->getText());
+            require(panel.sourcePreset()==original&&rig.textOf("preset.source")=="from "+original,"source preset not remembered: "+rig.textOf("preset.source"));
+            panel.notePreset(rig.p.currentPresetName(),rig.p.isSnapshotB());require(panel.presetLabel()=="(Random) A7F3-92C1","timer tick dropped the label");
+            panel.roll(false);panel.setSeedText("0000-0002");panel.roll(false);require(panel.sourcePreset()==original&&combo->getText()=="(Random) 0000-0002","chained rolls: "+combo->getText());
+            // undo to the start restores the preset name
+            while(panel.undo()) {}require(panel.presetLabel().isEmpty()&&combo->getText()==original,"undo to the start kept the random name: "+combo->getText());
+            // picking a factory preset ends the roll
+            panel.roll(false);require(combo->getText().startsWith("(Random) "),"roll after undo");
+            combo->setSelectedId(3,juce::sendNotificationSync);
+            require(panel.presetLabel().isEmpty()&&combo->getText()==AetherAudioProcessor::factoryPresetNames()[2],"preset pick kept the random name: "+combo->getText());
+            // a preset that changed behind our back (host recall) and the other A/B slot do not show the name either
+            panel.roll(false);panel.notePreset("Somebody else",false);require(panel.presetLabel().isEmpty(),"foreign preset kept the label");
+            RandomRig slot;slot.panel->roll(false);slot.panel->notePreset(slot.p.currentPresetName(),true);require(slot.panel->presetLabel().isEmpty(),"label shown on the wrong A/B slot");
+            slot.panel->notePreset(slot.p.currentPresetName(),false);require(slot.panel->presetLabel().startsWith("(Random) "),"label gone after switching back to the rolled slot");
+        });
+        test("Randomize into B: A keeps the patch, B takes the roll, undo returns to A",[&] {
+            ScopedRandomBackend backend;
+            RandomRig rig;auto& panel=*rig.panel;panel.setAmount(.7f);
+            const auto a=randomValues(rig.p);require(!rig.p.isSnapshotB(),"A is not live at start");
+            const auto recipe=panel.roll(true);const auto b=randomValues(rig.p);
+            require(recipe.intoB&&recipe.onSlotB&&rig.p.isSnapshotB(),"result is not on the B slot");require(!sameValues(a,b),"B is the same as A");
+            require(rig.textOf("preset.source").endsWith("(B slot)")&&panel.presetLabel().startsWith("(Random) "),"B slot not shown: "+rig.textOf("preset.source"));
+            rig.p.toggleAB();require(sameValues(randomValues(rig.p),a),"A changed by Randomize into B");rig.p.toggleAB();require(sameValues(randomValues(rig.p),b),"B lost its roll");
+            require(panel.undo()&&!rig.p.isSnapshotB()&&sameValues(randomValues(rig.p),a),"undo of into-B did not return to A");
+            // a plain roll while B is live stays on B
+            rig.p.toggleAB();const auto live=panel.roll(false);require(live.onSlotB&&!live.intoB,"roll on live B moved slots");
+        });
+        test("Randomize header buttons and popover: inside the canvas, no overlap, text fits and keeps 4.5:1 contrast (both editions, all zoom / size cases)",[&] {
+            ScopedRandomBackend backend;
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);const juce::String edName=edition==1?"synth":"micro";
+                RandomRig rig;auto& panel=*rig.panel;auto* editor=rig.editor;auto* content=rig.content;
+                struct Case{const char* zoom;std::vector<std::pair<int,int>> sizes;};
+                const std::vector<Case> cases={{"zoom.50",{{720,450},{800,450},{720,620},{1000,625},{1030,640},{1100,750}}},{"zoom.75",{{885,585},{1080,675},{1500,900}}},{"zoom.100",{{1180,780},{1440,900},{2200,1500}}}};
+                // states: 0 fresh, 1 rolled, 2 rolled into B with more locks and Full mode, 3 all locked
+                for(int state=0;state<4;++state) {
+                    for(const auto& g:randomGroups) panel.setLocked(g,state==3||(state==2&&g!="Source")||g=="Global");
+                    panel.setMode(state==2?aether::ui::RandomizeMode::full:aether::ui::RandomizeMode::mutate);panel.setPinned(true);panel.setSeedText("ZZZZ-ZZZZ");
+                    rig.p.setParameterValue("global.mode",edition==1?2.f:(state%2==0?1.f:0.f));
+                    if(state==0){while(panel.undo()) {}panel.clearRecipe();} else panel.roll(state==2);
+                    for(const auto& testCase:cases) {
+                        require(editor->performUiAction(testCase.zoom),"zoom action missing");
+                        for(const auto& size:testCase.sizes) for(bool open:{false,true}) {
+                            editor->setSize(size.first,size.second);require(editor->performUiAction(open?"random.open":"random.close"),"random open/close action missing");
+                            const juce::String where=edName+" state "+juce::String(state)+(open?" open ":" closed ")+testCase.zoom+" "+juce::String(size.first)+"x"+juce::String(size.second);
+                            require(panel.isOpen()==open&&panel.isVisible()==open,"popover visibility: "+where);
+                            // header buttons: inside the canvas and clear of every other control (the popover itself floats above the page)
+                            std::vector<juce::Component*> visible;
+                            for(auto* child:content->getChildren()) if(child->isVisible()&&!child->getBounds().isEmpty()&&child!=&panel&&dynamic_cast<juce::TooltipWindow*>(child)==nullptr) {
+                                require(content->getLocalBounds().contains(child->getBounds()),"control outside the canvas: "+child->getComponentID()+" "+where);visible.push_back(child);
+                            }
+                            auto* roll=findShown<juce::TextButton>(*content,"random.header.roll");auto* caret=findShown<juce::Button>(*content,"random.header.menu");
+                            require(roll!=nullptr&&caret!=nullptr,"header Randomize buttons missing: "+where);
+                            for(auto* hb:{static_cast<juce::Component*>(roll),static_cast<juce::Component*>(caret)}) for(auto* other:visible) if(other!=hb)
+                                require(!hb->getBounds().intersects(other->getBounds()),"header button "+hb->getComponentID()+" overlaps "+other->getComponentID()+": "+where);
+                            const auto font=roll->getLookAndFeel().getTextButtonFont(*roll,28);
+                            require(juce::GlyphArrangement::getStringWidthInt(font,roll->getButtonText())<=roll->getWidth()-10,"header button text truncated ("+roll->getButtonText()+" in "+juce::String(roll->getWidth())+" px): "+where);
+                            require(contrast(roll->findColour(juce::TextButton::textColourOffId),roll->findColour(juce::TextButton::buttonColourId))>=4.5,"header button contrast: "+where);
+                            if(!open) continue;
+                            // popover: inside the canvas, children inside and apart
+                            require(content->getLocalBounds().contains(panel.getBounds()),"popover outside the canvas: "+where);
+                            std::vector<juce::Component*> kids;for(auto* k:panel.getChildren()) if(k->isVisible()&&!k->getBounds().isEmpty()) {require(panel.getLocalBounds().contains(k->getBounds()),"popover control outside: "+k->getComponentID()+" "+where);kids.push_back(k);}
+                            require(kids.size()>=14,"popover lost controls: "+juce::String(int(kids.size()))+" "+where);
+                            for(size_t i=0;i<kids.size();++i) for(size_t j=i+1;j<kids.size();++j) require(!kids[i]->getBounds().intersects(kids[j]->getBounds()),"popover controls overlap: "+kids[i]->getComponentID()+" / "+kids[j]->getComponentID()+" "+where);
+                            // texts: fit their area at the real font, stay inside, stay apart, 4.5:1 against their own background
+                            const auto items=editor->randomizeTexts();require(items.size()>=20,"popover texts missing: "+where);
+                            for(const auto& t:items) {
+                                if(t.text.isEmpty()) continue;
+                                const juce::String here=t.id+" \""+t.text+"\" "+where;
+                                require(t.size*(content->getTransform().getScaleFactor())>=9.99f,"text below 10 effective px: "+here);
+                                require(panel.getLocalBounds().contains(t.area),"text area outside the popover: "+here);
+                                if(!t.ellipsis) require(juce::GlyphArrangement::getStringWidthInt(font.withHeight(t.size),t.text)<=t.area.getWidth(),"text truncated: "+here);
+                                require(t.area.getHeight()>=int(t.size)+2,"text area too low: "+here);
+                                require(contrast(t.colour,t.background)>=4.5,"contrast "+juce::String(contrast(t.colour,t.background),2)+" < 4.5: "+here);
+                                requireEditionWording(edition,t.text,here);
+                            }
+                            for(size_t i=0;i<items.size();++i) for(size_t j=i+1;j<items.size();++j) {
+                                if(items[i].text.isEmpty()||items[j].text.isEmpty()) continue;
+                                require(!items[i].area.intersects(items[j].area),"popover texts overlap: "+items[i].id+" / "+items[j].id+" "+where);
+                            }
+                            require(rig.textOf("hint").isNotEmpty(),"mode hint missing: "+where);
+                        }
+                    }
+                }
+                editor->performUiAction("zoom.100");editor->performUiAction("random.close");
+            }
         });
         std::cout<<"RESULT "<<passed<<" tests passed, "<<failed<<" failed, "<<skipped<<" skipped\n"; return failed?1:0;
     } catch(const std::exception& error) { std::cerr<<"FAIL "<<error.what()<<'\n'; return 1; }

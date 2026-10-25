@@ -40,12 +40,18 @@ bool parseRandomSeed(const juce::String& text,std::uint64_t& seed) {
 juce::String randomPresetLabel(std::uint64_t seed) { return "(Random) "+formatRandomSeed(seed); }
 
 // ------------------------------------------------------------------------------------------------------------------------
-// MockBackend
+// MockBackend — stand-in for aether::rand::generate + SnapshotRing (§P.1 / §P.2) until the real engine lands.
+// Live writes use begin/set/end per changed id (§P.5). Undo restores via replaceState (mock shortcut; real path also uses
+// begin/set/end). into-B has no public AlternateSnapshot writer yet, so the mock approximates it with toggleAB (leaves the
+// user on B); the real path writes the B ValueTree only and keeps A live (§P.2 Target::AlternateSnapshot).
 // ------------------------------------------------------------------------------------------------------------------------
 namespace {
 class MockBackend final:public RandomizeBackend {
 public:
     explicit MockBackend(AetherAudioProcessor& proc):p(proc) {}
+    // UI section chips. Spec §1.2 groups are Chain/ModuleParams/FM/Source/Motion/MixGlobal/System; this mock keeps the
+    // six research-era labels (Global≈MixGlobal+System Never, Nodes≈Chain+ModuleParams, Texture≈remainder) until LockSet
+    // section bits land.
     juce::StringArray lockGroups() const override { return {"Global","Nodes","Motion","FM","Source","Texture"}; }
     juce::StringArray defaultLocked() const override { return {"Global"}; }
     RandomizeRecipe randomize(const RandomizeRequest& r) override { return run(r,false); }
@@ -53,13 +59,19 @@ public:
     bool undo() override {
         if(ring.empty()) return false;
         auto e=std::move(ring.back()); ring.pop_back();
-        if(e.switchedToB&&p.isSnapshotB()) p.toggleAB(); // back to A: the live slot gets the saved A state again
-        else p.state.replaceState(e.before);
-        current=e.recipeBefore; return true;
+        // SnapshotRing restore of Target::Live (and the mock's into-B which left the user on B).
+        p.state.replaceState(e.before);
+        current=std::move(e.recipeBefore);
+        if(e.switchedToB&&p.isSnapshotB()) p.toggleAB();
+        return true;
     }
     int undoDepth() const override { return int(ring.size()); }
     std::optional<RandomizeRecipe> recipe() const override { return current; }
     void forgetRecipe() override { current.reset(); }
+private:
+    // RandomSnapshot stand-in (§P.2): whole APVTS tree + prior recipe + whether into-B flipped the live slot.
+    struct Entry { juce::ValueTree before; std::optional<RandomizeRecipe> recipeBefore; bool switchedToB=false; };
+    AetherAudioProcessor& p; std::deque<Entry> ring; std::optional<RandomizeRecipe> current;
     static juce::String groupOf(const juce::String& id) {
         if(id.startsWith("global.")) return "Global";
         if(id.startsWith("node.")||id.startsWith("route.")||id.startsWith("routing.")||id.startsWith("graph.")) return "Nodes";
@@ -68,21 +80,22 @@ public:
         if(id.startsWith("source.")) return "Source";
         return "Texture";
     }
-private:
-    struct Entry { juce::ValueTree before; std::optional<RandomizeRecipe> recipeBefore; bool switchedToB=false; };
-    AetherAudioProcessor& p; std::deque<Entry> ring; std::optional<RandomizeRecipe> current;
     RandomizeRecipe run(const RandomizeRequest& r,bool intoB) {
         Entry e{p.state.copyState(),current,false};
-        if(intoB&&!p.isSnapshotB()) { auto a=p.state.copyState(); p.toggleAB(); p.state.replaceState(a); e.switchedToB=true; } // A -> snapshot, B = live copy of A
+        // into-B mock: copy A onto B and leave B live. Real path: write AlternateSnapshot only, A stays (§P.2).
+        if(intoB&&!p.isSnapshotB()) { auto a=p.state.copyState(); p.toggleAB(); p.state.replaceState(a); e.switchedToB=true; }
         RandomizeRecipe rec; rec.seed=r.seed&randomSeedMask; rec.mode=r.mode; rec.amount=r.amount; rec.lockedGroups=r.lockedGroups; rec.intoB=intoB;
         rec.sourcePreset=current?current->sourcePreset:p.currentPresetName();
-        for(const auto& spec:aether::parameterSpecs()) {
-            if(spec.boolean||spec.choices.size()>0) continue; // only continuous / integer values move
+        // Mutate + amount==0 => empty patch (§6.2); no parameter writes, still push the ring so Undo is consistent.
+        const float amount=juce::jlimit(0.f,1.f,r.amount);
+        const bool emptyMutate=r.mode==RandomizeMode::mutate&&amount<=0.f;
+        if(!emptyMutate) for(const auto& spec:aether::parameterSpecs()) {
+            if(spec.boolean||spec.choices.size()>0) continue; // mock: continuous / integer only (Never/Structural not modelled)
             const auto group=groupOf(spec.id); if(r.lockedGroups.contains(group)) continue;
             auto* prm=p.state.getParameter(spec.id); if(prm==nullptr) continue;
             const float before=prm->getValue(),u=unitFor(rec.seed,spec.id);
-            const float amount=juce::jlimit(0.f,1.f,r.amount);
             const float target=r.mode==RandomizeMode::mutate?before+(u*2.f-1.f)*amount*.5f:before+(u-before)*(.5f+.5f*amount);
+            // Live commit path recommended by §P.5 (same as applyValues / loadFactoryPreset).
             prm->beginChangeGesture(); prm->setValueNotifyingHost(juce::jlimit(0.f,1.f,target)); prm->endChangeGesture();
             if(std::abs(prm->getValue()-before)>1.0e-6f) { ++rec.changedValues; rec.touchedGroups.addIfNotAlreadyThere(group); }
         }
@@ -92,6 +105,7 @@ private:
     }
 };
 }
+
 std::unique_ptr<RandomizeBackend> makeMockBackend(AetherAudioProcessor& p) { return std::make_unique<MockBackend>(p); }
 
 // ------------------------------------------------------------------------------------------------------------------------

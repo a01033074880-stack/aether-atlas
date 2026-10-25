@@ -8,10 +8,16 @@
 
 // Randomize popover for the Atlas editor (stage B of 2.3.0).
 //
-// The engine side is hidden behind RandomizeBackend, a small pure-virtual interface: the UI only knows "randomize with seed /
-// amount / locked groups", an undo ring of at most randomUndoSteps steps, the recipe of the roll now on screen, and "write the
-// result into the B slot". docs/randomization-spec.md is not frozen yet, so only MockBackend implements it today (tests and
-// snapshots); the plugin editor shows no Randomize controls until a backend factory is installed.
+// UI depends only on RandomizeBackend. Naming tracks RandSpec §P (docs/randomization-spec.md @ a1726a5), which is still a
+// draft and must not be edited here:
+//   - aether::rand::generate(StateView, Config, LockSet) -> Patch   // pure function, no JUCE (MockBackend fakes it)
+//   - SnapshotRing capacity 16                                      // Undo Random; Message thread only
+//   - LockSet (sections / rows / per-param)                         // UI exposes section chips today
+//   - RandomRecipe                                                  // seed, mode, amount, sourcePreset, intoB, ...
+//   - Display name "(Random) <seed>"; source remembered in the recipe
+//   - Live commit: beginChangeGesture/setValueNotifyingHost/endChangeGesture per changed id (§P.5);
+//     into-B writes the alternate snapshot (ValueTree) with no host notify. Mock approximates into-B via toggleAB.
+// The editor shows no Randomize controls until a backend factory is installed (release path unchanged).
 namespace aether::ui {
 
 inline constexpr int randomUndoSteps=16;
@@ -22,46 +28,49 @@ bool parseRandomSeed(const juce::String& text,std::uint64_t& seed);
 // The preset name shown after a roll.
 juce::String randomPresetLabel(std::uint64_t seed);
 
+// Maps to aether::rand::Mode { Mutate, Full } (§P.1). UI keeps lower-case enumerators.
 enum class RandomizeMode { mutate, full };
 
+// UI-facing subset of aether::rand::Config + LockSet (§P.1 / §P.3). Real engine also has Safety / scopeMask / attempt.
 struct RandomizeRequest {
-    std::uint64_t seed=0;
+    std::uint64_t seed=0;           // 40-bit, same as Config::seed
     RandomizeMode mode=RandomizeMode::mutate;
-    float amount=.35f;              // 0..1
-    juce::StringArray lockedGroups; // names from RandomizeBackend::lockGroups(); their parameters are left untouched
+    float amount=.35f;              // 0..1; Mutate + amount==0 => empty patch (§6.2)
+    juce::StringArray lockedGroups; // section names from RandomizeBackend::lockGroups(); projection of LockSet::sections
 };
 
-// What produced the state now on screen. Metadata only: it is not part of the preset format.
+// UI-facing subset of aether::rand::RandomRecipe (§P.4). Metadata only — not part of the .aether preset format.
 struct RandomizeRecipe {
     std::uint64_t seed=0;
     RandomizeMode mode=RandomizeMode::mutate;
     float amount=0;
     juce::StringArray lockedGroups;
-    juce::String sourcePreset;      // preset name before the first roll of a chain ("from <name>")
-    bool intoB=false;               // the roll was written into the B slot
-    bool onSlotB=false;             // the slot (A=false, B=true) that carries the result
-    int changedValues=0;
+    juce::String sourcePreset;      // RandomRecipe::sourcePreset (name before the first roll of a chain)
+    bool intoB=false;               // RandomRecipe::intoB — result written into the B / AlternateSnapshot slot
+    bool onSlotB=false;             // RandomSnapshot::Target::AlternateSnapshot vs Live (UI: which slot shows the roll)
+    int changedValues=0;            // Patch::diffs.size() stand-in
     juce::StringArray touchedGroups;
 };
 
+// Thin UI façade over the future aether::rand::generate + SnapshotRing + LockSet + RandomRecipe (§P).
 class RandomizeBackend {
 public:
     virtual ~RandomizeBackend()=default;
-    // Lockable parameter groups in display order, and the ones that start locked.
+    // Lockable sections in display order (UI chips) and the ones that start locked. Real LockSet is finer (§P.3).
     virtual juce::StringArray lockGroups() const=0;
     virtual juce::StringArray defaultLocked() const=0;
-    // Randomize the live slot / write the result into the B slot (A stays as it was). Both push one undo step.
+    // Live slot (= SnapshotRing Target::Live) / into B (= Target::AlternateSnapshot). Both push one SnapshotRing step.
     virtual RandomizeRecipe randomize(const RandomizeRequest&)=0;
     virtual RandomizeRecipe randomizeIntoB(const RandomizeRequest&)=0;
-    // Undo the last roll; false when the ring is empty. undoDepth() is the number of steps left (0..randomUndoSteps).
+    // Undo Random; false when the ring is empty. undoDepth() is 0..randomUndoSteps (== SnapshotRing capacity 16).
     virtual bool undo()=0;
     virtual int undoDepth() const=0;
-    // Recipe of the roll that is on screen now (empty when the state is not a random roll), and the way to drop it.
+    // Recipe of the roll now on screen (empty when the state is not a random roll), and the way to drop it.
     virtual std::optional<RandomizeRecipe> recipe() const=0;
     virtual void forgetRecipe()=0;
 };
-// Deterministic stand-in that really moves the parameters of the processor (continuous ones only), honours locks and keeps a
-// 16 step undo ring. For tests and snapshots; never part of a shipped build path.
+// Deterministic stand-in for tests/snapshots: fakes generate()+SnapshotRing on continuous params, honours section locks.
+// Never part of a shipped build path. Real engine is a pure function with no JUCE dependency (§P.1).
 std::unique_ptr<RandomizeBackend> makeMockBackend(AetherAudioProcessor&);
 
 // Colours and text hooks of the host editor, so the popover looks like the rest of Atlas and follows its text floor.
