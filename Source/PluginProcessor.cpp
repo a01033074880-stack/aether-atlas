@@ -486,9 +486,18 @@ void AetherAudioProcessor::getStateInformation(juce::MemoryBlock& data) {
 }
 void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     if(data==nullptr || size<=0 || size>1024*1024) return;
+    // JUCE binary XML is magic(4)+stringLength(4)+utf8[stringLength]+NUL.
+    // getXmlFromBinary reads jmin(size-8, stringLength), so a truncated blob can still
+    // yield a partial AetherState (schema intact, PARAM list incomplete or empty) that
+    // merge would apply. Refuse any incomplete header/payload before touching state.
+    if(size<9) return;
+    if(juce::ByteOrder::littleEndianInt(data)!=0x21324356) return;
+    const int stringLength=static_cast<int>(juce::ByteOrder::littleEndianInt(juce::addBytesToPointer(data,4)));
+    if(stringLength<=0 || size<stringLength+9) return;
     auto xml=getXmlFromBinary(data,size);
     if(!xml || !xml->hasTagName("AetherState")) return;
     auto tree=juce::ValueTree::fromXml(*xml);
+    if(!tree.isValid() || !tree.hasType("AetherState")) return;
     const int schema=static_cast<int>(tree.getProperty("schema",1));
     if(schema<1||schema>aether::stateSchemaNewest) return;
     // Merge only recognized finite values into the current canonical tree.
