@@ -20,6 +20,8 @@ public:
     struct SourcePaintText { juce::Rectangle<int> area; juce::String text; float size; bool display; juce::Colour colour; };
     std::vector<SourcePaintText> sourcePaintTexts() const;
     juce::String sourceStatus();
+    // Test / snapshot hook: 0 = effect edition (FX + Resynth), 1 = Synth edition, -1 = compile-time edition (JucePlugin_IsSynth). Call before creating an editor.
+    static void setEditionForTesting(int edition);
 private:
     struct Impl;
     std::unique_ptr<Impl> ui;
