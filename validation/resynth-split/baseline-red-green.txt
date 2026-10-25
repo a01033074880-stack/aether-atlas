@@ -1,0 +1,104 @@
+﻿AETHER 2.2.0 resynth/split tests - BASELINE red/green
+=====================================================
+Baseline source : integration/2.1.0-rc @ 80165fc91f43bf3c03ab52a4d08b37af889625eb (no implementation of the 2.2.0 behaviour)
+Test branch     : test/resynth-split-tests (worktree C:\Users\24168\Documents\Projects\wt-split-tests); only tests/, CMakeLists.txt test targets, validation/ added
+Build           : validation\resynth-split\build.ps1 (vcvars64 + Ninja + Release, JUCE C:/SDKs/JUCE), build dir build-split
+Executables     : AetherResynthSplitFx (links AetherMicro, JucePlugin_IsSynth=0) / AetherResynthSplitSynth (links AetherMicroSynth, JucePlugin_IsSynth=1)
+ctest names     : aether_split_unchanged (expected GREEN before and after), aether_resynth_split (expected RED on baseline, GREEN after)
+
+All results below were produced by commands run in this session on the baseline:
+  ctest --test-dir build-split -C Release -R ^aether_resynth_split$   -> Failed  (282 s), log baseline\ctest-aether_resynth_split.log
+  ctest --test-dir build-split -C Release -R ^aether_split_unchanged$ -> Passed  (297 s), log baseline\ctest-aether_split_unchanged.log
+  AetherResynthSplitFx.exe    --group unchanged -> exit 0, log baseline\final-Fx-unchanged.log   (7 passed, 0 failed)
+  AetherResynthSplitSynth.exe --group unchanged -> exit 0, log baseline\final-Synth-unchanged.log (6 passed, 0 failed)
+  AetherResynthSplitFx.exe    --group split     -> exit 1 (inside ctest), 1 passed / 8 failed
+  AetherResynthSplitSynth.exe --group split     -> exit 1 (inside ctest), 1 passed / 2 failed
+
+UNCHANGED group (must stay GREEN)  - GREEN on baseline
+  both forms : form identity | global.mode option list/default (0..2, FX/Resynth/Synth; default 0 effect, 2 synth) |
+               old fixtures load+render finite | determinism + block size 17/257/1000 | golden of 36 factory presets
+               (effect form 72/72 and synth form 36/36 bit-exact vs goldens generated on this baseline)
+  effect only: FX (mode 0) unaffected by Source | Resynth (1) differs from FX (0)
+  synth only : mode 2 FM and both Source engines audible + finite
+
+SPLIT group (new behaviour)
+  effect form (AetherResynthSplitFx):
+    RED   mode 2 behaves exactly as FX (0)                      : 5/5 scenarios differ (max |diff| 0.31..0.48; baseline renders mode 2 as Synth)
+    RED   old states/presets stored with mode 2 fall back to FX : 4/4 differ (custom-graph-fm, factory-11-Copper-Strings, Copper Strings, Prism Keys)
+    GREEN mode-2 state survives prepare/reset, renders finite   : robustness only - passes on baseline too (not a discriminator)
+    RED   Resynth+Source Phase Geometry: audible/finite/no click: "Source had no effect in Resynth (rms difference vs Source off 0)"
+    RED   Resynth+Source Chaos: same checks                     : same reason
+    RED   Phase Geometry pitch follows 220/330 Hz               : Source had no effect in Resynth
+    RED   amplitude follows input envelope                      : Source had no effect in Resynth
+    RED   deterministic + block-size independent (17/257/1000)  : Source had no effect in Resynth
+    RED   extreme source parameters finite and bounded          : Source had no effect in Resynth (guard: Source must be active)
+  synth form (AetherResynthSplitSynth):
+    RED   mode 0/1 behave exactly as Synth (2)                  : 7 scenario/mode pairs differ (mode 0 renders silence, rms 0)
+    RED   old states/presets stored with mode 0/1 render as Synth: 9/10 differ (e.g. default, factory-00, Clean Canvas)
+    GREEN all 36 factory presets render as Synth                : NOT a discriminator - loadFactoryPreset already forces mode 0 -> 2 in the synth build on baseline
+
+Full failure output (verbatim from baseline\ctest-aether_resynth_split.log):
+-----------------------------------------------------------------
+Test project C:/Users/24168/Documents/Projects/wt-split-tests/build-split
+    Start 8: aether_resynth_split
+1/1 Test #8: aether_resynth_split .............***Failed  282.14 sec
+-- === C:/Users/24168/Documents/Projects/wt-split-tests/build-split/AetherResynthSplitFx_artefacts/Release/AetherResynthSplitFx.exe --group split
+plugin form: AETHER Micro (effect, JucePlugin_IsSynth=0), group split
+FAIL [split] effect form: a requested/stored mode 2 (Synth) behaves exactly as FX (0): 
+      - mode 2 vs mode 0, legacy chain (graph off, FM off, source off): renders differ, max |diff| 0.373176 (rms A 0.0598271, rms B 0.118852)
+      - mode 2 vs mode 0, FM engine only (graph off): renders differ, max |diff| 0.310568 (rms A 0.0296818, rms B 0.118852)
+      - mode 2 vs mode 0, Atlas graph + FM: renders differ, max |diff| 0.357526 (rms A 0.0403663, rms B 0.122186)
+      - mode 2 vs mode 0, Phase Geometry source (graph off, FM off): renders differ, max |diff| 0.476573 (rms A 0.0858389, rms B 0.118852)
+      - mode 2 vs mode 0, Chaos source + FM (graph off): renders differ, max |diff| 0.448701 (rms A 0.0659363, rms B 0.118852)
+FAIL [split] effect form: old states/presets saved with mode 2 load and fall back to FX (0): 
+      - load state custom-graph-fm (stored mode 2) vs same + mode 0: renders differ, max |diff| 0.376475 (rms A 0.0359466, rms B 0.140075)
+      - load state factory-11-Copper-Strings (stored mode 2) vs same + mode 0: renders differ, max |diff| 0.808566 (rms A 0.0798785, rms B 0.320775)
+      - load preset Copper Strings (stored mode 2) vs same + mode 0: renders differ, max |diff| 0.808566 (rms A 0.0798785, rms B 0.320775)
+      - load preset Prism Keys (stored mode 2) vs same + mode 0: renders differ, max |diff| 0.486757 (rms A 0.0725444, rms B 0.123884)
+PASS [split] effect form: old state with mode 2 does not crash across prepare/reset and keeps rendering finite
+FAIL [split] Resynth + Source (Phase Geometry): audible, finite, differs from Source off, silent input stays silent, no clicks at input start/cut: Source had no effect in Resynth (rms difference vs Source off 0): the Source engine is not driven by the input
+FAIL [split] Resynth + Source (Chaos): audible, finite, differs from Source off, silent input stays silent, no clicks at input start/cut: Source had no effect in Resynth (rms difference vs Source off 0): the Source engine is not driven by the input
+FAIL [split] Resynth + Source (Phase Geometry): frequency follows the detected input pitch (220 Hz and 330 Hz): Source had no effect in Resynth, pitch test would prove nothing (220 Hz input)
+FAIL [split] Resynth + Source (both engines): amplitude follows the input envelope (0.5 vs 0.1): engine 1: Source had no effect in Resynth
+FAIL [split] Resynth + Source: deterministic and block-size independent (17/257/1000 vs 256): engine 1: Source had no effect in Resynth, determinism would prove nothing
+FAIL [split] Resynth + Source: extreme source parameters stay finite and bounded: engine 1: Source had no effect in Resynth, bounds test would prove nothing
+RESULT 1 tests passed, 8 failed
+-- === FAILED (exit 1): C:/Users/24168/Documents/Projects/wt-split-tests/build-split/AetherResynthSplitFx_artefacts/Release/AetherResynthSplitFx.exe
+-- === C:/Users/24168/Documents/Projects/wt-split-tests/build-split/AetherResynthSplitSynth_artefacts/Release/AetherResynthSplitSynth.exe --group split
+plugin form: AETHER Micro Synth (JucePlugin_IsSynth=1), group split
+FAIL [split] synth form: a requested/stored mode 0 (FX) or 1 (Resynth) behaves exactly as Synth (2): 
+      - mode 0 vs mode 2, legacy chain (graph off, FM off, source off): renders differ, max |diff| 0.183577 (rms A 0, rms B 0.0597587)
+      - mode 0 vs mode 2, FM engine only (graph off): renders differ, max |diff| 0.118519 (rms A 0, rms B 0.0296818)
+      - mode 0 vs mode 2, Atlas graph + FM: renders differ, max |diff| 0.158674 (rms A 0, rms B 0.0403663)
+      - mode 0 vs mode 2, Phase Geometry source (graph off, FM off): renders differ, max |diff| 0.30747 (rms A 0, rms B 0.0858389)
+      - mode 1 vs mode 2, Phase Geometry source (graph off, FM off): renders differ, max |diff| 0.427564 (rms A 0.0597587, rms B 0.0858389)
+      - mode 0 vs mode 2, Chaos source + FM (graph off): renders differ, max |diff| 0.292399 (rms A 0, rms B 0.0659363)
+      - mode 1 vs mode 2, Chaos source + FM (graph off): renders differ, max |diff| 0.255668 (rms A 0.0296818, rms B 0.0659363)
+FAIL [split] synth form: old states/presets saved with mode 0 or 1 load and render as Synth: 
+      - load state default (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.158674 (rms A 0, rms B 0.0403663)
+      - load state ab-snapshot-b (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.0337975 (rms A 0, rms B 0.00777604)
+      - load state factory-00-Gentle-Orbit (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.183577 (rms A 0, rms B 0.0597587)
+      - load state factory-05-Iron-Drum-Room (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.369598 (rms A 0, rms B 0.151811)
+      - load state factory-12-Atlas---Suspended-Paper (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.102715 (rms A 0, rms B 0.0255605)
+      - load state factory-20-Atlas---Frozen-Architecture (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.0675951 (rms A 0, rms B 0.0155521)
+      - load state factory-35-Motion---Stochastic-Room (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.0659006 (rms A 0, rms B 0.0173305)
+      - load preset Clean Canvas (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.213214 (rms A 0, rms B 0.0693937)
+      - load preset Glass Resonator (stored mode 0) vs same + mode 2: renders differ, max |diff| 0.308646 (rms A 0, rms B 0.0886961)
+PASS [split] synth form: factory presets (including the two stored with mode 1) all render as Synth
+RESULT 1 tests passed, 2 failed
+-- === FAILED (exit 1): C:/Users/24168/Documents/Projects/wt-split-tests/build-split/AetherResynthSplitSynth_artefacts/Release/AetherResynthSplitSynth.exe
+CMake Error at C:/Users/24168/Documents/Projects/wt-split-tests/tests/RunSplitGroup.cmake:13 (message):
+  group 'split' failed
+
+
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) = 282.16 sec
+
+The following tests FAILED:
+	  8 - aether_resynth_split (Failed)
+Errors while running CTest
+
+

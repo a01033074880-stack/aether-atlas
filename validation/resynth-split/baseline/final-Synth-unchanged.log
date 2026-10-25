@@ -1,0 +1,9 @@
+plugin form: AETHER Micro Synth (JucePlugin_IsSynth=1), group unchanged
+PASS [unchanged] this executable really is the expected plugin form
+PASS [unchanged] global.mode keeps its option list and default (state compatibility)
+PASS [unchanged] old fixtures (v1.0.0 presets, v2.0.1 states) load and render finite in this form
+PASS [unchanged] render is deterministic and block-size independent in this form (FM+graph, Phase Geometry, Chaos)
+PASS [unchanged] synth form, mode 2: FM and both Source engines stay audible and finite
+  bit-exact SHA-256 matches: 36 of 36
+PASS [unchanged] golden: the 36 factory presets render as before in this form (tests/fixtures/golden/render-split-*.json)
+RESULT 6 tests passed, 0 failed
