@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.1 — 2026-10-29
+
+Global randomization release, built from ui/rand-global-231. The CMake/plugin version is 2.3.1.
+
+- Global randomization: the Randomize panel now defaults to Full / 100 % with all groups unlocked, and the new Global safety tier randomizes 445 of the 495 parameters (up from 175), uses all 12 routing slots and can build custom FM matrices.
+- Motion randomization: Randomize Motion (03 Motion page and Randomize panel) rewrites the LFO values, modulation depths and the source and destination of every modulation row.
+- A Full roll with the graph switched off now opens the graph automatically instead of doing nothing.
+- Bus volume is excluded: global input / output / mix, master section, graph.trim, fm.gain and source.gain are never randomized and no modulation row may target them.
+- Conflict check: one unified repair and validation pass runs after every roll (feedback loops, dead or duplicate modulation rows, per-target depth sums, silent carriers).
+- Randomization results differ from 2.3.0 for the same seed (algorithm version 2).
+
 ## 2.3.0 — 2026-10-28 (release candidate)
 
 Release candidate built from integration/2.3.0-final. The CMake/plugin version is 2.3.0. Two features: Controlled Randomization (segment B) and 28 new modulation destinations (segment A, below).
