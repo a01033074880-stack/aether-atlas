@@ -1,0 +1,11 @@
+﻿5062e61fa631103481104b081abc73ed5db1f865
+[0/2] Re-checking globbed directories...
+[1/10] Building CXX object CMakeFiles\aether_rand.dir\libs\aether-rand\src\RandState.cpp.obj
+[2/10] Building CXX object CMakeFiles\aether_rand.dir\libs\aether-rand\src\Rand.cpp.obj
+[3/10] Linking CXX static library aether_rand.lib
+[4/10] Building CXX object CMakeFiles\AetherRandTests.dir\tests\RandTests.cpp.obj
+[5/10] Building CXX object CMakeFiles\AetherRandStateTests.dir\tests\RandStateTests.cpp.obj
+[6/10] Linking CXX executable AetherRandTests.exe
+[7/10] Linking CXX executable AetherRandStateTests.exe
+[8/10] Building CXX object CMakeFiles\AetherRandInvariants.dir\tests\RandInvariantTests.cpp.obj
+[9/10] Linking CXX executable AetherRandInvariants.exe
