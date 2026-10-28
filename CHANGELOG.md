@@ -1,8 +1,19 @@
 # Changelog
 
-## Unreleased — planned for 2.3.0 (DRAFT, no release date)
+## 2.3.0 — 2026-10-28 (release candidate)
 
-Draft, phase A only. The CMake/plugin version is still 2.2.0; nothing below is released. (The heading deliberately carries no `x.y.z` number: `scripts/check-version.ps1` treats the first `## x.y.z` heading as the current version.)
+Release candidate built from integration/2.3.0-final. The CMake/plugin version is 2.3.0. Two features: Controlled Randomization (segment B) and 28 new modulation destinations (segment A, below).
+
+- Controlled Randomization (global): one randomizer over the whole parameter set (495 host parameters) with per-parameter locks, a seeded and reproducible result, a recipe (seed + algorithm version + attempt number) and a 16-step undo. Audition re-rolls use attemptSeed = seed ^ (k * 0x9E3779B97F4A7C15), k = 0..5. "Randomize into B" writes the result to the B snapshot and keeps you on A; its recipe is stored separately and is not written into the B snapshot tree.
+- Preset name after a randomization: "<source preset> (Random) <seed>" (40-bit seed, 8 Base32 characters; a long source name is truncated, never the seed). The editor shows "(Random) <seed>" and the source preset is kept in the recipe.
+- Undo covers randomization only (not knob edits). The ring is runtime data: it is not persisted, and after a session round trip the undo depth is 0. Reported by the UI branch on 78dd005 (plugin test run): after 16 undos FX had 0 differing values, Synth 10 values differing by at most 2 ulp (agreed limit: at most 4 ulp per parameter).
+- Saved state: the recipe and the locks live in an optional processor-level "random" subtree of the plugin state (a state without it loads with empty locks). .aether presets do NOT write the recipe by default (file format and schema 3/4 unchanged; "Include Random recipe" is off by default).
+- Known display limits: recipe.changedValues can count a few more values than actually changed (one Full run reported 107 against 103 actually changed; the extra ones have no numeric change), so the "N changed" hint can be a little high. After "Randomize into B", the real value after switching to B differs from the controller snapshot by up to 2.1e-6 (Micro) / 1.1e-5 (Synth) because the A/B switch goes through the normalized host value (not introduced in this release).
+- Tests added: AetherRandInvariants (ctest label rand-230, items aether_rand_inv_R02/R05/R06/R08/R11/R12/R13/R16/R18) and AetherRandWiring / AetherRandWiringSynth (aether_rand_wiring, aether_rand_wiring_synth).
+
+### Segment A: modulation destinations (merged on integration/2.3.0-rc)
+
+Summary of the phase A work below. Where a bullet says the CMake version is still 2.2.0 or that nothing is released, that was true of the draft only.
 
 - Modulation destinations (owner: sound engineer, branch `feat/mod-targets-230`, merged on `integration/2.3.0-rc`): `modulation.N.target` gains 28 destinations numbered 85..112 (option count 85 -> 113). 85-87 Source Level / Spread / Transpose (any Source engine), 88-96 Phase Geometry (Walsh seq, Walsh mix, CZ depth, CZ env, CZ velocity, VPS D, VPS V, VPS ratio, Phase random), 97-101 Chaos (Amp step, Dur step, Dur range, Momentum, Amp barrier), 102-106 FM (Mod index, Morph, Feedback, Voice level, Spread), 107-112 FM Op 1..Op 6 Level. Menu names are `Source / ...` and `FM / ...` (at most 24 characters), set in `modulationTargetNames()`; the modulated parameter of each number is `modulationExtendedParameter` in `Source/Parameters.h`. Existing numbers (1..84) and parameter IDs are unchanged. Full table: `docs/modulation-destinations.md` and the user guide section "新增调制目的地".
 - Modulation semantics: like the old destinations, the new ones only run while `graph.enabled` is on; depth 1 = full parameter travel in the normalized/skew domain; the host parameter value stays the baseline and is never written back; result clamped to the parameter range; modulation updates every 16 samples and the destinations lag the sources by at most one 16-sample tick; a destination whose engine is not running (for example a Phase Geometry destination while the engine is Chaos, or an FM destination with FM off) is silent without an error and the render is bit-identical to the unmodulated one.

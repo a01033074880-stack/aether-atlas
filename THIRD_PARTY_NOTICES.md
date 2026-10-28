@@ -1,4 +1,4 @@
-# Third-party software notices — Atlas 2.2.0
+# Third-party software notices — Atlas 2.3.0
 
 Copyright 2026 Aether Micro contributors. The original standalone DSP code under `libs/aether-dsp` is MIT. The complete JUCE-linked application is distributed under AGPL-3.0-or-later; the full license is in `LICENSE`.
 

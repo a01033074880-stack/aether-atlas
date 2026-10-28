@@ -14,7 +14,7 @@ Push-Location $aetherRoot
 try {
     # RELEASE.json records sourceCommit and the source archive is taken from HEAD: refuse to package uncommitted tracked changes.
     if (-not $AllowDirty -and (((& git status --porcelain --untracked-files=no) | Out-String).Trim())) { throw 'Working tree has uncommitted tracked changes; commit them first (or pass -AllowDirty).' }
-    $aetherVersion = '2.2.0'
+    $aetherVersion = '2.3.0'
     $aetherName = "AetherAtlas-$aetherVersion-Windows-x64"
     $aetherRelease = Join-Path $aetherRoot "dist/$aetherName"
     # Never replace a prior reviewable release silently.
