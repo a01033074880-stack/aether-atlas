@@ -84,7 +84,7 @@ struct Config {
     float amount = 1.f;              // 0..1; Mutate only (Full ignores it). Mutate with amount == 0 yields an empty patch
     Safety safety = Safety::Safe;    // frozen default (spec 9.1.1 #2; draft P.1 said Normal)
     std::uint32_t scopeMask = ScopeAll;
-    int attempt = 0;                 // re-roll index 0..5 (6.1): attemptSeed = seed ^ (k * 0x9E3779B97F4A7C15)
+    int attempt = 0;                 // re-roll index 0..5 (6.1; out of range is clamped to [0,5]): attemptSeed = seed ^ (k * 0x9E3779B97F4A7C15)
     bool intoB = false;              // only affects where the caller writes; does not affect sampling
 };
 

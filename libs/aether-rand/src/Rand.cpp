@@ -139,7 +139,7 @@ public:
         : cfg_(cfg), locks_(locks), edition_(in.edition), raw_(in.value),
           mode_(in.edition.isSynth ? 2 : (in.edition.effectiveMode == 1 ? 1 : 0)),
           si_(cfg.safety == Safety::Safe ? 0 : (cfg.safety == Safety::Normal ? 1 : 2)),
-          aseed_(cfg.seed ^ (static_cast<std::uint64_t>(std::max(cfg.attempt, 0)) * kPhi64)),
+          aseed_(cfg.seed ^ (static_cast<std::uint64_t>(std::clamp(cfg.attempt, 0, 5)) * kPhi64)),
           rs_(aseed_, fnv1a64("@structure")), rm_(aseed_, fnv1a64("@modulation")) {
         for (int i = 0; i < kParamCount; ++i) {
             const auto& pi = kParamTable[static_cast<std::size_t>(i)];

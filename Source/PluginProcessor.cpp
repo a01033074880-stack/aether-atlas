@@ -482,6 +482,7 @@ void AetherAudioProcessor::getStateInformation(juce::MemoryBlock& data) {
     }
     tree.setProperty("program",currentProgram.load(),nullptr);
     tree.setProperty("schema",extended?aether::stateSchemaDestinations:aether::stateSchema,nullptr); tree.setProperty("version","2.0.0",nullptr);
+    randomizer_.writeLocksTo(tree); // optional <random> child, only when locks or a recipe exist; saves without them stay byte-identical
     auto xml=tree.createXml(); copyXmlToBinary(*xml,data);
 }
 void AetherAudioProcessor::setStateInformation(const void* data,int size) {
@@ -535,6 +536,7 @@ void AetherAudioProcessor::setStateInformation(const void* data,int size) {
     }
     currentProgram.store(juce::jlimit(0,getNumPrograms()-1,static_cast<int>(tree.getProperty("program",0))));
     panic.store(true,std::memory_order_relaxed);
+    randomizer_.readLocksFrom(tree); // outside merge(): a missing or malformed <random> node means empty locks
 }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new AetherAudioProcessor(); }
 

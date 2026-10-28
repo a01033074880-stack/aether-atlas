@@ -4,10 +4,12 @@
 #include <aether/Chaos.h>
 #include <aether/PhaseGeometry.h>
 #include "Parameters.h"
+#include "RandomizeController.h"
 #include <array>
 #include <atomic>
 
 class AetherAudioProcessor final : public juce::AudioProcessor {
+    friend class aether::rand::RandomizeController; // 2.3.0 randomization: reads/writes the A/B snapshot, preset name, panic flag
 public:
     AetherAudioProcessor();
     ~AetherAudioProcessor() override = default;
@@ -50,6 +52,7 @@ public:
     void toggleAB();
     bool isSnapshotB() const noexcept { return snapshotB.load(); }
     void requestPanic() noexcept { panic.store(true); }
+    aether::rand::RandomizeController& randomizer() noexcept { return randomizer_; }
     float parameterValue(const juce::String&) const;
     void setParameterValue(const juce::String&,float);
     void applyRoutingAlgorithm(int);
@@ -89,6 +92,7 @@ private:
     juce::ValueTree snapshot;
     mutable juce::CriticalSection metadataLock;
     juce::String presetName="Atlas / Init";
+    aether::rand::RandomizeController randomizer_{*this}; // declared after the members it reads; owns locks, recipe and undo ring
     double currentRate=48000;
     bool prepared=false,wasBypassed=false;
     bool graphActive=true,fmActive=true,atlasSourceActive=true;

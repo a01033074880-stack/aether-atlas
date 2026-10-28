@@ -586,6 +586,7 @@ FM 出厂算法(`libs/aether-fm/src/FmSynth.cpp:47-79` 的 `definitions` 表,探
 - **PCG32,每个参数一个独立子流**:`PCG32(seed, fnv1a64(paramId))`。参数的取值只依赖 `(seed, id, config)`,与遍历顺序无关;新增参数不会改变已有参数的结果。
 - 另有结构流 `PCG32(seed, fnv1a64("@structure"))`、调制流 `PCG32(seed, fnv1a64("@modulation"))`。
 - **试听重掷**:第 `k`(0..5)次尝试使用 `attemptSeed = seed ^ (k · 0x9E3779B97F4A7C15)`;配方记录被接受的 `attempt`,这样无需再次试听即可复现(§P.4)。
+- **attempt 越界**:`generate` 将 `attempt` 钳制到 [0,5](`attempt<0` 按 0,`attempt>5` 按 5);0..5 的结果与钳制前逐位相同(P1 golden 哈希不变),越界输入不再产生第七种、与任何合法重抽都不同的结果。
 - 仓库里已有 `aether::source::Pcg32(state, sequence)`(`libs/aether-source/include/aether/Source.h:38-40`),可复用其写法思路;**是否直接复用该类、还是在 `RandSpec` 内自带 PCG32 以避免耦合,待用户确认**(推荐自带,几十行)。
 - 均匀数:`u = (next32() >> 8) · 2⁻²⁴`(float 精确)。
 - **不使用 `std::*_distribution`**(实现定义,跨标准库不可复现)。Kumaraswamy 用闭式逆 CDF:`x = (1-(1-u)^(1/b))^(1/a)`;`a=1` 时退化为 `1-(1-u)^(1/b)`。

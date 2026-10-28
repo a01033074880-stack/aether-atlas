@@ -13,7 +13,7 @@ target_include_directories(aether_fm PUBLIC libs/aether-fm/include)
 add_library(aether_source STATIC libs/aether-source/src/Source.cpp)
 target_include_directories(aether_source PUBLIC libs/aether-source/include)
 # 2.3.0 RandSpec P1: pure (JUCE-free) Controlled Randomization engine; not wired into the processor yet.
-add_library(aether_rand STATIC libs/aether-rand/src/Rand.cpp)
+add_library(aether_rand STATIC libs/aether-rand/src/Rand.cpp libs/aether-rand/src/RandState.cpp)
 target_include_directories(aether_rand PUBLIC libs/aether-rand/include)
 target_compile_features(aether_rand PUBLIC cxx_std_20)
 add_library(atlas_daisy STATIC
@@ -74,6 +74,13 @@ if(AETHER_BUILD_TESTS)
     target_compile_options(AetherRandTests PRIVATE /W4 /permissive-)
   endif()
   add_test(NAME aether_rand COMMAND AetherRandTests)
+  # 2.3.0 step 2: SnapshotRing / hashValues / seedToBase32 / randomPresetName / patchIsStructural / lock text format (JUCE-free).
+  add_executable(AetherRandStateTests tests/RandStateTests.cpp)
+  target_link_libraries(AetherRandStateTests PRIVATE aether_rand)
+  if(MSVC)
+    target_compile_options(AetherRandStateTests PRIVATE /W4 /permissive-)
+  endif()
+  add_test(NAME aether_rand_state COMMAND AetherRandStateTests)
   add_executable(AetherRandBench tools/RandBench.cpp)
   target_link_libraries(AetherRandBench PRIVATE aether_rand)
   # AETHER 2.3.0 segment B (rand-230): engine invariant tests, one ctest item per section, label rand-230
@@ -118,7 +125,7 @@ function(aether_plugin target product synth code)
     VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
     Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp
-    Source/RandomizeControllerStub.cpp)  # STUB: header-only randomize API check (step 1), replaced by RandomizeController.cpp
+    Source/RandomizeController.cpp)
   target_include_directories(${target} PUBLIC Source)
   target_compile_definitions(${target} PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0

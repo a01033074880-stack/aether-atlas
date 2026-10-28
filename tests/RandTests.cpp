@@ -166,6 +166,16 @@ void testDeterminism() {
     std::set<std::uint64_t> att;
     for (int k = 0; k < 6; ++k) { Config c = cfgFull(9); c.attempt = k; att.insert(hashPatch(generate(s, c, lk))); }
     CHECK(att.size() == 6);
+    // attempt out of range is clamped to [0,5] (below 0 -> 0, above 5 -> 5); 0..5 are unchanged (the golden hash covers them)
+    {
+        auto at = [&](Config c, int k) { c.attempt = k; return hashPatch(generate(s, c, lk)); };
+        for (const Config& base : {cfgFull(9), cfgMut(9, 0.6f, Safety::Normal)}) {
+            CHECK(at(base, -1) == at(base, 0));
+            CHECK(at(base, std::numeric_limits<int>::min()) == at(base, 0));
+            for (const int bad : {6, 7, 100, std::numeric_limits<int>::max()}) CHECK(at(base, bad) == at(base, 5));
+            CHECK(at(base, 5) != at(base, 0));
+        }
+    }
     // Full does not depend on the input values of what it generates (only on structure-relevant state)
     StateView s2 = s;
     for (int i = kSourceOffset + 4; i < kSourceOffset + 9; ++i) s2.value[static_cast<std::size_t>(i)] = static_cast<float>(paramTable()[static_cast<std::size_t>(i)].maxV);
