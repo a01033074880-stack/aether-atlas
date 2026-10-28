@@ -1,0 +1,24 @@
+﻿UpdateCTestConfiguration  from :C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230/DartConfiguration.tcl
+Test project C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 5
+    Start 5: aether_rand
+
+5: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandTests.exe
+5: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+5: Test timeout computed to be: 10000000
+5: golden hash (kRandAlgoVersion=1): 0x3f54ff2101685d81
+5: aether_rand: 2268227 checks, 0 failures
+1/1 Test #5: aether_rand ......................   Passed    0.62 sec
+
+The following tests passed:
+	aether_rand
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.63 sec

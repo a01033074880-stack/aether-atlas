@@ -1,0 +1,131 @@
+﻿UpdateCTestConfiguration  from :C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230/DartConfiguration.tcl
+Test project C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 6
+    Start  6: aether_rand_inv_R02
+
+6: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R02" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+6: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+6: Test timeout computed to be: 10000000
+6: INFO R02 known-answer values compared: 696 (exact 696)
+6: INFO R02 lock-one independence comparisons: 1544760
+6: SECTION R02: 1561495 checks, 0 failures, 0.16 s
+6: aether_rand_invariants: 1 section(s), 0 failure(s)
+1/9 Test  #6: aether_rand_inv_R02 ..............   Passed    0.17 sec
+test 7
+    Start  7: aether_rand_inv_R05
+
+7: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R05" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+7: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+7: Test timeout computed to be: 10000000
+7: INFO R05 matrix runs: 51840, total diffs seen: 1408938
+7: SECTION R05: 3845434 checks, 0 failures, 0.45 s
+7: aether_rand_invariants: 1 section(s), 0 failure(s)
+2/9 Test  #7: aether_rand_inv_R05 ..............   Passed    0.46 sec
+test 8
+    Start  8: aether_rand_inv_R06
+
+8: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R06" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+8: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+8: Test timeout computed to be: 10000000
+8: INFO R06 control: group Chain        written in 450 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group ModuleParams written in 1125 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group FM           written in 675 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group Source       written in 675 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group Motion       written in 723 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group MixGlobal    written in 0 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: INFO R06 control: group System       written in 0 unlocked runs; with the group locked 1125 of 1125 patches accepted
+8: SECTION R06: 3889069 checks, 0 failures, 0.47 s
+8: aether_rand_invariants: 1 section(s), 0 failure(s)
+3/9 Test  #8: aether_rand_inv_R06 ..............   Passed    0.48 sec
+test 9
+    Start  9: aether_rand_inv_R08
+
+9: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R08" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+9: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+9: Test timeout computed to be: 10000000
+9: INFO R08 Synth(2,true): FM diffs 37152, Source diffs 9601, rows with target>=85: 1528
+9: SECTION R08: 1823164 checks, 0 failures, 0.18 s
+9: aether_rand_invariants: 1 section(s), 0 failure(s)
+4/9 Test  #9: aether_rand_inv_R08 ..............   Passed    0.19 sec
+test 10
+    Start 10: aether_rand_inv_R11
+
+10: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R11" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+10: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+10: Test timeout computed to be: 10000000
+10: INFO R11 graph.feedback writes 1332, idle keeps 2520
+10: INFO R11 parameter writes inspected: 294902, rows inspected: 12658
+10: INFO R11 Random writes per ActiveWhen None               0
+10: INFO R11 Random writes per ActiveWhen ClassicOnly        0
+10: INFO R11 Random writes per ActiveWhen GraphOn            0
+10: INFO R11 Random writes per ActiveWhen GraphFeedbackAlgo  1332
+10: INFO R11 Random writes per ActiveWhen NodeActive         84582
+10: INFO R11 Random writes per ActiveWhen GraphAlgo32        0
+10: INFO R11 Random writes per ActiveWhen LfoReferenced      13536
+10: INFO R11 Random writes per ActiveWhen RowLive            31108
+10: INFO R11 Random writes per ActiveWhen ModeRS             0
+10: INFO R11 Random writes per ActiveWhen FmOnModeRS         0
+10: INFO R11 Random writes per ActiveWhen FmOn               54180
+10: INFO R11 Random writes per ActiveWhen FmOnNotFx          3420
+10: INFO R11 Random writes per ActiveWhen FmOnCustom0        900
+10: INFO R11 Random writes per ActiveWhen FmOnCustom1        0
+10: INFO R11 Random writes per ActiveWhen SrcOn              14112
+10: INFO R11 Random writes per ActiveWhen SrcEngine1         12144
+10: INFO R11 Random writes per ActiveWhen SrcEngine2         8256
+10: SECTION R11: 1608728 checks, 0 failures, 0.14 s
+10: aether_rand_invariants: 1 section(s), 0 failure(s)
+5/9 Test #10: aether_rand_inv_R11 ..............   Passed    0.15 sec
+test 11
+    Start 11: aether_rand_inv_R12
+
+11: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R12" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+11: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+11: Test timeout computed to be: 10000000
+11: INFO R12 fuzz runs 150000 (sane inputs 93872), ok patches 141971, not-ok patches 8029
+11: INFO R12 observed: Mutate amount 2.0 == amount 1.0 : 1
+11: INFO R12 observed: attempt -1 == attempt 0 : 1
+11: INFO R12 observed: attempt 6 == attempt 5 : 0, attempt 6 == attempt 0 : 0
+11: SECTION R12: 69107888 checks, 0 failures, 1.61 s
+11: aether_rand_invariants: 1 section(s), 0 failure(s)
+6/9 Test #11: aether_rand_inv_R12 ..............   Passed    1.62 sec
+test 12
+    Start 12: aether_rand_inv_R13
+
+12: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R13" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+12: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+12: Test timeout computed to be: 10000000
+12: SECTION R13: 2700308 checks, 0 failures, 0.18 s
+12: aether_rand_invariants: 1 section(s), 0 failure(s)
+7/9 Test #12: aether_rand_inv_R13 ..............   Passed    0.19 sec
+test 13
+    Start 13: aether_rand_inv_R16
+
+13: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R16" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+13: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+13: Test timeout computed to be: 10000000
+13: INFO R16 generate(): calls 3600, allocations max 14, mean 11.41, largest patch 189 diffs, bound 32
+13: SECTION R16: 3603 checks, 0 failures, 0.06 s
+13: aether_rand_invariants: 1 section(s), 0 failure(s)
+8/9 Test #13: aether_rand_inv_R16 ..............   Passed    0.07 sec
+test 14
+    Start 14: aether_rand_inv_R18
+
+14: Test command: C:\Users\24168\Documents\Projects\wt-rand-tests\build-rand-230\AetherRandInvariants.exe "R18" "C:/Users/24168/Documents/Projects/wt-rand-tests/docs/randomization-spec-params.tsv"
+14: Working Directory: C:/Users/24168/Documents/Projects/wt-rand-tests/build-rand-230
+14: Test timeout computed to be: 10000000
+14: SECTION R18: 13202 checks, 0 failures, 0.03 s
+14: aether_rand_invariants: 1 section(s), 0 failure(s)
+9/9 Test #14: aether_rand_inv_R18 ..............   Passed    0.03 sec
+
+100% tests passed, 0 tests failed out of 9
+
+Label Time Summary:
+rand-230    =   3.36 sec*proc (9 tests)
+
+Total Test time (real) =   3.37 sec
