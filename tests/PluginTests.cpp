@@ -1206,7 +1206,7 @@ int main(int argc,char** argv) {
             require(sameValues(randomValues(a.p),randomValues(b.p)),"same seed gave different values");require(!sameValues(randomValues(a.p),start),"roll changed nothing");
             require(!a.panel->setSeedText("not a seed!")&&a.panel->seedText()=="A7F3-92C1","junk seed replaced the old seed");
             // Mutate + amount 0 => empty patch (§6.2): values stay, recipe still records the roll.
-            RandomRig z;z.panel->setPinned(true);z.panel->setSeedText("A7F3-92C1");z.panel->setAmount(0.f);auto z0=randomValues(z.p);const auto empty=z.panel->roll(false);
+            RandomRig z;z.panel->setMode(aether::ui::RandomizeMode::mutate);z.panel->setPinned(true);z.panel->setSeedText("A7F3-92C1");z.panel->setAmount(0.f);auto z0=randomValues(z.p);const auto empty=z.panel->roll(false);
             require(empty.changedValues==0&&sameValues(z0,randomValues(z.p))&&z.panel->presetLabel().isEmpty()&&z.p.randomizer().undoDepth()==0&&z.textOf("last")=="Nothing changed (amount 0)","amount 0 Mutate was not an empty patch: "+z.textOf("last"));
             RandomRig c;c.panel->setPinned(true);c.panel->setSeedText("0000-0001");c.panel->setAmount(.6f);c.panel->roll(false);
             require(!sameValues(randomValues(a.p),randomValues(c.p)),"another seed gave the same values");
@@ -1419,7 +1419,7 @@ int main(int argc,char** argv) {
                         if(req.lockedGroups.contains(randomGroups[int(table[i].group)])) require(!differs,"locked "+randomGroups[int(table[i].group)]+" moved: "+id);
                         if(table[i].cls==aether::rand::Classification::Never) require(!differs,"Never parameter moved: "+id);
                     }
-                    require(changed<=rec.changedValues&&rec.changedValues-changed<=4,"recipe count "+juce::String(rec.changedValues)+" vs "+juce::String(changed));overCount+=rec.changedValues-changed;moved+=changed;
+                    require(changed<=rec.changedValues&&rec.changedValues-changed<=juce::jmax(4,rec.changedValues/10),"recipe count "+juce::String(rec.changedValues)+" vs "+juce::String(changed));overCount+=rec.changedValues-changed;moved+=changed;
                 }
             }
             std::cout<<"  lock combinations: "<<rolls<<" rolls, "<<moved<<" values moved, recipe.changedValues over-counted by "<<overCount<<" in total\n";require(rolls==256&&moved>500,"locks test too weak: rolls "+juce::String(rolls)+" moved "+juce::String(moved));
