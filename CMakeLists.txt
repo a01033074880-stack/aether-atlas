@@ -114,7 +114,7 @@ function(aether_plugin target product synth code)
     VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
     Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp
-    Source/RandomizeControllerStub.cpp)  # STUB: header-only randomize API check (step 1), replaced by RandomizeController.cpp
+    Source/RandomizeController.cpp)
   target_include_directories(${target} PUBLIC Source)
   target_compile_definitions(${target} PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0
