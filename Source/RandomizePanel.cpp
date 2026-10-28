@@ -49,6 +49,12 @@ juce::String randomPresetLabel(std::uint64_t seed) { return "(Random) "+formatRa
 //    the user stays on B. Host notification of that path is the one of toggleAB (replaceState, no gestures).
 //  - generate() is not realtime safe (Patch holds a std::vector): every call is refused off the thread that made the backend
 //    (the editor's message thread). The UI does not measure loudness, so graph.trim (trimDbForLoudness) is not written.
+//  - INTERIM, until the sound engineer's implementation of Source/RandomizeController.h (eb9b8bd declares it, nothing is implemented):
+//    TARGET DESIGN agreed with the lead: a Live-face random is ONE atomic replaceState (message thread only; one value notification
+//    per changed parameter, no gestures - host/automation behaviour unverified), Undo records the PHYSICAL A/B face and restores
+//    into that face even after an A/B toggle, and "into B" calls applySnapshotToB() instead of the toggleAB detour below.
+//    Note for that switch: APVTS::replaceState adopts the ValueTree it is given - always pass a copy.
+//    This file does not include or link that header yet; the gesture path above is the freeze (9f21611) behaviour.
 // ------------------------------------------------------------------------------------------------------------------------
 juce::StringArray randomSpecGroups() { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
 // RandSpec 1.2 group of a parameter id, read from the engine's table (a single source of truth with the locks).
