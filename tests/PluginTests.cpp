@@ -1223,7 +1223,7 @@ int main(int argc,char** argv) {
              require(total==495,"parameter total "+juce::String(total));}
             for(int gi=0;gi<7;++gi) require((rig.panel->findChildWithID("random.lock."+randomGroups[gi])!=nullptr)==(gi<5),"lock chip of "+randomGroups[gi]+" (only the five movable groups get one, bus volume has none)");
             require(rig.panel->findChildWithID("random.rollmotion")!=nullptr&&rig.panel->mode()==aether::ui::RandomizeMode::full&&std::abs(rig.panel->amount()-1.f)<1.0e-6f,"Randomize Motion button missing or defaults are not Full / 100 %");
-            randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",1);   // Chain / ModuleParams / Motion are idle while the graph is off (engine ActiveWhen)
+            randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",1);   // already on: this test is about locks, the auto-open of a closed graph has its own test below
             // The seed field must be readable before the first roll too (its text used to keep the default pale colour).
             {panel.setOpen(true);auto* seed=panel.findChildWithID("random.seed");require(seed!=nullptr,"seed field missing");
              if(seed->getWidth()>0) {const auto img=panel.createComponentSnapshot(seed->getBounds(),false,1.f);const auto bg=img.getPixelAt(2,2);double best=1.0;
@@ -1275,6 +1275,34 @@ int main(int argc,char** argv) {
             require(!rec.rejected&&moved>0,"Randomize Motion moved nothing (rejected "+juce::String(int(rec.rejected))+", note '"+rec.note+"')");
             panel.setLocked("Motion",true);before=randomValues(rig.p);panel.setSeedText("1111-2222");panel.rollMotion();
             require(sameValues(before,randomValues(rig.p)),"Randomize Motion moved values while Motion is locked");
+        });
+        test("Randomize Global (2.3.1): a Full roll opens a closed graph, moves every group, leaves bus volume alone; Randomize Motion rewrites rows",[&] {
+            ScopedRandomBackend backend;
+            const juce::StringArray busIds{"global.input","global.output","global.mix","master.enabled","master.width","master.ceiling","master.release","master.dither","fm.gain","source.gain"};
+            RandomRig rig;auto& panel=*rig.panel;
+            randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",0);
+            panel.setMode(aether::ui::RandomizeMode::full);panel.setAmount(1.f);panel.setPinned(true);panel.setSeedText("7E57-0231");
+            auto before=randomValues(rig.p);const auto rec=panel.roll(false);auto after=randomValues(rig.p);
+            require(!rec.rejected&&rec.changedValues>40,"global roll with the graph off was refused or tiny (rejected "+juce::String(int(rec.rejected))+", note '"+rec.note+"', changed "+juce::String(rec.changedValues)+"): "+rig.textOf("last"));
+            require(after["graph.enabled"]==1.f,"the engine did not open the graph for a Full roll");
+            for(const auto& id:busIds) require(std::abs(after[id]-before[id])<1.0e-6f,"bus volume value moved: "+id);
+            require(rig.textOf("last").contains("changed in"),"result line: "+rig.textOf("last"));
+            juce::StringArray moved;for(const auto& [id,v]:before) if(after[id]!=v&&!moved.contains(randomGroupOf(id))) moved.add(randomGroupOf(id));
+            for(const auto& g:{"Chain","ModuleParams","FM","Source","Motion"}) require(moved.contains(g),"the global roll left group "+juce::String(g)+" untouched");
+            // Randomize Motion with the graph off: opens it, writes only Motion (+ graph.enabled), changes row source / destination, never aims at a bus-volume target
+            RandomRig m;randomSourceLive(m.p);m.p.setParameterValue("graph.enabled",0);m.panel->setPinned(true);
+            int rowsChanged=0;
+            for(const char* seed:{"0A0A-0001","0A0A-0002","0A0A-0003"}) {
+                m.panel->setSeedText(seed);auto b=randomValues(m.p);const auto r=m.panel->rollMotion();auto a=randomValues(m.p);
+                require(!r.rejected&&a["graph.enabled"]==1.f,"Randomize Motion with the graph off: rejected "+juce::String(int(r.rejected))+", note '"+r.note+"'");
+                for(const auto& [id,v]:b) {if(randomGroupOf(id)!="Motion"&&id!="graph.enabled") require(a[id]==v,"Randomize Motion moved "+id);}
+                for(int row=1;row<=16;++row) {
+                    const auto base="modulation."+juce::String(row);
+                    if(a[base+".source"]!=b[base+".source"]||a[base+".target"]!=b[base+".target"]) ++rowsChanged;
+                    if(std::abs(a[base+".depth"])>1.0e-6f) {const int t=int(std::lround(a[base+".target"]));require(t!=85&&t!=87&&t!=105,"modulation row "+juce::String(row)+" aims at a bus-volume target: "+juce::String(t));}
+                }
+            }
+            require(rowsChanged>=3,"Randomize Motion left the modulation rows' source / destination alone: "+juce::String(rowsChanged));
         });
         test("Randomize: undo history is capped at 16, steps restore the states (<= 4 ulp per parameter), button shows x/16",[&] {
             ScopedRandomBackend backend;
