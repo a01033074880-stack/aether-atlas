@@ -1,7 +1,7 @@
 // AETHER 2.3.0 - randomization: state-side data types (JUCE-free, header-only API declaration).
 //
-// STATUS: STEP 1 OF "processor wiring" = DECLARATIONS ONLY. Nothing in this file is defined or called yet; the
-// out-of-line functions below are implemented in step 2 (libs/aether-rand/src/RandState.cpp, to be added then).
+// Step 2 of "processor wiring": the functions below are implemented in libs/aether-rand/src/RandState.cpp (tests:
+// tests/RandStateTests.cpp, CTest aether_rand_state).
 // Spec: docs/randomization-spec.md section P (P.2 snapshot ring, P.3 LockSet, P.4 recipe, P.7 schema) and 9.1.1.
 //
 // Everything here is plain data + pure functions so it can be tested by CTest without a processor. The JUCE-facing
@@ -55,6 +55,7 @@ struct RandomSnapshot {
     std::string presetName;                   // name before the commit
     RandomRecipe recipe;                      // recipe in effect before the commit (valid=false if none)
     int program = 0;                          // currentProgram before the commit
+    bool nameChanged = false;                 // the commit renamed the preset (live-face commits only; into-B keeps the name)
 };
 
 // Fixed-capacity (kUndoDepth) ring. Message thread ONLY; the audio thread never sees it, so no lock is needed.
@@ -77,7 +78,7 @@ private:
     int count_ = 0;
 };
 
-// ---- pure helpers (declared; defined in step 2) -------------------------------------------------------------------
+// ---- pure helpers (implemented in RandState.cpp) -------------------------------------------------------------------
 // FNV-1a-64 over the IEEE-754 bit patterns of the 495 values, each as 4 little-endian bytes (baselineHash/resultHash).
 std::uint64_t hashValues(const std::array<float, kParamCount>& values) noexcept;
 
