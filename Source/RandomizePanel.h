@@ -71,6 +71,9 @@ public:
 };
 // Deterministic stand-in for tests/snapshots: fakes generate()+SnapshotRing on continuous params, honours section locks.
 // Never part of a shipped build path. Real engine is a pure function with no JUCE dependency (§P.1).
+// RandSpec §1.2 groups in spec order, and the group of a parameter id (Chain, ModuleParams, FM, Source, Motion, MixGlobal, System).
+juce::StringArray randomSpecGroups();
+juce::String randomGroupOf(const juce::String& parameterId);
 std::unique_ptr<RandomizeBackend> makeMockBackend(AetherAudioProcessor&);
 
 // Colours and text hooks of the host editor, so the popover looks like the rest of Atlas and follows its text floor.

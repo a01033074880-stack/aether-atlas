@@ -557,7 +557,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     // What a roll does in this edition and Mode (one line in the popover).
     juce::String randomHint()const{
         if(synthEdition())return "The next notes use the new patch.";
-        return shownMode()==0?"FX mode: FM and Source stay idle.":"Resynth: Source follows the input.";
+        return shownMode()==0?"FX mode: FM and Source stay idle.":"Resynth: FM and Source need Source on.";
     }
     void refreshRandomHint(){if(randomPanel)randomPanel->setHint(randomHint());}
     // The popover hangs below the caret, right-aligned to it, and stays inside the canvas.

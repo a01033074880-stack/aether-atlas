@@ -79,16 +79,22 @@ struct ScopedRandomBackend {
     ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeMockBackend(proc); }); }
     ~ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory({}); }
 };
-// Same grouping rule as the mock backend (id prefixes); the test checks that each group really holds parameters.
+// RandSpec §1.2 grouping, written out independently of the mock (its parameter id patterns, not its code).
 juce::String randomGroupOf(const juce::String& id) {
-    if(id.startsWith("global.")) return "Global";
-    if(id.startsWith("node.")||id.startsWith("route.")||id.startsWith("routing.")||id.startsWith("graph.")) return "Nodes";
-    if(id.startsWith("lfo.")||id.startsWith("modulation.")) return "Motion";
-    if(id.startsWith("fm.")) return "FM";
-    if(id.startsWith("source.")) return "Source";
-    return "Texture";
+    juce::StringArray part;part.addTokens(id,".",{});
+    if(id=="routing.algorithm"||id=="graph.feedback"||part[0]=="route") return "Chain";
+    if(part[0]=="node") return (part[2]=="type"||part[2]=="on"||part[2]=="input"||part[2]=="output")?"Chain":"ModuleParams";
+    if(part[0]=="fm") return "FM";
+    if(part[0]=="source") return "Source";
+    if(part[0]=="lfo"||part[0]=="modulation") return "Motion";
+    if(id=="global.input"||id=="global.output"||id=="global.mix"||part[0]=="master"||id=="graph.trim") return "MixGlobal";
+    return "System";
 }
-const juce::StringArray randomGroups{"Global","Nodes","Motion","FM","Source","Texture"};
+const juce::StringArray randomGroups{"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"};
+// MixGlobal / System are Never ids (§2.3): the engine leaves them alone even when unlocked.
+bool randomGroupMovable(const juce::String& g) { return g!="MixGlobal"&&g!="System"; }
+// Source on and a Mode where FM / Source take part (Resynth in the effect build, Synth in the instrument build).
+void randomSourceLive(AetherAudioProcessor& p) { p.setParameterValue("global.mode",JucePlugin_IsSynth?2.f:1.f);p.setParameterValue("source.enabled",1);p.setParameterValue("source.engine",1); }
 std::map<juce::String,float> randomValues(AetherAudioProcessor& p) {
     std::map<juce::String,float> values;
     for(const auto& spec:aether::parameterSpecs()) if(!spec.boolean&&spec.choices.size()==0) values[spec.id]=p.parameterValue(spec.id);
@@ -1185,26 +1191,41 @@ int main(int argc,char** argv) {
         test("Randomize: locked groups keep their values, every group is lockable and non-empty",[&] {
             ScopedRandomBackend backend;
             RandomRig rig;auto& panel=*rig.panel;
-            require(panel.lockedGroups()==juce::StringArray({"Global"}),"Global is not the only default lock: "+panel.lockedGroups().joinIntoString(","));
+            require(aether::ui::randomSpecGroups()==randomGroups&&panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"default locks are not MixGlobal + System: "+panel.lockedGroups().joinIntoString(","));
+            {int counts[7]={0,0,0,0,0,0,0},total=0;const int expected[7]={194,84,84,28,64,9,32};
+             for(const auto& spec:aether::parameterSpecs()) {++counts[randomGroups.indexOf(randomGroupOf(spec.id))];++total;require(aether::ui::randomGroupOf(spec.id)==randomGroupOf(spec.id),"mock grouping differs from the spec rule: "+juce::String(spec.id));}
+             for(int i=0;i<7;++i) require(counts[i]==expected[i],"RandSpec §1.2 count of "+randomGroups[i]+": "+juce::String(counts[i])+" vs "+juce::String(expected[i]));
+             require(total==495,"parameter total "+juce::String(total));}
+            for(const auto& g:randomGroups) require(rig.panel->findChildWithID("random.lock."+g)!=nullptr,"lock chip missing: "+g);
+            randomSourceLive(rig.p);
             panel.setPinned(true);panel.setSeedText("1234-5678");panel.setAmount(.8f);
-            // default: Global untouched, something else moves
+            // default: MixGlobal and System untouched, something else moves
             auto before=randomValues(rig.p);panel.roll(false);auto after=randomValues(rig.p);int moved=0;
-            for(const auto& [id,v]:before) {if(randomGroupOf(id)=="Global")require(std::abs(after[id]-v)<1.0e-6f,"locked Global value moved: "+id);else if(std::abs(after[id]-v)>1.0e-6f)++moved;}
-            require(moved>10,"too few values moved with only Global locked: "+juce::String(moved));
+            for(const auto& [id,v]:before) {if(!randomGroupMovable(randomGroupOf(id)))require(std::abs(after[id]-v)<1.0e-6f,"locked "+randomGroupOf(id)+" value moved: "+id);else if(std::abs(after[id]-v)>1.0e-6f)++moved;}
+            require(moved>10,"too few values moved with only MixGlobal / System locked: "+juce::String(moved));
             // one open group at a time: only that group changes
             for(const auto& open:randomGroups) {
                 for(const auto& g:randomGroups) panel.setLocked(g,g!=open);
                 before=randomValues(rig.p);const auto recipe=panel.roll(false);after=randomValues(rig.p);int inGroup=0;
                 for(const auto& [id,v]:before) {const bool changed=std::abs(after[id]-v)>1.0e-6f;if(randomGroupOf(id)==open){if(changed)++inGroup;}else require(!changed,"value outside the open group "+open+" moved: "+id);}
-                require(inGroup>0,"group "+open+" has no movable parameter");
-                require(recipe.changedValues==inGroup&&recipe.touchedGroups==juce::StringArray({open}),"recipe does not match the roll for "+open+": "+juce::String(recipe.changedValues)+" vs "+juce::String(inGroup));
+                if(randomGroupMovable(open)) require(inGroup>0,"group "+open+" has no movable parameter"); else require(inGroup==0,"Never group "+open+" moved even though unlocked: "+juce::String(inGroup));
+                require(recipe.changedValues==inGroup&&recipe.touchedGroups==(randomGroupMovable(open)?juce::StringArray({open}):juce::StringArray()),"recipe does not match the roll for "+open+": "+juce::String(recipe.changedValues)+" vs "+juce::String(inGroup));
             }
             // everything locked: nothing changes and the panel says so
             for(const auto& g:randomGroups) panel.setLocked(g,true);
             before=randomValues(rig.p);const auto none=panel.roll(false);require(sameValues(before,randomValues(rig.p))&&none.changedValues==0,"all-locked roll changed values");
             require(rig.textOf("last")=="Nothing changed (all locked)","all-locked message: "+rig.textOf("last"));
-            panel.resetLocks();require(panel.lockedGroups()==juce::StringArray({"Global"}),"resetLocks");
-            panel.setLocked("Motion",true);require(panel.isLocked("Motion")&&rig.textOf("lock.count")=="2 locked","lock count text: "+rig.textOf("lock.count"));
+            panel.resetLocks();require(panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"resetLocks");
+            panel.setLocked("Motion",true);require(panel.isLocked("Motion")&&rig.textOf("lock.count")=="3 locked","lock count text: "+rig.textOf("lock.count"));
+            // §4.2 edition rules: FM and Source stay put in FX (effect build) and in Resynth while Source is off.
+            for(const auto& g:randomGroups) panel.setLocked(g,g!="FM"&&g!="Source");
+            if(!JucePlugin_IsSynth) {
+                rig.p.setParameterValue("global.mode",0);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);
+                require(sameValues(before,after),"FX mode moved FM / Source values");
+                rig.p.setParameterValue("global.mode",1);rig.p.setParameterValue("source.enabled",0);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);
+                require(sameValues(before,after),"Resynth with Source off moved FM / Source values");
+            }
+            randomSourceLive(rig.p);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);require(!sameValues(before,after),"FM / Source did not move with Source on");
             panel.setLocked("Nope",true);require(!panel.isLocked("Nope"),"unknown group accepted");
         });
         test("Randomize: undo history is capped at 16, steps restore the exact states, button shows x/16",[&] {
@@ -1267,7 +1288,7 @@ int main(int argc,char** argv) {
                 const std::vector<Case> cases={{"zoom.50",{{720,450},{800,450},{720,620},{1000,625},{1030,640},{1100,750}}},{"zoom.75",{{885,585},{1080,675},{1500,900}}},{"zoom.100",{{1180,780},{1440,900},{2200,1500}}}};
                 // states: 0 fresh, 1 rolled, 2 rolled into B with more locks and Full mode, 3 all locked
                 for(int state=0;state<4;++state) {
-                    for(const auto& g:randomGroups) panel.setLocked(g,state==3||(state==2&&g!="Source")||g=="Global");
+                    for(const auto& g:randomGroups) panel.setLocked(g,state==3||(state==2&&g!="Source")||g=="MixGlobal"||g=="System");
                     panel.setMode(state==2?aether::ui::RandomizeMode::full:aether::ui::RandomizeMode::mutate);panel.setPinned(true);panel.setSeedText("ZZZZ-ZZZZ");
                     rig.p.setParameterValue("global.mode",edition==1?2.f:(state%2==0?1.f:0.f));
                     if(state==0){while(panel.undo()) {}panel.clearRecipe();} else panel.roll(state==2);

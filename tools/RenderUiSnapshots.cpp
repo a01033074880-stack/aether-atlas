@@ -276,11 +276,11 @@ int main(int argc,char** argv) {
             panel->setPinned(true); panel->setSeedText("A7F3-92C1"); panel->setAmount(.6f); panel->roll(false); sizes("rolled",true);
             ed->performUiAction("random.close"); sizes("rolled-closed",false);
             ed->performUiAction("random.open");
-            // Lock mode: Nodes, Motion and FM locked next to the default Global lock.
-            panel->setLocked("Nodes",true); panel->setLocked("Motion",true); panel->setLocked("FM",true); sizes("locks",true);
+            // Lock mode: Chain, Motion and FM locked next to the default MixGlobal / System locks.
+            panel->setLocked("Chain",true); panel->setLocked("Motion",true); panel->setLocked("FM",true); sizes("locks",true);
             // Full undo ring: twenty rolls leave 16 steps.
             panel->setPinned(false); for(int i=0;i<20;++i) panel->roll(false); sizes("history-full",false);
-            panel->setLocked("Nodes",false); panel->setLocked("Motion",false); panel->setLocked("FM",false);
+            panel->setLocked("Chain",false); panel->setLocked("Motion",false); panel->setLocked("FM",false);
             // Randomize into B: the result sits in the B slot, A keeps the patch.
             panel->setPinned(true); panel->setSeedText("0Z9K-4Q7M"); panel->roll(true); sizes("into-b",false);
             while(panel->undo()) {}

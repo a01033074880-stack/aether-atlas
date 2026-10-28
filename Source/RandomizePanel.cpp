@@ -45,15 +45,26 @@ juce::String randomPresetLabel(std::uint64_t seed) { return "(Random) "+formatRa
 // begin/set/end). into-B has no public AlternateSnapshot writer yet, so the mock approximates it with toggleAB (leaves the
 // user on B); the real path writes the B ValueTree only and keeps A live (§P.2 Target::AlternateSnapshot).
 // ------------------------------------------------------------------------------------------------------------------------
+juce::StringArray randomSpecGroups() { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
+// RandSpec §1.2 classification of a parameter id (node slots carry their role in the last segment).
+juce::String randomGroupOf(const juce::String& id) {
+    if(id=="routing.algorithm"||id=="graph.feedback"||id.startsWith("route.")) return "Chain";
+    if(id.startsWith("node.")) { const auto leaf=id.fromLastOccurrenceOf(".",false,false); return leaf=="type"||leaf=="on"||leaf=="input"||leaf=="output"?"Chain":"ModuleParams"; }
+    if(id.startsWith("fm.")) return "FM";
+    if(id.startsWith("source.")) return "Source";
+    if(id.startsWith("lfo.")||id.startsWith("modulation.")) return "Motion";
+    if(id=="global.input"||id=="global.output"||id=="global.mix"||id.startsWith("master.")||id=="graph.trim") return "MixGlobal";
+    return "System";
+}
+
 namespace {
 class MockBackend final:public RandomizeBackend {
 public:
     explicit MockBackend(AetherAudioProcessor& proc):p(proc) {}
-    // UI section chips. Spec §1.2 groups are Chain/ModuleParams/FM/Source/Motion/MixGlobal/System; this mock keeps the
-    // six research-era labels (Global≈MixGlobal+System Never, Nodes≈Chain+ModuleParams, Texture≈remainder) until LockSet
-    // section bits land.
-    juce::StringArray lockGroups() const override { return {"Global","Nodes","Motion","FM","Source","Texture"}; }
-    juce::StringArray defaultLocked() const override { return {"Global"}; }
+    // UI section chips: the seven RandSpec §1.2 groups, in spec order (LockSet::sections projection). MixGlobal and System hold
+    // only Never ids plus graph.trim (§2.3), so they start locked: the engine would not move them anyway.
+    juce::StringArray lockGroups() const override { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
+    juce::StringArray defaultLocked() const override { return {"MixGlobal","System"}; }
     RandomizeRecipe randomize(const RandomizeRequest& r) override { return run(r,false); }
     RandomizeRecipe randomizeIntoB(const RandomizeRequest& r) override { return run(r,true); }
     bool undo() override {
@@ -72,13 +83,13 @@ private:
     // RandomSnapshot stand-in (§P.2): whole APVTS tree + prior recipe + whether into-B flipped the live slot.
     struct Entry { juce::ValueTree before; std::optional<RandomizeRecipe> recipeBefore; bool switchedToB=false; };
     AetherAudioProcessor& p; std::deque<Entry> ring; std::optional<RandomizeRecipe> current;
-    static juce::String groupOf(const juce::String& id) {
-        if(id.startsWith("global.")) return "Global";
-        if(id.startsWith("node.")||id.startsWith("route.")||id.startsWith("routing.")||id.startsWith("graph.")) return "Nodes";
-        if(id.startsWith("lfo.")||id.startsWith("modulation.")) return "Motion";
-        if(id.startsWith("fm.")) return "FM";
-        if(id.startsWith("source.")) return "Source";
-        return "Texture";
+    static juce::String groupOf(const juce::String& id) { return randomGroupOf(id); }
+    // §4.2: FX skips FM and Source; Resynth only touches them while Source is on; Synth always may.
+    bool groupIdle(const juce::String& group) const {
+        if(group!="FM"&&group!="Source") return false;
+        const int mode=aether::clampModeForPluginType(juce::jlimit(0,2,int(p.parameterValue("global.mode")+.5f)),JucePlugin_IsSynth!=0);
+        if(mode==0) return true;
+        return mode==1&&!(p.parameterValue("source.enabled")>.5f&&p.parameterValue("source.engine")>.5f);
     }
     RandomizeRecipe run(const RandomizeRequest& r,bool intoB) {
         Entry e{p.state.copyState(),current,false};
@@ -91,7 +102,7 @@ private:
         const bool emptyMutate=r.mode==RandomizeMode::mutate&&amount<=0.f;
         if(!emptyMutate) for(const auto& spec:aether::parameterSpecs()) {
             if(spec.boolean||spec.choices.size()>0) continue; // mock: continuous / integer only (Never/Structural not modelled)
-            const auto group=groupOf(spec.id); if(r.lockedGroups.contains(group)) continue;
+            const auto group=groupOf(spec.id); if(r.lockedGroups.contains(group)||group=="MixGlobal"||group=="System"||groupIdle(group)) continue; // Never groups never move (§2.3)
             auto* prm=p.state.getParameter(spec.id); if(prm==nullptr) continue;
             const float before=prm->getValue(),u=unitFor(rec.seed,spec.id);
             const float target=r.mode==RandomizeMode::mutate?before+(u*2.f-1.f)*amount*.5f:before+(u-before)*(.5f+.5f*amount);
