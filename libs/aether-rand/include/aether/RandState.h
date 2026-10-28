@@ -33,7 +33,7 @@ struct RandomRecipe {
     int algoVersion = kRandAlgoVersion;
     Mode mode = Mode::Full;
     float amount = 1.f;
-    Safety safety = Safety::Safe;      // 9.1.1 #2 (spec P.1 draft said Normal)
+    Safety safety = Safety::Global;    // 2.3.1 default (9.1.1 #2 said Safe)
     std::uint32_t scopeMask = ScopeAll;
     int attempt = 0;                   // accepted re-roll index
     float trimDb = 0.f;                // graph.trim compensation written by the audition stage (9.1.1 #4)

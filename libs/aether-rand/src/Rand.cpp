@@ -79,13 +79,13 @@ std::array<float, kParamCount> applyPatch(const StateView& s, const Patch& p) no
 namespace {
 
 // ---- module / rule constants ----------------------------------------------------------------------------------------
-constexpr int kActiveCap[3] = {5, 8, 8};              // spec 3.2 active slots (min 2)
-constexpr int kRepeatCap[3] = {1, 2, 3};              // spec 5.2 same-type repeat limit
-constexpr int kHighRiskCap[3] = {2, 3, 5};
-constexpr int kFreezeTypeCap[3] = {0, 1, 2};
-constexpr int kRowMin[3] = {1, 2, 3};
-constexpr int kRowCap[3] = {4, 8, 12};                // spec 5.6
-constexpr double kFmIndexCap[3] = {3.5, 6.0, 12.0};   // spec 5.4 rule 3
+constexpr int kActiveCap[4] = {5, 8, 8, 10};              // spec 3.2 active slots (min 2)
+constexpr int kRepeatCap[4] = {1, 2, 3, 3};              // spec 5.2 same-type repeat limit
+constexpr int kHighRiskCap[4] = {2, 3, 5, 5};
+constexpr int kFreezeTypeCap[4] = {0, 1, 2, 1};
+constexpr int kRowMin[4] = {1, 2, 3, 6};
+constexpr int kRowCap[4] = {4, 8, 12, 16};                // spec 5.6
+constexpr double kFmIndexCap[4] = {3.5, 6.0, 12.0, 12.0};   // spec 5.4 rule 3
 constexpr double kMinDepth = 0.02;
 constexpr double kFreezeThreshold = 0.5;
 
@@ -93,20 +93,22 @@ constexpr bool isFreezeType(int t) { return t == 6 || t == 18; }
 constexpr int freezeKnob(int t) { return t == 6 ? 3 : (t == 18 ? 2 : -1); }  // Metadata.cpp freezeMacro
 constexpr bool isHighRisk(int t) { return t == 11 || t == 8 || t == 7 || t == 9 || t == 10 || t == 14 || t == 2 || t == 12; }
 constexpr bool isSpaceLike(int t) { return t == 4 || t == 15 || t == 20; }
+// 2.3.1: voice bus levels (source.gain 85, fm.gain 105) are never modulation targets; transpose (87) only in Wild.
+constexpr bool busTarget(int t) { return t == 85 || t == 105; }
 
 enum class Cat { Knob, Frozen, MixPan, Level, SrcGeneral, SrcEngine, Transpose, FmIndex, FmFeedback, FmMorphSpread, FmLevel };
-constexpr double kDepthCap[11][3] = {
-    {0.3, 0.5, 1.0},    // Knob
-    {0.0, 0.5, 1.0},    // Frozen (further limited by value + sum < 0.5)
-    {0.3, 0.5, 1.0},    // MixPan
-    {0.06, 0.1, 0.25},  // Level
-    {0.15, 0.25, 0.5},  // SrcGeneral (85,86)
-    {0.3, 0.5, 1.0},    // SrcEngine (88..101)
-    {0.0, 0.0, 0.02},   // Transpose (87)
-    {0.1, 0.15, 0.3},   // FmIndex (102)
-    {0.1, 0.2, 0.4},    // FmFeedback (104)
-    {0.3, 0.5, 1.0},    // FmMorphSpread (103,106)
-    {0.15, 0.3, 0.6}};  // FmLevel (105,107..112)
+constexpr double kDepthCap[11][4] = {
+    {0.3, 0.5, 1.0, 1.0},    // Knob
+    {0.0, 0.5, 1.0, 0.5},    // Frozen (further limited by value + sum < 0.5)
+    {0.3, 0.5, 1.0, 1.0},    // MixPan
+    {0.06, 0.1, 0.25, 0.25},  // Level
+    {0.15, 0.25, 0.5, 0.5},  // SrcGeneral (85,86)
+    {0.3, 0.5, 1.0, 1.0},    // SrcEngine (88..101)
+    {0.0, 0.0, 0.02, 0.0},   // Transpose (87)
+    {0.1, 0.15, 0.3, 0.3},   // FmIndex (102)
+    {0.1, 0.2, 0.4, 0.4},    // FmFeedback (104)
+    {0.3, 0.5, 1.0, 1.0},    // FmMorphSpread (103,106)
+    {0.15, 0.3, 0.6, 0.6}};  // FmLevel (105 is bus level: never a target; 107..112)
 
 constexpr double kRatioSafe[] = {0.5, 1, 2, 3, 4};
 constexpr double kRatioNormal[] = {0.5, 1, 2, 3, 4, 1.5, 5, 6, 8};
@@ -138,7 +140,7 @@ public:
     Engine(const StateView& in, const Config& cfg, const LockSet& locks)
         : cfg_(cfg), locks_(locks), edition_(in.edition), raw_(in.value),
           mode_(in.edition.isSynth ? 2 : (in.edition.effectiveMode == 1 ? 1 : 0)),
-          si_(cfg.safety == Safety::Safe ? 0 : (cfg.safety == Safety::Normal ? 1 : 2)),
+          si_(cfg.safety == Safety::Safe ? 0 : (cfg.safety == Safety::Normal ? 1 : (cfg.safety == Safety::Wild ? 2 : 3))), wi_(si_ > 2 ? 2 : si_),
           aseed_(cfg.seed ^ (static_cast<std::uint64_t>(std::clamp(cfg.attempt, 0, 5)) * kPhi64)),
           rs_(aseed_, fnv1a64("@structure")), rm_(aseed_, fnv1a64("@modulation")) {
         for (int i = 0; i < kParamCount; ++i) {
@@ -184,7 +186,7 @@ public:
     bool targetValid(int t) const {
         if (t < 1 || t > 112) return false;
         if (t <= 84) return slotActive((t - 1) / 7);
-        if (mode_ == 0 || !graphOn()) return false;
+        if (mode_ == 0 || !graphOn() || !fmSrcOpen_) return false;
         if (t <= 101) {
             if (!srcOn()) return false;
             if (t >= 88 && t <= 96) return engine() == 1;
@@ -254,8 +256,18 @@ public:
         return m;
     }
 
+    bool global() const { return si_ == 3; }
     bool isActive(int i) const {
         const auto& pi = kParamTable[static_cast<std::size_t>(i)];
+        if (global()) {  // Global randomizes dormant parameters too (they only wait for their module / row / engine to be switched on)
+            switch (pi.active) {
+                case ActiveWhen::None: case ActiveWhen::FmOn: case ActiveWhen::FmOnCustom0: case ActiveWhen::FmOnCustom1: return true;
+                case ActiveWhen::ClassicOnly: return false;
+                case ActiveWhen::GraphOn: case ActiveWhen::GraphFeedbackAlgo: case ActiveWhen::NodeActive: case ActiveWhen::GraphAlgo32:
+                case ActiveWhen::LfoReferenced: case ActiveWhen::RowLive: return graphOn();
+                default: return mode_ >= 1;
+            }
+        }
         switch (pi.active) {
             case ActiveWhen::None: return true;
             case ActiveWhen::ClassicOnly: return false;
@@ -291,12 +303,12 @@ public:
             const int slot = (i - kNodeOffset) / 11, knob = (i - kNodeOffset) % 11 - 5;
             const int ty = moduleType(slot);
             const MacroInfo& m = macroInfo(ty, knob);
-            EW mw{m.dist, m.win[si_].lo, m.win[si_].hi, m.ka, m.kb, std::clamp(m.center, m.win[si_].lo, m.win[si_].hi), m.sparseP[si_]};
+            EW mw{m.dist, m.win[wi_].lo, m.win[wi_].hi, m.ka, m.kb, std::clamp(m.center, m.win[wi_].lo, m.win[wi_].hi), m.sparseP[wi_]};
             // spec 5.2: the freeze knob stays < 0.5 unless Wild (the 3.4 table's Normal P=0.05 contradicts this; the stricter rule wins)
-            if (si_ < 2 && freezeKnob(ty) == knob) { mw.p = 0.0; mw.hi = std::min(mw.hi, 0.0); mw.lo = std::min(mw.lo, mw.hi); }
+            if (si_ != 2 && freezeKnob(ty) == knob) { mw.p = 0.0; mw.hi = std::min(mw.hi, 0.0); mw.lo = std::min(mw.lo, mw.hi); }
             return mw;
         }
-        EW w{pi.dist, pi.win[si_].lo, pi.win[si_].hi, pi.ka, pi.kb, 0.0, pi.sparseP[si_]};
+        EW w{pi.dist, pi.win[wi_].lo, pi.win[wi_].hi, pi.ka, pi.kb, 0.0, pi.sparseP[wi_]};
         if (i == kFmIndex) {
             const double m = fmMaxIncoming();
             if (m > 1e-9) w.hi = std::min(w.hi, kFmIndexCap[si_] / m);
@@ -404,17 +416,19 @@ public:
             }
         }
         const double uCount = rs_.nextUnit();
-        const int target = 2 + static_cast<int>(std::floor(uCount * static_cast<double>(cap - 2 + 1)));
+        const int minActive = global() ? 4 : 2;
+        const int target = minActive + static_cast<int>(std::floor(uCount * static_cast<double>(cap - minActive + 1)));
         int add = std::max(0, target - lockedActive);
         // candidate positions: free slots among the first eight, weights 8..1 (earlier slots preferred)
         std::array<int, kSlotCount> pos{};
         int nPos = 0;
-        for (int s = 0; s < 8; ++s) if (!fixed[static_cast<std::size_t>(s)]) pos[static_cast<std::size_t>(nPos++)] = s;
+        const int posLimit = global() ? kSlotCount : 8;
+        for (int s = 0; s < posLimit; ++s) if (!fixed[static_cast<std::size_t>(s)]) pos[static_cast<std::size_t>(nPos++)] = s;
         std::array<bool, kSlotCount> chosen{};
         add = std::min(add, nPos);
         for (int k = 0; k < add; ++k) {
-            double w[8]; int idx[8]; int m = 0;
-            for (int j = 0; j < nPos; ++j) if (!chosen[static_cast<std::size_t>(pos[static_cast<std::size_t>(j)])]) { w[m] = static_cast<double>(8 - pos[static_cast<std::size_t>(j)]); idx[m++] = pos[static_cast<std::size_t>(j)]; }
+            double w[kSlotCount]; int idx[kSlotCount]; int m = 0;
+            for (int j = 0; j < nPos; ++j) if (!chosen[static_cast<std::size_t>(pos[static_cast<std::size_t>(j)])]) { w[m] = static_cast<double>(posLimit - pos[static_cast<std::size_t>(j)]); idx[m++] = pos[static_cast<std::size_t>(j)]; }
             const int pk = pickWeighted(rs_, w, m);
             if (pk >= 0) chosen[static_cast<std::size_t>(idx[pk])] = true;
         }
@@ -459,12 +473,13 @@ public:
         }
         // routing algorithm: Safe = the 20 feedback-free algorithms, Normal weights 1 / 0.5, Wild uniform 0..31 (32 is not used)
         if (canWrite(kRoutingAlgorithm)) {
-            double w[32];
+            double w[33];
             for (int a = 0; a < 32; ++a) {
                 const bool fb = routeAlgoInfo(a).feedbackArcs > 0;
                 w[a] = si_ == 0 ? (fb ? 0.0 : 1.0) : (si_ == 1 ? (fb ? 0.5 : 1.0) : 1.0);
             }
-            int a = pickWeighted(rs_, w, 32);
+            w[32] = (global() && constellationWritable()) ? 5.0 : 0.0;  // ~13 % custom constellation (Global only)
+            int a = pickWeighted(rs_, w, global() ? 33 : 32);
             put(kRoutingAlgorithm, a < 0 ? 0 : a);
         }
     }
@@ -504,7 +519,8 @@ public:
             int a = pickWeighted(rs_, w, 32);
             put(kFmAlgorithm, a < 0 ? 0 : a);
         }
-        if (fmOn() && canWrite(kFmCustom)) put(kFmCustom, 0.0);  // custom matrices are not generated (frozen 9.1.1 #3)
+        if (global() && fmOn()) fmCustomOrPreset();
+        else if (fmOn() && canWrite(kFmCustom)) put(kFmCustom, 0.0);  // custom matrices are only generated by the Global tier (9.1.1 #3 for the others)
     }
 
     // -- value sampling --
@@ -516,10 +532,13 @@ public:
         return std::span<const double>(kRatioWild);
     }
     bool handledByMotionStage(const ParamInfo& pi) const { return pi.group == Group::Motion; }
+    // Structure / row / matrix parameters are written by the structure stages and constructors, never by the per-value sampler.
+    static bool builtByStructure(const ParamInfo& pi) { return pi.role == Role::Structural || pi.role == Role::ModSource || pi.role == Role::ModDest || pi.dist == Dist::Derived; }
 
     void sampleFullValue(int i) {
         const auto& pi = kParamTable[static_cast<std::size_t>(i)];
-        if (pi.cls != Classification::Random || !canWrite(i) || handledByMotionStage(pi) || !isActive(i)) return;
+        if (pi.cls != Classification::Random || !canWrite(i) || handledByMotionStage(pi) || !isActive(i) || builtByStructure(pi)) return;
+        if (i == kFmMorph && global() && get(kFmCustom) > 0.5) return;  // custom FM matrix: no morph towards a preset
         auto g = stream(i);
         double u[4];
         draw(g, u);
@@ -536,7 +555,8 @@ public:
 
     void sampleMutateValue(int i, double r, double p, double a) {
         const auto& pi = kParamTable[static_cast<std::size_t>(i)];
-        if (pi.cls != Classification::Random || !canWrite(i) || pi.role == Role::ModDepth || !isActive(i)) return;
+        if (pi.cls != Classification::Random || !canWrite(i) || pi.role == Role::ModDepth || !isActive(i) || builtByStructure(pi)) return;
+        if (i == kFmMorph && global() && get(kFmCustom) > 0.5) return;
         auto g = stream(i);
         double u[4];
         draw(g, u);
@@ -604,6 +624,7 @@ public:
             for (int t = 1; t <= 112; ++t) {
                 if (si_ == 0 && t > 84) continue;
                 if (t == 87 && si_ < 2) continue;
+                if (busTarget(t)) continue;
                 if (!targetValid(t)) continue;
                 if (category(t) == Cat::Frozen && si_ == 0) continue;
                 cand[nc++] = t;
@@ -673,9 +694,229 @@ public:
         }
     }
 
+
+    // ======== Global tier (2.3.1): custom constellation, custom FM matrix, motion rows, Mutate-structure, repair ========
+    static constexpr double kWeightSet[4] = {0.25, 0.5, 0.75, 1.0};
+
+    bool constellationWritable() const {
+        for (int d = 0; d < kSlotCount; ++d) {
+            if (!canWrite(nodeParam(d, 9)) || !canWrite(nodeParam(d, 10))) return false;
+            for (int sIdx = 0; sIdx < kSlotCount; ++sIdx) if (!canWrite(routeParam(d, sIdx))) return false;
+        }
+        return true;
+    }
+    // Algorithm 32: a strictly forward DAG (route.D.S with S < D, no self / reverse arc => no feedback loop), >= 1 input slot and
+    // >= 1 output slot with a forward path between them, <= 21 arcs, input / output fan-out normalised.
+    void buildConstellation() {
+        Pcg32 g(aseed_, fnv1a64("@constellation"));
+        for (int d = 0; d < kSlotCount; ++d) {
+            for (int sIdx = 0; sIdx < kSlotCount; ++sIdx) put(routeParam(d, sIdx), 0.0);
+            put(nodeParam(d, 9), 0.0); put(nodeParam(d, 10), 0.0);
+        }
+        auto pickSlots = [&](int n, bool (&mark)[kSlotCount]) {
+            for (int k = 0; k < n; ++k) mark[std::min(static_cast<int>(g.nextUnit() * kSlotCount), kSlotCount - 1)] = true;
+        };
+        bool in[kSlotCount] = {}, out[kSlotCount] = {};
+        pickSlots(1 + static_cast<int>(g.nextUnit() * 3.0), in);
+        pickSlots(1 + static_cast<int>(g.nextUnit() * 3.0), out);
+        int i0 = kSlotCount, o0 = -1, nIn = 0, nOut = 0;
+        for (int k = 0; k < kSlotCount; ++k) { if (in[k]) { i0 = std::min(i0, k); ++nIn; } if (out[k]) { o0 = std::max(o0, k); ++nOut; } }
+        if (i0 > o0) { in[0] = true; i0 = 0; ++nIn; }
+        auto weight = [&]() { const double w = kWeightSet[std::min(static_cast<int>(g.nextUnit() * 4.0), 3)]; return g.nextUnit() < 0.2 ? -w : w; };
+        int cur = i0;
+        while (cur < o0) {
+            const int next = cur + 1 + std::min(static_cast<int>(g.nextUnit() * static_cast<double>(o0 - cur)), o0 - cur - 1);
+            put(routeParam(next, cur), weight());
+            cur = next;
+        }
+        const int extra = static_cast<int>(g.nextUnit() * 11.0);
+        for (int k = 0; k < extra; ++k) {
+            const int d = 1 + std::min(static_cast<int>(g.nextUnit() * (kSlotCount - 1)), kSlotCount - 2);
+            const int sIdx = std::min(static_cast<int>(g.nextUnit() * d), d - 1);
+            const double w = weight();
+            if (get(routeParam(d, sIdx)) == 0.0) put(routeParam(d, sIdx), w);
+        }
+        for (int k = 0; k < kSlotCount; ++k) {
+            if (in[k]) put(nodeParam(k, 9), nIn > 1 ? 1.0 / nIn : 1.0);
+            if (out[k]) put(nodeParam(k, 10), nOut > 1 ? 1.0 / nOut : 1.0);
+        }
+    }
+
+    bool fmCustomWritable() const {
+        if (!canWrite(kFmCustom) || !canWrite(kFmMorph)) return false;
+        for (int o = 0; o < 6; ++o) {
+            if (!canWrite(opParam(o, 2))) return false;
+            for (int sIdx = 0; sIdx < 6; ++sIdx) if (!canWrite(edgeParam(o, sIdx))) return false;
+        }
+        return true;
+    }
+    // Custom matrix: fm.edge.D.S with S > D only (higher operator modulates a lower one: a DAG), 2..6 arcs, incoming weight sum <= 1.5,
+    // every operator that modulates nobody is a carrier (so each operator reaches a carrier), operator 1 is always a carrier.
+    void buildFmCustom() {
+        Pcg32 g(aseed_, fnv1a64("@fmcustom"));
+        put(kFmCustom, 1.0);
+        put(kFmMorph, 0.0);
+        double incoming[6] = {};
+        bool feeds[6] = {};
+        for (int d = 0; d < 6; ++d) for (int sIdx = 0; sIdx < 6; ++sIdx) put(edgeParam(d, sIdx), 0.0);
+        int edges = 0;
+        const int want = 2 + std::min(static_cast<int>(g.nextUnit() * 5.0), 4);
+        for (int attempt = 0; attempt < 24 && edges < want; ++attempt) {
+            const int d = std::min(static_cast<int>(g.nextUnit() * 5.0), 4);
+            const int sIdx = d + 1 + std::min(static_cast<int>(g.nextUnit() * static_cast<double>(5 - d)), 4 - d);
+            const double w = std::min(1.0, kWeightSet[std::min(static_cast<int>(g.nextUnit() * 4.0), 3)] + 0.0);
+            if (get(edgeParam(d, sIdx)) != 0.0 || incoming[d] + w > 1.5) continue;
+            put(edgeParam(d, sIdx), w); incoming[d] += w; feeds[sIdx] = true; ++edges;
+        }
+        if (edges < 2) {  // fallback chain 3 -> 2 -> 1 (always valid)
+            put(edgeParam(0, 1), 0.5); put(edgeParam(1, 2), 0.5); feeds[1] = feeds[2] = true;
+        }
+        for (int o = 0; o < 6; ++o) put(opParam(o, 2), (o == 0 || !feeds[o] || g.nextUnit() < 0.25) ? 1.0 : 0.0);
+    }
+    // Preset algorithm: operator carrier weights multiply the preset's carrier set, so keep every one audible (>= 0.5).
+    void presetFmCarriers() {
+        if (canWrite(kFmCustom)) put(kFmCustom, 0.0);
+        if (get(kFmCustom) > 0.5) return;
+        Pcg32 g(aseed_, fnv1a64("@fmcarriers"));
+        static constexpr double set[4] = {0.5, 0.75, 1.0, 1.0};
+        for (int o = 0; o < 6; ++o)
+            if (canWrite(opParam(o, 2))) put(opParam(o, 2), set[std::min(static_cast<int>(g.nextUnit() * 4.0), 3)]);
+    }
+    void fmCustomOrPreset() {
+        Pcg32 g(aseed_, fnv1a64("@fmmode"));
+        if (fmCustomWritable() && g.nextUnit() < 0.2) buildFmCustom();
+        else presetFmCarriers();
+    }
+
+    // -- motion rows, Global --
+    std::vector<int> cand_;
+    void prepareCandidates() {
+        cand_.clear();
+        for (int t = 1; t <= 112; ++t) {
+            if (busTarget(t) || t == 87 || !targetValid(t)) continue;
+            cand_.push_back(t);
+        }
+    }
+    void clearRow(int r) { put(modParam(r, 0), 0.0); put(modParam(r, 1), 0.0); put(modParam(r, 2), 0.0); }
+    int liveRows() const { int n = 0; for (int r = 0; r < kModRowCount; ++r) n += rowLive(r); return n; }
+    // New source / destination / depth for row r (all three writable). The row must be clear or about to be replaced.
+    bool placeRowGlobal(int r) {
+        if (cand_.empty()) return false;
+        const int nc = static_cast<int>(cand_.size());
+        for (int attempt = 0; attempt < 10; ++attempt) {
+            const int src = 1 + std::min(static_cast<int>(rm_.nextUnit() * 9.0), 8);
+            const int tgt = cand_[static_cast<std::size_t>(std::min(static_cast<int>(rm_.nextUnit() * nc), nc - 1))];
+            const double uMag = rm_.nextUnit(), uSign = rm_.nextUnit();
+            bool dup = false;
+            for (int q = 0; q < kModRowCount; ++q) if (q != r && rowLive(q) && rowSource(q) == src && rowTarget(q) == tgt) dup = true;
+            if (dup) continue;
+            const double budget = depthBudget(tgt, r);
+            if (budget < kMinDepth) continue;
+            const double cap = std::min(kDepthCap[static_cast<int>(category(tgt))][3], budget);
+            const double mag = std::min(std::max(kMinDepth, cap * (0.3 + 0.7 * uMag)), std::max(kMinDepth, cap));
+            put(modParam(r, 0), src); put(modParam(r, 1), tgt); put(modParam(r, 2), uSign < 0.5 ? mag : -mag);
+            return true;
+        }
+        return false;
+    }
+    void modulationRowsGlobal() {
+        if (!graphOn()) return;
+        prepareCandidates();
+        int order[kModRowCount], n = 0;
+        for (int r = 0; r < kModRowCount; ++r) if (rowWritable(r)) { clearRow(r); order[n++] = r; }
+        for (int k = n - 1; k > 0; --k) std::swap(order[k], order[std::min(static_cast<int>(rm_.nextUnit() * (k + 1)), k)]);
+        const int total = kRowMin[3] + static_cast<int>(std::floor(rm_.nextUnit() * static_cast<double>(kRowCap[3] - kRowMin[3] + 1)));
+        int need = std::max(0, total - liveRows());
+        for (int k = 0; k < n && need > 0; ++k) if (placeRowGlobal(order[k])) --need;
+    }
+    // Mutate: nudge depths, re-pick source/destination of a live row with probability `a`, switch on an empty row with 0.4 a.
+    void mutateMotionGlobal(double r, double p, double a) {
+        if (!graphOn()) return;
+        mutateDepths(r, p);
+        prepareCandidates();
+        int live = liveRows();
+        for (int row = 0; row < kModRowCount; ++row) {
+            const double u = rm_.nextUnit();
+            if (!rowWritable(row)) continue;
+            if (rowLive(row)) { if (u < a * 0.6) { clearRow(row); if (placeRowGlobal(row)) continue; --live; } }
+            else if (u < a * 0.4 && live < kRowCap[3] && placeRowGlobal(row)) ++live;
+        }
+    }
+
+    // -- Mutate-structure (Global): each structure stage is re-rolled with probability `a` --
+    std::array<bool, kSlotCount> freshSlot_{};
+    bool freshFmSrc_ = false;
+    void mutateStructure(double a) {
+        const double u1 = rs_.nextUnit(), u2 = rs_.nextUnit();
+        if ((cfg_.scopeMask & ScopeChain) && graphOn() && u1 < a) {
+            chainStructure();
+            if (algorithm() == 32 && constellationWritable()) buildConstellation();
+            for (int sl = 0; sl < kSlotCount; ++sl) {
+                const std::size_t k = static_cast<std::size_t>(nodeParam(sl, 0)), o = static_cast<std::size_t>(nodeParam(sl, 1));
+                freshSlot_[static_cast<std::size_t>(sl)] = bitsOf(work_[k]) != bitsOf(raw_[k]) || bitsOf(work_[o]) != bitsOf(raw_[o]);
+            }
+        }
+        if ((cfg_.scopeMask & (ScopeFM | ScopeSource)) && u2 < a) { fmSourceStructure(); freshFmSrc_ = true; }
+    }
+    bool freshParam(int i) const {
+        if (i >= kNodeOffset && i < kRouteOffset) return freshSlot_[static_cast<std::size_t>((i - kNodeOffset) / 11)];
+        return freshFmSrc_ && i >= kFmOffset;
+    }
+
+    // -- repair (Global): the unified fix-up that makes the finished state obey every hard rule, before validate() judges it --
+    double rowCap(int tgt) const {
+        double cap = kDepthCap[static_cast<int>(category(tgt))][3];
+        if (category(tgt) == Cat::Frozen) cap = std::min(cap, kFreezeThreshold - knobValueOfTarget(tgt) - 1e-4);
+        return cap;
+    }
+    void repairGlobal() {
+        if (graphOn() && (cfg_.scopeMask & ScopeModuleParams)) {  // no infinite tail: freeze knob < 0.5
+            for (int sl = 0; sl < kSlotCount; ++sl) {
+                if (!slotActive(sl) || !isFreezeType(moduleType(sl))) continue;
+                const int idx = nodeParam(sl, 5 + freezeKnob(moduleType(sl)));
+                if (canWrite(idx) && get(idx) >= kFreezeThreshold) put(idx, 0.0);  // 0 is inside the (zero-width) freeze window
+            }
+        }
+        if (graphOn() && (cfg_.scopeMask & ScopeMotion)) {
+            for (int r = 0; r < kModRowCount; ++r) {  // 1) half-empty / dead / forbidden / duplicate / tiny rows
+                if (!rowWritable(r)) continue;
+                const int src = rowSource(r), tgt = rowTarget(r);
+                double depth = get(modParam(r, 2));
+                if (src == 0 && tgt == 0 && depth == 0.0) continue;
+                bool bad = src < 1 || src > 9 || tgt < 1 || tgt > 112 || !targetValid(tgt) || busTarget(tgt) || tgt == 87 || r >= kModRowCount;
+                for (int q = 0; q < r && !bad; ++q) if (rowLive(q) && rowSource(q) == src && rowTarget(q) == tgt) bad = true;
+                if (bad) clearRow(r);
+                else if (std::abs(depth) < kMinDepth) put(modParam(r, 2), depth < 0.0 ? -kMinDepth : kMinDepth);
+            }
+            for (int t = 1; t <= 112; ++t) {  // 2) per-destination depth budget
+                double sum = 0.0, lsum = 0.0;
+                for (int r = 0; r < kModRowCount; ++r) if (rowLive(r) && rowTarget(r) == t) { const double d = std::abs(get(modParam(r, 2))); sum += d; if (!rowWritable(r)) lsum += d; }
+                if (sum == 0.0) continue;
+                double excess = sum - std::max(rowCap(t), lsum);
+                for (int r = kModRowCount - 1; r >= 0 && excess > 1e-9; --r) {
+                    if (!rowLive(r) || rowTarget(r) != t || !rowWritable(r)) continue;
+                    const double d = std::abs(get(modParam(r, 2)));
+                    if (d - excess < kMinDepth) { excess -= d; clearRow(r); }
+                    else { put(modParam(r, 2), get(modParam(r, 2)) < 0.0 ? -(d - excess) : (d - excess)); excess = 0.0; }
+                }
+            }
+            int live = liveRows(), liveLocked = 0;  // 3) row count
+            for (int r = 0; r < kModRowCount; ++r) if (rowLive(r) && !rowWritable(r)) ++liveLocked;
+            for (int r = kModRowCount - 1; r >= 0 && live > std::max(kRowCap[3], liveLocked); --r)
+                if (rowLive(r) && rowWritable(r)) { clearRow(r); --live; }
+        }
+        if (fmSrcOpen_ && fmOn() && canWrite(kFmIndex)) {
+            const double m = fmMaxIncoming();
+            if (m > 1e-9 && get(kFmIndex) * m > kFmIndexCap[3]) put(kFmIndex, kFmIndexCap[3] / m);
+        }
+    }
+
     // -- drivers --
     void runFull() {
-        if (cfg_.scopeMask & ScopeChain) chainStructure();
+        // Global: a closed graph is opened first (the one Never parameter the Global Full roll may write), so the roll is never a no-op.
+        if (global() && !graphOn() && (cfg_.scopeMask & (ScopeChain | ScopeModuleParams | ScopeMotion)) && !locks_.isLocked(kGraphEnabled))
+            put(kGraphEnabled, 1.0);
+        if (cfg_.scopeMask & ScopeChain) { chainStructure(); if (global() && graphOn() && algorithm() == 32 && constellationWritable()) buildConstellation(); }
         if (cfg_.scopeMask & (ScopeFM | ScopeSource)) fmSourceStructure();
         if (failReason_) return;
         if (canWrite(kGraphFeedback) && isActive(kGraphFeedback)) {
@@ -689,19 +930,28 @@ public:
             if (i == kFmMorph || i == kGraphFeedback) continue;
             sampleFullValue(i);
         }
-        if (cfg_.scopeMask & ScopeMotion) { modulationRowsFull(); lfoValues(false, 0, 0, 0); }
+        if (cfg_.scopeMask & ScopeMotion) { if (global()) modulationRowsGlobal(); else modulationRowsFull(); lfoValues(false, 0, 0, 0); }
+        if (global()) repairGlobal();
     }
     void runMutate(double a) {
         const double r = 0.35 * powDet(a, 0.8);
         const double p = 0.25 + 0.65 * powDet(1.0 - a, 1.5);
+        if (global()) mutateStructure(a);
         sampleMutateValue(kFmMorph, r, p, a);
         for (int i = 0; i < kParamCount; ++i) {
             if (i == kFmMorph) continue;
             const auto& pi = kParamTable[static_cast<std::size_t>(i)];
             if (pi.group == Group::Motion) continue;
-            sampleMutateValue(i, r, p, a);
+            if (global() && freshParam(i)) sampleFullValue(i); else sampleMutateValue(i, r, p, a);
         }
-        if (cfg_.scopeMask & ScopeMotion) { mutateDepths(r, p); lfoValues(true, r, p, a); }
+        if (cfg_.scopeMask & ScopeMotion) {
+            if (cfg_.motionFull) {  // Motion with Full semantics inside a Mutate roll: every row's source / destination / depth + the LFOs
+                if (global()) modulationRowsGlobal(); else modulationRowsFull();
+                lfoValues(false, 0, 0, 0);
+            } else if (global()) { mutateMotionGlobal(r, p, a); lfoValues(true, r, p, a); }
+            else { mutateDepths(r, p); lfoValues(true, r, p, a); }
+        }
+        if (global()) repairGlobal();
     }
 
     Patch finish() {
@@ -729,6 +979,7 @@ private:
     std::bitset<kParamCount> written_;
     int mode_;
     int si_;
+    int wi_;       // window tier: Global samples with the Wild windows
     std::uint64_t aseed_;
     bool fmSrcOpen_ = false;
     Pcg32 rs_, rm_;
@@ -766,6 +1017,45 @@ Patch generate(const StateView& in, const Config& cfg, const LockSet& locks) noe
     }
 }
 
+namespace {
+bool constellationOk(const std::array<float, kParamCount>& v) {
+    int arcs = 0;
+    bool reach[kSlotCount] = {}, outAny = false, inAny = false;
+    for (int d = 0; d < kSlotCount; ++d)
+        for (int s = 0; s < kSlotCount; ++s) {
+            const float w = v[static_cast<std::size_t>(routeParam(d, s))];
+            if (w == 0.f) continue;
+            if (s >= d || std::abs(w) > 1.f) return false;  // forward arcs only: no self / reverse arc, so no feedback loop
+            ++arcs;
+        }
+    if (arcs > 24) return false;
+    for (int s = 0; s < kSlotCount; ++s) if (v[static_cast<std::size_t>(nodeParam(s, 9))] != 0.f) { reach[s] = true; inAny = true; }
+    for (int d = 0; d < kSlotCount; ++d)
+        for (int s = 0; s < d; ++s) if (reach[s] && v[static_cast<std::size_t>(routeParam(d, s))] != 0.f) reach[d] = true;
+    for (int s = 0; s < kSlotCount; ++s) if (v[static_cast<std::size_t>(nodeParam(s, 10))] != 0.f && reach[s]) outAny = true;
+    return inAny && outAny;
+}
+bool fmCustomOk(const std::array<float, kParamCount>& v) {
+    int edges = 0;
+    bool feeds[6] = {};
+    if (v[static_cast<std::size_t>(kFmMorph)] != 0.f) return false;
+    for (int d = 0; d < 6; ++d) {
+        double in = 0.0;
+        for (int s = 0; s < 6; ++s) {
+            const float w = v[static_cast<std::size_t>(edgeParam(d, s))];
+            if (w == 0.f) continue;
+            if (s <= d || w < 0.f || w > 1.f) return false;
+            ++edges; in += w; feeds[s] = true;
+        }
+        if (in > 1.5 + 1e-5) return false;
+    }
+    if (edges < 2 || edges > 6) return false;
+    if (v[static_cast<std::size_t>(opParam(0, 2))] < 0.5f) return false;
+    for (int o = 0; o < 6; ++o) if (!feeds[o] && v[static_cast<std::size_t>(opParam(o, 2))] < 0.5f) return false;  // a terminal operator is a carrier
+    return true;
+}
+}  // namespace
+
 Patch::Report validate(const StateView& before, const Patch& patch, const Config& cfg, const LockSet& locks) {
     Patch::Report rep = patch.report;
     auto fail = [&](const char* why) { rep.ok = false; rep.reason = why; return rep; };
@@ -778,10 +1068,13 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
         const auto& pi = kParamTable[static_cast<std::size_t>(d.specIndex)];
         if (!std::isfinite(d.value)) return fail("non-finite-value");
         if (d.value < static_cast<float>(pi.minV) || d.value > static_cast<float>(pi.maxV)) return fail("value-out-of-range");
-        if (pi.cls == Classification::Never) return fail("never-parameter-written");
+        // the single Never exception: a Global Full roll opens a closed graph
+        const bool openGraph = d.specIndex == kGraphEnabled && d.value == 1.f && cfg.safety == Safety::Global && cfg.mode == Mode::Full &&
+                               (cfg.scopeMask & (ScopeChain | ScopeModuleParams | ScopeMotion));
+        if (pi.cls == Classification::Never && !openGraph) return fail("never-parameter-written");
         if (d.specIndex == kGraphTrim) return fail("trim-written-by-engine");
         if (locks.isLocked(d.specIndex)) return fail("locked-parameter-written");
-        if (!(groupBit(pi.group) & cfg.scopeMask)) return fail("outside-scope");
+        if (!openGraph && !(groupBit(pi.group) & cfg.scopeMask)) return fail("outside-scope");
         if (ev.groupClosed(pi)) return fail("edition-closed-section-written");
         if (pi.type != ParamType::Float && d.value != std::floor(d.value)) return fail("discrete-value-not-integer");
         if (pi.step > 0.0) {
@@ -790,6 +1083,7 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
         }
     }
     if (cfg.mode == Mode::Mutate && !(cfg.amount > 0.f) && !patch.diffs.empty()) return fail("mutate-amount-0-not-empty");
+    if (cfg.mode == Mode::Mutate && !(cfg.amount > 0.f)) return rep;  // nothing was rolled: nothing to judge
     // edition: nothing may point a written row at FM/Source targets in FX or in a closed section
     {
         auto sane = result;  // same sanitising as the generator's working copy (NaN / Inf inputs stay harmless)
@@ -805,12 +1099,13 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
         const int i = d.specIndex;
         if (i >= kModOffset && i < kFmOffset && (i - kModOffset) % 3 == 1 && d.value >= 85.f && (ev.modeValue() == 0 || !ev.fmSrcOpen()))
             return fail("fm-source-target-in-closed-edition");
+        if (i >= kModOffset && i < kFmOffset && (i - kModOffset) % 3 == 1 && busTarget(static_cast<int>(d.value))) return fail("bus-volume-target");
     }
     // written Random values stay inside their effective window (non-structural, non-motion-row)
     for (const auto& d : patch.diffs) {
         const int i = d.specIndex;
         const auto& pi = kParamTable[static_cast<std::size_t>(i)];
-        if (pi.cls != Classification::Random || pi.role == Role::ModDepth) continue;
+        if (pi.cls != Classification::Random || pi.role == Role::ModDepth || Engine::builtByStructure(pi)) continue;
         if (pi.dist == Dist::None || pi.dist == Dist::Derived || pi.dist == Dist::PerType) {
             if (!(i >= kNodeOffset && i < kRouteOffset)) continue;
         }
@@ -834,12 +1129,15 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
     rep.algorithm = ev.algorithm();
     rep.modulationRows = 0;
     for (int r = 0; r < kModRowCount; ++r) rep.modulationRows += ev.rowLive(r);
-    if (cfg.mode != Mode::Full) return rep;
+    if (cfg.mode != Mode::Full && cfg.safety != Safety::Global) return rep;  // Global validates its structure / motion rules in Mutate too
 
     // ---- Full: structure rules (spec 7.2) - only for what the engine controls; locked items may exceed caps ----
-    const int si = cfg.safety == Safety::Safe ? 0 : (cfg.safety == Safety::Normal ? 1 : 2);
+    const int si = cfg.safety == Safety::Safe ? 0 : (cfg.safety == Safety::Normal ? 1 : (cfg.safety == Safety::Wild ? 2 : 3));
     const bool graph = ev.graphOn();
-    if (graph && (cfg.scopeMask & ScopeChain)) {
+    bool chainTouched = cfg.mode == Mode::Full;
+    for (const auto& d : patch.diffs)
+        chainTouched |= d.specIndex == kRoutingAlgorithm || (d.specIndex >= kNodeOffset && d.specIndex < kRouteOffset && (d.specIndex - kNodeOffset) % 11 < 2);
+    if (graph && (cfg.scopeMask & ScopeChain) && chainTouched) {
         int lockedActive = 0, total = 0;
         std::array<int, kModuleTypeCount> cnt{}, lcnt{};
         int hr = 0, lhr = 0, fz = 0, lfz = 0;
@@ -859,12 +1157,12 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
         if (hr > std::max(kHighRiskCap[si], lhr)) return fail("high-risk-module-cap");
         if (fz > std::max(kFreezeTypeCap[si], lfz)) return fail("freeze-module-cap");
         for (int s = 0; s < kSlotCount; ++s)  // slots 9..12 are never switched on by the engine
-            if (s >= 8 && ev.slotActive(s) && !locks.isLocked(nodeParam(s, 1)) && !locks.isLocked(nodeParam(s, 0)) && bitsOf(before.value[static_cast<std::size_t>(nodeParam(s, 1))]) != bitsOf(result[static_cast<std::size_t>(nodeParam(s, 1))]))
+            if (si < 3 && s >= 8 && ev.slotActive(s) && !locks.isLocked(nodeParam(s, 1)) && !locks.isLocked(nodeParam(s, 0)) && bitsOf(before.value[static_cast<std::size_t>(nodeParam(s, 1))]) != bitsOf(result[static_cast<std::size_t>(nodeParam(s, 1))]))
                 return fail("slot-beyond-8-activated");
-        if (!locks.isLocked(kRoutingAlgorithm) && ev.algorithm() > 31) return fail("algorithm-32-generated");
+        if (si < 3 && !locks.isLocked(kRoutingAlgorithm) && ev.algorithm() > 31) return fail("algorithm-32-generated");
         if (!locks.isLocked(kRoutingAlgorithm) && si == 0 && routeAlgoInfo(ev.algorithm()).feedbackArcs > 0) return fail("safe-algorithm-with-feedback-arcs");
     }
-    if (graph && si < 2) {  // no infinite tail outside Wild: freeze knob + modulation depth < 0.5 (spec 5.2 / 7.2)
+    if (graph && (si < 2 || (si == 3 && (cfg.scopeMask & ScopeModuleParams)))) {  // no infinite tail outside Wild: freeze knob + modulation depth < 0.5 (spec 5.2 / 7.2)
         for (int sl = 0; sl < kSlotCount; ++sl) {
             if (!ev.slotActive(sl) || !isFreezeType(ev.moduleType(sl))) continue;
             const int knob = freezeKnob(ev.moduleType(sl));
@@ -881,12 +1179,13 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
             const int src = ev.rowSource(r), tgt = ev.rowTarget(r);
             const double depth = ev.get(modParam(r, 2));
             if (src == 0 && tgt == 0 && depth == 0.0) continue;
-            if (r >= 12) return fail("modulation-row-beyond-12");
+            if (r >= 12 && si < 3) return fail("modulation-row-beyond-12");
             if (src == 0 || tgt == 0) return fail("half-empty-modulation-row");
             if (std::abs(depth) < kMinDepth - 1e-6) return fail("dead-modulation-row");
             if (!ev.targetValid(tgt)) return fail("dead-modulation-target");
             if (si == 0 && tgt > 84) return fail("safe-extended-target");
-            if (tgt == 87 && si < 2) return fail("transpose-target-generated");
+            if (tgt == 87 && (si < 2 || si == 3)) return fail("transpose-target-generated");
+            if (busTarget(tgt) && si == 3) return fail("bus-volume-target");
             const Cat c = ev.category(tgt);
             if (c == Cat::Frozen) {
                 if (si == 0) return fail("frozen-knob-targeted-in-safe");
@@ -903,7 +1202,17 @@ Patch::Report validate(const StateView& before, const Patch& patch, const Config
         }
         if (live > std::max(kRowCap[si], liveLocked)) return fail("too-many-modulation-rows");
     }
-    if (ev.modeValue() == 2 && (cfg.scopeMask & (ScopeFM | ScopeSource)) && !ev.fmOn() && !ev.srcOn()) {
+    if (si == 3) {  // Global: the constructed algorithm-32 constellation and custom FM matrix, checked on the finished state
+        bool touchRoute = false, touchFm = false;
+        for (const auto& d : patch.diffs) {
+            touchRoute |= d.specIndex == kRoutingAlgorithm || (d.specIndex >= kNodeOffset && d.specIndex < kRouteOffset && (d.specIndex - kNodeOffset) % 11 >= 9) || (d.specIndex >= kRouteOffset && d.specIndex < kLfoOffset);
+            touchFm |= d.specIndex == kFmCustom || d.specIndex == kFmMorph || (d.specIndex >= kOpOffset && d.specIndex < kEdgeOffset && (d.specIndex - kOpOffset) % 6 == 2) || (d.specIndex >= kEdgeOffset && d.specIndex < kSourceOffset);
+        }
+        const auto& v = ev.work();
+        if (touchRoute && graph && ev.algorithm() == 32 && !constellationOk(v)) return fail("invalid-constellation");
+        if (touchFm && ev.fmOn() && v[static_cast<std::size_t>(kFmCustom)] > 0.5f && !fmCustomOk(v)) return fail("invalid-fm-custom-matrix");
+    }
+    if (cfg.mode == Mode::Full && ev.modeValue() == 2 && (cfg.scopeMask & (ScopeFM | ScopeSource)) && !ev.fmOn() && !ev.srcOn()) {
         const bool fmFree = !locks.isLocked(kFmEnabled);
         const bool srcFree = !locks.isLocked(kSourceEnabled) && !locks.isLocked(kSourceEngine);
         if (fmFree || srcFree) return fail("synth-without-sound-source");

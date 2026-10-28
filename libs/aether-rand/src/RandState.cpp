@@ -75,7 +75,7 @@ std::string randomPresetName(std::string_view sourcePreset, std::uint64_t seed40
 bool patchIsStructural(const Patch& patch) noexcept {
     for (const auto& d : patch.diffs) {
         const int i = d.specIndex;
-        if (i == kGraphEnabled || i == kRoutingAlgorithm || i == kFmEnabled || i == kFmAlgorithm || i == kSourceEnabled || i == kSourceEngine)
+        if (i == kGraphEnabled || i == kRoutingAlgorithm || i == kFmEnabled || i == kFmAlgorithm || i == kSourceEnabled || i == kSourceEngine || i == kFmCustom)
             return true;
         for (int s = 0; s < kSlotCount; ++s)
             if (i == nodeParam(s, 0)) return true;  // node type

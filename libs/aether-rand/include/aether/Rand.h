@@ -17,7 +17,7 @@
 
 namespace aether::rand {
 
-inline constexpr int kRandAlgoVersion = 1;
+inline constexpr int kRandAlgoVersion = 2;  // 2 = 2.3.1: Global tier, bus-volume params Never, validate/repair
 inline constexpr int kParamCount = 495;
 inline constexpr int kModuleTypeCount = 21;
 inline constexpr int kFmAlgorithmCount = 32;
@@ -34,6 +34,8 @@ inline constexpr int nodeParam(int slot, int field) noexcept { return kNodeOffse
 inline constexpr int lfoParam(int lfo, int field) noexcept { return kLfoOffset + lfo * 4 + field; }       // rate,phase,shape,sync
 inline constexpr int modParam(int row, int field) noexcept { return kModOffset + row * 3 + field; }       // source,target,depth
 inline constexpr int opParam(int op, int field) noexcept { return kOpOffset + op * 6 + field; }           // ratio,level,carrier,detune,attack,release
+inline constexpr int routeParam(int dest, int src) noexcept { return kRouteOffset + dest * kSlotCount + src; }  // 0-based; route.D.S = connection[dest][src]; src < dest = forward arc
+inline constexpr int edgeParam(int dest, int src) noexcept { return kEdgeOffset + dest * 6 + src; }            // 0-based; fm.edge.D.S, operator `src` modulates `dest` (src > dest = current sample)
 inline constexpr int kFmEnabled = kFmOffset, kFmAlgorithm = kFmOffset + 1, kFmCustom = kFmOffset + 2, kFmIndex = kFmOffset + 3,
                      kFmMorph = kFmOffset + 4, kFmFeedback = kFmOffset + 5;
 inline constexpr int kSourceEngine = kSourceOffset, kSourceEnabled = kSourceOffset + 1;
@@ -70,7 +72,10 @@ double powDet(double base, double exponent) noexcept;  // base > 0
 
 // ---- configuration --------------------------------------------------------------------------------------------------
 enum class Mode { Full, Mutate };
-enum class Safety { Safe, Normal, Wild };
+// Global (2.3.1) = the Randomize button's profile: Wild-width value windows + the widest structure (12 slots, feedback algorithms,
+// algorithm 32 constellation, custom FM matrix, 16 modulation rows over all destinations, Mutate also re-rolls structure), with the hard
+// rules (repair + validate) that no tier may break.  Safe/Normal/Wild keep their 2.3.0 behaviour.
+enum class Safety { Safe, Normal, Wild, Global };
 enum ScopeBits : std::uint32_t { ScopeChain = 1, ScopeModuleParams = 2, ScopeFM = 4, ScopeSource = 8, ScopeMotion = 16, ScopeAll = 31 };
 
 struct EditionContext {      // filled by the processor; the engine never writes global.mode
@@ -82,10 +87,14 @@ struct Config {
     std::uint64_t seed = 0;          // 40 significant bits for callers; any 64-bit value is accepted
     Mode mode = Mode::Full;
     float amount = 1.f;              // 0..1; Mutate only (Full ignores it). Mutate with amount == 0 yields an empty patch
-    Safety safety = Safety::Safe;    // frozen default (spec 9.1.1 #2; draft P.1 said Normal)
+    Safety safety = Safety::Global;  // 2.3.1: Global (was Safe, spec 9.1.1 #2)
     std::uint32_t scopeMask = ScopeAll;
     int attempt = 0;                 // re-roll index 0..5 (6.1; out of range is clamped to [0,5]): attemptSeed = seed ^ (k * 0x9E3779B97F4A7C15)
     bool intoB = false;              // only affects where the caller writes; does not affect sampling
+    // 2.3.1: Motion section with Full semantics even in a Mutate roll: every unlocked modulation row gets a new source, destination
+    // and depth (empty rows may be switched on) and the LFO values are re-drawn.  Full mode always does this; for a "Motion only"
+    // roll the caller passes scopeMask = ScopeMotion (+ motionFull = true to be explicit).
+    bool motionFull = false;
 };
 
 struct StateView {

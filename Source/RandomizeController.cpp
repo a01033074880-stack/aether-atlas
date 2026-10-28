@@ -103,7 +103,7 @@ bool readRecipe(const juce::ValueTree& node, RandomRecipe& out) {
     if (!parseInt(node["rmode"].toString(), i) || i < 0 || i > 1) return false;
     r.mode = static_cast<Mode>(i);
     if (!parseFloat(node["amount"].toString(), r.amount)) return false;
-    if (!parseInt(node["safety"].toString(), i) || i < 0 || i > 2) return false;
+    if (!parseInt(node["safety"].toString(), i) || i < 0 || i > 3) return false;
     r.safety = static_cast<Safety>(i);
     if (!parseInt(node["scope"].toString(), i) || i < 0 || i > 0xffffffffLL) return false;
     r.scopeMask = static_cast<std::uint32_t>(i);
