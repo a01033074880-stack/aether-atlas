@@ -7,6 +7,8 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <thread>
+#include <aether/Rand.h>
 #include <stdexcept>
 
 namespace {
@@ -74,12 +76,12 @@ template<class F> void testFxOnly(const char* name,const char* synthSkipReason,F
     (void)synthSkipReason; test(name,f);
 #endif
 }
-// ---- Stage B: Randomize popover on the mock backend (the editor shows no Randomize controls without an installed factory) ----
+// ---- Stage B: Randomize popover on the real aether::rand backend (the editor shows no Randomize controls without an installed factory) ----
 struct ScopedRandomBackend {
-    ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeMockBackend(proc); }); }
+    ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeEngineBackend(proc); }); }
     ~ScopedRandomBackend() { AetherAudioProcessorEditor::setRandomizeBackendFactory({}); }
 };
-// RandSpec §1.2 grouping, written out independently of the mock (its parameter id patterns, not its code).
+// RandSpec §1.2 grouping, written out independently of the engine table (parameter id patterns, not its code).
 juce::String randomGroupOf(const juce::String& id) {
     juce::StringArray part;part.addTokens(id,".",{});
     if(id=="routing.algorithm"||id=="graph.feedback"||part[0]=="route") return "Chain";
@@ -97,7 +99,7 @@ bool randomGroupMovable(const juce::String& g) { return g!="MixGlobal"&&g!="Syst
 void randomSourceLive(AetherAudioProcessor& p) { p.setParameterValue("global.mode",JucePlugin_IsSynth?2.f:1.f);p.setParameterValue("source.enabled",1);p.setParameterValue("source.engine",1); }
 std::map<juce::String,float> randomValues(AetherAudioProcessor& p) {
     std::map<juce::String,float> values;
-    for(const auto& spec:aether::parameterSpecs()) if(!spec.boolean&&spec.choices.size()==0) values[spec.id]=p.parameterValue(spec.id);
+    for(const auto& spec:aether::parameterSpecs()) values[spec.id]=p.parameterValue(spec.id);   // every parameter, booleans and choices too
     return values;
 }
 bool sameValues(const std::map<juce::String,float>& a,const std::map<juce::String,float>& b) {
@@ -1190,14 +1192,14 @@ int main(int argc,char** argv) {
         });
         test("Randomize: locked groups keep their values, every group is lockable and non-empty",[&] {
             ScopedRandomBackend backend;
-            RandomRig rig;auto& panel=*rig.panel;
+            RandomRig rig;auto& panel=*rig.panel;panel.setMode(aether::ui::RandomizeMode::full);
             require(aether::ui::randomSpecGroups()==randomGroups&&panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"default locks are not MixGlobal + System: "+panel.lockedGroups().joinIntoString(","));
             {int counts[7]={0,0,0,0,0,0,0},total=0;const int expected[7]={194,84,84,28,64,9,32};
-             for(const auto& spec:aether::parameterSpecs()) {++counts[randomGroups.indexOf(randomGroupOf(spec.id))];++total;require(aether::ui::randomGroupOf(spec.id)==randomGroupOf(spec.id),"mock grouping differs from the spec rule: "+juce::String(spec.id));}
+             for(const auto& spec:aether::parameterSpecs()) {++counts[randomGroups.indexOf(randomGroupOf(spec.id))];++total;require(aether::ui::randomGroupOf(spec.id)==randomGroupOf(spec.id),"engine grouping differs from the spec rule: "+juce::String(spec.id));}
              for(int i=0;i<7;++i) require(counts[i]==expected[i],"RandSpec §1.2 count of "+randomGroups[i]+": "+juce::String(counts[i])+" vs "+juce::String(expected[i]));
              require(total==495,"parameter total "+juce::String(total));}
             for(const auto& g:randomGroups) require(rig.panel->findChildWithID("random.lock."+g)!=nullptr,"lock chip missing: "+g);
-            randomSourceLive(rig.p);
+            randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",1);   // Chain / ModuleParams / Motion are idle while the graph is off (engine ActiveWhen)
             // The seed field must be readable before the first roll too (its text used to keep the default pale colour).
             {panel.setOpen(true);auto* seed=panel.findChildWithID("random.seed");require(seed!=nullptr,"seed field missing");
              if(seed->getWidth()>0) {const auto img=panel.createComponentSnapshot(seed->getBounds(),false,1.f);const auto bg=img.getPixelAt(2,2);double best=1.0;
@@ -1210,9 +1212,14 @@ int main(int argc,char** argv) {
             // one open group at a time: only that group changes
             for(const auto& open:randomGroups) {
                 for(const auto& g:randomGroups) panel.setLocked(g,g!=open);
-                before=randomValues(rig.p);const auto recipe=panel.roll(false);after=randomValues(rig.p);int inGroup=0;
-                for(const auto& [id,v]:before) {const bool changed=std::abs(after[id]-v)>1.0e-6f;if(randomGroupOf(id)==open){if(changed)++inGroup;}else require(!changed,"value outside the open group "+open+" moved: "+id);}
-                if(randomGroupMovable(open)) require(inGroup>0,"group "+open+" has no movable parameter"); else require(inGroup==0,"Never group "+open+" moved even though unlocked: "+juce::String(inGroup));
+                decltype(panel.roll(false)) recipe;int inGroup=0;   // pinned seed: a fresh one per try (the same seed re-writes the same values); a roll may legitimately leave a group alone (e.g. Synth keeps Source off), so allow a few tries
+                for(int attempt=0;attempt<8;++attempt) {
+                    panel.setSeedText("A00"+juce::String(randomGroups.indexOf(open))+"-77"+juce::String(randomGroups.indexOf(open))+juce::String(attempt));
+                    before=randomValues(rig.p);recipe=panel.roll(false);after=randomValues(rig.p);inGroup=0;
+                    for(const auto& [id,v]:before) {const bool changed=std::abs(after[id]-v)>1.0e-6f;if(randomGroupOf(id)==open){if(changed)++inGroup;}else require(!changed,"value outside the open group "+open+" moved: "+id);}
+                    if(inGroup>0||!randomGroupMovable(open)) break;
+                }
+                if(randomGroupMovable(open)) require(inGroup>0,"group "+open+" has no movable parameter (rejected "+juce::String(int(recipe.rejected))+", note '"+recipe.note+"', changed "+juce::String(recipe.changedValues)+", mode "+juce::String(rig.p.parameterValue("global.mode"))+", fm "+juce::String(rig.p.parameterValue("fm.enabled"))+", src "+juce::String(rig.p.parameterValue("source.enabled"))+"/"+juce::String(rig.p.parameterValue("source.engine"))+", seed "+panel.seedText()+")"); else require(inGroup==0,"Never group "+open+" moved even though unlocked: "+juce::String(inGroup));
                 require(recipe.changedValues==inGroup&&recipe.touchedGroups==(randomGroupMovable(open)?juce::StringArray({open}):juce::StringArray()),"recipe does not match the roll for "+open+": "+juce::String(recipe.changedValues)+" vs "+juce::String(inGroup));
             }
             // everything locked: nothing changes and the panel says so
@@ -1228,6 +1235,8 @@ int main(int argc,char** argv) {
                 require(sameValues(before,after),"FX mode moved FM / Source values");
                 rig.p.setParameterValue("global.mode",1);rig.p.setParameterValue("source.enabled",0);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);
                 require(sameValues(before,after),"Resynth with Source off moved FM / Source values");
+                rig.p.setParameterValue("source.enabled",1);rig.p.setParameterValue("source.engine",0);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);
+                require(sameValues(before,after),"Resynth with Source enabled but engine Off moved FM / Source values (ActiveWhen SrcOn needs engine >= 1)");
             }
             randomSourceLive(rig.p);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);require(!sameValues(before,after),"FM / Source did not move with Source on");
             panel.setLocked("Nope",true);require(!panel.isLocked("Nope"),"unknown group accepted");
@@ -1279,9 +1288,92 @@ int main(int argc,char** argv) {
             require(recipe.intoB&&recipe.onSlotB&&rig.p.isSnapshotB(),"result is not on the B slot");require(!sameValues(a,b),"B is the same as A");
             require(rig.textOf("preset.source").endsWith("(B slot)")&&panel.presetLabel().startsWith("(Random) "),"B slot not shown: "+rig.textOf("preset.source"));
             rig.p.toggleAB();require(sameValues(randomValues(rig.p),a),"A changed by Randomize into B");rig.p.toggleAB();require(sameValues(randomValues(rig.p),b),"B lost its roll");
-            require(panel.undo()&&!rig.p.isSnapshotB()&&sameValues(randomValues(rig.p),a),"undo of into-B did not return to A");
+            require(panel.undo(),"undo of into-B refused");require(!rig.p.isSnapshotB(),"undo of into-B left B live");
+            {const auto now=randomValues(rig.p);juce::String diff;for(const auto& [id,v]:a) if(std::abs(now.at(id)-v)>1.0e-4f&&diff.length()<80) diff<<id<<" "<<v<<"->"<<now.at(id)<<"; ";
+             require(diff.isEmpty(),"undo of into-B did not restore A: "+diff);}
             // a plain roll while B is live stays on B
             rig.p.toggleAB();const auto live=panel.roll(false);require(live.onSlotB&&!live.intoB,"roll on live B moved slots");
+        });
+        test("Randomize engine: parameterSpecs() and the engine table agree, and the UI group of every id is the engine group",[&] {
+            const auto& specs=aether::parameterSpecs();const auto table=aether::rand::paramTable();
+            require(int(specs.size())==aether::rand::kParamCount&&aether::rand::kParamCount==495,"parameter count "+juce::String(int(specs.size())));
+            for(size_t i=0;i<specs.size();++i) {
+                require(specs[i].id==juce::String(table[i].id),"engine table order differs at "+juce::String(int(i))+": "+specs[i].id+" vs "+table[i].id);
+                require(aether::ui::randomGroupOf(specs[i].id)==randomGroups[int(table[i].group)]&&randomGroupOf(specs[i].id)==randomGroups[int(table[i].group)],"group of "+specs[i].id);
+                require(aether::rand::paramIndex(specs[i].id.toStdString())==int(i),"paramIndex of "+specs[i].id);
+            }
+        });
+        test("Randomize engine: UI locks map to the LockSet, locked and Never parameters never move (every lock combination, Full and Mutate)",[&] {
+            const auto table=aether::rand::paramTable();int rolls=0,moved=0;
+            for(int state=0;state<2;++state) {
+                AetherAudioProcessor p;if(state==1) {randomSourceLive(p);p.setParameterValue("modulation.1.source",1);p.setParameterValue("modulation.1.target",4);p.setParameterValue("modulation.1.depth",.5f);}
+                auto backend=aether::ui::makeEngineBackend(p);
+                for(int mask=0;mask<32;++mask) for(int full=0;full<2;++full) for(int s=0;s<2;++s) {
+                    aether::ui::RandomizeRequest req;req.seed=0xA7F392C1ull+std::uint64_t(mask*131+s*7+state);req.mode=full?aether::ui::RandomizeMode::full:aether::ui::RandomizeMode::mutate;req.amount=.8f;
+                    for(int g=0;g<5;++g) if(mask>>g&1) req.lockedGroups.add(randomGroups[g]);   // MixGlobal / System stay unlocked: Never alone must hold them
+                    const auto before=randomValues(p);const auto rec=backend->randomize(req);const auto after=randomValues(p);++rolls;
+                    require(!rec.rejected,"roll rejected: "+rec.note);int changed=0;
+                    for(size_t i=0;i<table.size();++i) {
+                        const juce::String id=table[i].id;const bool differs=std::abs(after.at(id)-before.at(id))>1.0e-7f;changed+=differs?1:0;
+                        if(req.lockedGroups.contains(randomGroups[int(table[i].group)])) require(!differs,"locked "+randomGroups[int(table[i].group)]+" moved: "+id);
+                        if(table[i].cls==aether::rand::Classification::Never) require(!differs,"Never parameter moved: "+id);
+                    }
+                    require(changed==rec.changedValues,"recipe count "+juce::String(rec.changedValues)+" vs "+juce::String(changed));moved+=changed;
+                }
+            }
+            require(rolls==256&&moved>500,"locks test too weak: rolls "+juce::String(rolls)+" moved "+juce::String(moved));
+        });
+        test("Randomize engine: the same seed makes the same patch (backend and generate()), another seed another one",[&] {
+            for(int full=0;full<2;++full) {
+                AetherAudioProcessor a,b;randomSourceLive(a);randomSourceLive(b);auto ba=aether::ui::makeEngineBackend(a);auto bb=aether::ui::makeEngineBackend(b);
+                aether::ui::RandomizeRequest req;req.seed=0x1234567890ull&aether::ui::randomSeedMask;req.mode=full?aether::ui::RandomizeMode::full:aether::ui::RandomizeMode::mutate;req.amount=.6f;req.lockedGroups={"MixGlobal","System"};
+                const auto ra=ba->randomize(req);const auto rb=bb->randomize(req);const auto va=randomValues(a),vb=randomValues(b);
+                require(ra.changedValues>0&&ra.changedValues==rb.changedValues&&ra.attempt==rb.attempt&&ra.algoVersion==aether::rand::kRandAlgoVersion,"same seed, different recipe");
+                for(const auto& [id,v]:va) require(v==vb.at(id),"same seed gave different "+id);
+                req.seed^=1;AetherAudioProcessor c;randomSourceLive(c);aether::ui::makeEngineBackend(c)->randomize(req);
+                bool differs=false;const auto vc=randomValues(c);for(const auto& [id,v]:va) differs|=v!=vc.at(id);require(differs,"another seed gave the same values");
+            }
+            // generate() itself: bitwise equal diffs for equal input
+            AetherAudioProcessor p;randomSourceLive(p);aether::rand::StateView view;
+            for(size_t i=0;i<aether::parameterSpecs().size();++i) view.value[i]=p.parameterValue(aether::parameterSpecs()[i].id);
+            view.edition={JucePlugin_IsSynth?2:1,JucePlugin_IsSynth!=0};aether::rand::Config cfg;cfg.seed=42;cfg.mode=aether::rand::Mode::Full;aether::rand::LockSet none;
+            const auto p1=aether::rand::generate(view,cfg,none),p2=aether::rand::generate(view,cfg,none);
+            require(!p1.diffs.empty()&&p1.diffs.size()==p2.diffs.size(),"generate() diff count differs");
+            for(size_t i=0;i<p1.diffs.size();++i) require(p1.diffs[i].specIndex==p2.diffs[i].specIndex&&std::memcmp(&p1.diffs[i].value,&p2.diffs[i].value,4)==0,"generate() diff differs at "+juce::String(int(i)));
+            require(aether::rand::validate(view,p1,cfg,none).ok,"validate() rejects the engine's own patch");
+        });
+        test("Randomize engine: a roll commits only the changed parameters, each in one begin/set/end gesture (JUCE level; no DAW)",[&] {
+            struct Counter final:juce::AudioProcessorParameter::Listener {
+                std::map<int,int> changes,begins,ends;
+                void parameterValueChanged(int i,float) override {++changes[i];}
+                void parameterGestureChanged(int i,bool start) override {++(start?begins:ends)[i];}
+                void reset() {changes.clear();begins.clear();ends.clear();}
+            };
+            AetherAudioProcessor p;randomSourceLive(p);Counter counter;for(auto* prm:p.getParameters()) prm->addListener(&counter);
+            auto backend=aether::ui::makeEngineBackend(p);aether::ui::RandomizeRequest req;req.seed=0x0BADC0DEull;req.mode=aether::ui::RandomizeMode::full;req.lockedGroups={"MixGlobal","System"};
+            const auto& specs=aether::parameterSpecs();std::map<juce::String,float> before=randomValues(p);std::map<juce::String,int> indexOf;
+            for(auto* prm:p.getParameters()) if(auto* withId=dynamic_cast<juce::AudioProcessorParameterWithID*>(prm)) indexOf[withId->paramID]=prm->getParameterIndex();
+            counter.reset();const auto rec=backend->randomize(req);const auto after=randomValues(p);int gestures=0;
+            for(const auto& spec:specs) {
+                const int idx=indexOf.at(spec.id);const bool differs=after.at(spec.id)!=before.at(spec.id);
+                if(differs) require(counter.begins[idx]==1&&counter.ends[idx]==1&&counter.changes[idx]>=1,"changed "+spec.id+" without one gesture: "+juce::String(counter.begins[idx])+"/"+juce::String(counter.ends[idx]));
+                if(counter.begins[idx]>0) {++gestures;require(counter.begins[idx]==1&&counter.ends[idx]==1,"gesture of "+spec.id+" not balanced");}
+                if(counter.changes[idx]>0) require(counter.begins[idx]>0,"value change outside a gesture: "+spec.id);
+            }
+            require(rec.changedValues>20&&gestures>=rec.changedValues&&gestures<int(specs.size())/2,"gestures "+juce::String(gestures)+" for "+juce::String(rec.changedValues)+" changed values");
+            // undo of a live roll uses the same path: only what differs is written
+            counter.reset();const auto beforeUndo=randomValues(p);require(backend->undo(),"undo refused");const auto afterUndo=randomValues(p);int undone=0,extra=0;
+            for(const auto& spec:specs) {const int idx=indexOf.at(spec.id);if(afterUndo.at(spec.id)!=beforeUndo.at(spec.id)) {++undone;require(counter.begins[idx]==1&&counter.ends[idx]==1,"undo changed "+spec.id+" without a gesture");}
+                else if(counter.begins[idx]>0) {++extra;require(counter.begins[idx]==1&&counter.ends[idx]==1,"undo gesture of "+spec.id+" not balanced");}}   // a sub-1e-7 normalised step may gesture without moving the unit value
+            require(undone>=rec.changedValues&&undone+extra<int(specs.size())/2&&sameValues(afterUndo,before),"undo did not restore the pre-roll state ("+juce::String(undone)+" vs "+juce::String(rec.changedValues)+")");
+            for(auto* prm:p.getParameters()) prm->removeListener(&counter);
+        });
+        test("Randomize engine: generate() runs on the message thread only (a call from another thread is refused and writes nothing)",[&] {
+            AetherAudioProcessor p;randomSourceLive(p);auto backend=aether::ui::makeEngineBackend(p);aether::ui::RandomizeRequest req;req.seed=5;req.mode=aether::ui::RandomizeMode::full;
+            const auto before=randomValues(p);aether::ui::RandomizeRecipe rec,recB;bool undone=true;
+            std::thread worker([&] {rec=backend->randomize(req);recB=backend->randomizeIntoB(req);undone=backend->undo();});worker.join();
+            require(rec.rejected&&recB.rejected&&rec.note=="wrong thread"&&!undone&&backend->undoDepth()==0&&sameValues(randomValues(p),before)&&!p.isSnapshotB(),"worker thread call was not refused");
+            require(!backend->randomize(req).rejected&&backend->undoDepth()==1,"owner thread roll refused after the worker attempt");
         });
         test("Randomize header buttons and popover: inside the canvas, no overlap, text fits and keeps 4.5:1 contrast (both editions, all zoom / size cases)",[&] {
             ScopedRandomBackend backend;
