@@ -23,7 +23,7 @@ float uiTextScale=1.f;
 // Plugin edition: AETHER Micro Synth (JucePlugin_IsSynth) offers only Synth mode; AETHER Micro (effect) offers only FX and Resynth. Chosen at compile time;
 // the override exists so tests and snapshot tools can exercise both editions from one binary (-1 = compile-time edition).
 int editionOverride=-1;
-// Randomize backend factory (set by tests and snapshot tools); without one the editor has no Randomize controls.
+// Randomize backend factory (tests and snapshot tools may replace it); without one the editor uses aether::ui::makeEngineBackend, i.e. the RandomizeController of the processor.
 AetherAudioProcessorEditor::RandomizeBackendFactory randomizeFactory;
 bool synthEdition(){if(editionOverride>=0)return editionOverride>0;
 #if JucePlugin_IsSynth
@@ -534,7 +534,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     }
     void paintFmMatrix(juce::Graphics& g){for(int i=0;i<6;++i){text(g,juce::String(i+1),{38+i*30,5,27,20},10,blue,juce::Justification::centred);text(g,juce::String(i+1),{4,30+i*30,27,27},10,earth,juce::Justification::centred);}for(int d=0;d<6;++d)for(int s=0;s<6;++s){const float v=fmEdge(s,d);auto r=juce::Rectangle<int>(38+s*30,30+d*30,27,27);g.setColour(light);g.fillRect(r);if(v>.001f){const auto tone=s>=d?earth:blue;g.setColour(tone.withAlpha(.16f+.26f*v));g.fillRect(r);g.setColour(tone);g.fillRect(r.getX(),r.getBottom()-int(2+4*v),r.getWidth(),int(2+4*v));}g.setColour(line);g.drawRect(r);text(g,v>.001f?juce::String(v,1):"-",r.withTrimmedBottom(4),11,v>.001f?ink:muted,juce::Justification::centred);}}
     void paintMotion(juce::Graphics& g){const int cw=motionScope.getWidth()/4;for(int n=0;n<4;++n){const float scopeH=compact?20.f:35.f;auto r=juce::Rectangle<float>(float(n*cw+12),compact?3.f:4.f,float(cw-25),scopeH);g.setColour(line);g.drawLine(r.getX(),r.getCentreY(),r.getRight(),r.getCentreY());juce::Path waveform;const int shape=int(p.parameterValue("lfo."+juce::String(n+1)+".shape"));const float phase=p.parameterValue("lfo."+juce::String(n+1)+".phase");for(int i=0;i<100;++i){float t=float(i)/99+phase,v=0;t-=std::floor(t);switch(shape){case 0:v=std::sin(t*juce::MathConstants<float>::twoPi);break;case 1:v=1-4*std::abs(t-.5f);break;case 2:v=2*t-1;break;case 3:v=t<.5f?1.f:-1.f;break;default:v=std::sin(std::floor(t*7)*27.4f);break;}float x=r.getX()+r.getWidth()*float(i)/99,y=r.getCentreY()-v*r.getHeight()*.4f;if(i==0)waveform.startNewSubPath(x,y);else waveform.lineTo(x,y);}g.setColour(n%2?earth:blue);g.strokePath(waveform,juce::PathStrokeType(1.2f));const float live=p.modulationMeters[size_t(n+1)].load();g.fillEllipse(r.getRight()-5,r.getCentreY()-live*(scopeH*.4f)-3,6,6);}}
-    // ---- Randomize (stage B): header split button + popover. Exists only when a backend factory is installed (see setRandomizeBackendFactory); the engine side stays behind aether::ui::RandomizeBackend. ----
+    // ---- Randomize (2.3.0): header split button + popover, on by default. The engine side stays behind aether::ui::RandomizeBackend (makeEngineBackend -> processor.randomizer()); setRandomizeBackendFactory replaces it for tests. ----
     aether::ui::RandomizeStyle randomStyle()const{
         aether::ui::RandomizeStyle s;s.paper=paper;s.light=light;s.ink=ink;s.muted=muted;s.earthText=earthText;s.line=line;s.blue=blue;
         s.drawText=[](juce::Graphics& g,const juce::String& t,juce::Rectangle<int> r,float size,juce::Colour c,int j){text(g,t,r,size,c,j);};
@@ -543,7 +543,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         return s;
     }
     void setupRandomize(){
-        if(!randomizeFactory)return;randomBackend=randomizeFactory(p);if(!randomBackend)return;
+        randomBackend=randomizeFactory?randomizeFactory(p):aether::ui::makeEngineBackend(p);if(!randomBackend)return;
         randomCaret=std::make_unique<aether::ui::GlyphButton>(randomStyle(),aether::ui::GlyphButton::Kind::caret);
         randomRoll.setComponentID("random.header.roll");randomRoll.setName("Randomize");randomRoll.setTooltip("Randomize with the amount, seed and locks set in the Randomize panel.");
         randomCaret->setComponentID("random.header.menu");randomCaret->setTooltip("Randomize settings: amount, seed, locks, undo.");
@@ -566,8 +566,8 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         const int x=juce::jlimit(8,juce::jmax(8,getWidth()-w-8),randomCaret->getRight()-w),y=juce::jmin(randomCaret->getBottom()+4,juce::jmax(4,getHeight()-h-4));
         randomPanel->setTopLeftPosition(x,y);
     }
-    // "(Random) <seed>" while a roll is on screen, otherwise the processor's preset name.
-    juce::String shownPresetName()const{if(randomPanel){const auto label=randomPanel->presetLabel();if(label.isNotEmpty())return label;}return p.currentPresetName();}
+    // The processor's preset name: after a live roll the controller has renamed it to "<source> (Random) <seed>" (randomPresetName).
+    juce::String shownPresetName()const{return p.currentPresetName();}
     void updateRandomTooltip(){if(!randomPanel)return;const auto label=randomPanel->presetLabel();presets.setTooltip(label.isNotEmpty()?"Random roll of "+randomPanel->sourcePreset()+". Choose a preset to leave it.":juce::String());}
     void randomChanged(){const auto shown=shownPresetName();if(shown!=currentName){currentName=shown;presets.setText(shown,juce::dontSendNotification);}updateRandomTooltip();repaint();}
     bool randomAction(const juce::String& a){
