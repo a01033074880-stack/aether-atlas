@@ -227,13 +227,23 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     // ---- Header notice (right of the tabs) for Patch / FM / Motion: what the page does in this edition and Mode. Warnings use the Source panel's earth-red (earthText, 5.84:1 on paper). ----
     struct Notice{juce::String text;bool warn=false;};
     bool fmSilent()const{return p.parameterValue("fm.enabled")<=.5f||shownMode()==0;}
-    // A Motion row that has a depth and targets a Source / FM destination that currently makes no sound (groups come from the destination names, see targetGroupOf).
+    // Which engine a destination needs, read from the parameter it modulates (aether::modulationExtendedParameter, 85..112): 0 none (Node targets), 1 generic Source, 2 Phase Geometry, 3 Chaos, 4 FM.
+    static int targetEngine(int target){
+        const int i=target-aether::modulationTargetExtendedFirst;if(i<0||i>=aether::modulationExtendedCount)return 0;
+        const auto& specs=aether::parameterSpecs();const int index=aether::modulationExtendedParameter[size_t(i)];if(index<0||index>=int(specs.size()))return 0;
+        const juce::String id=specs[size_t(index)].id;
+        return id.startsWith("source.pg.")?2:(id.startsWith("source.chaos.")?3:(id.startsWith("source.")?1:(id.startsWith("fm.")?4:0)));
+    }
+    // First Motion row (source set, depth != 0) whose Source / FM destination makes no sound now: the whole Source layer silent (Mode, On, engine Off), Phase Geometry / Chaos destinations while the other engine runs, FM silent.
     juce::String motionTargetWarning()const{
         for(int n=1;n<=16;++n){
-            const auto base="modulation."+juce::String(n)+".";const auto* spec=specFor(base+"target");if(!spec||std::abs(p.parameterValue(base+"depth"))<.001f)continue;
-            const int index=juce::jlimit(0,spec->choices.size()-1,int(p.parameterValue(base+"target")+.5f));const auto group=targetGroupOf(spec->choices[index]);
-            if(group=="FM"&&fmSilent())return "A row targets FM, but FM is silent now.";
-            if(group=="Source"&&!sourceSounding())return "A row targets Source, but Source is silent now.";
+            const auto base="modulation."+juce::String(n)+".";
+            if(int(p.parameterValue(base+"source")+.5f)<=0||std::abs(p.parameterValue(base+"depth"))<.001f)continue;
+            const int engine=targetEngine(int(p.parameterValue(base+"target")+.5f));if(engine==0)continue;
+            if(engine==4){if(fmSilent())return "A row targets FM, but FM is silent now.";continue;}
+            if(!sourceSounding())return "A row targets Source, but Source is silent now.";
+            if(engine==2&&sourceEngine()!=1)return "A row targets Phase Geometry, but engine is Chaos.";
+            if(engine==3&&sourceEngine()!=2)return "A row targets Chaos, but engine is Phase Geometry.";
         }
         return {};
     }

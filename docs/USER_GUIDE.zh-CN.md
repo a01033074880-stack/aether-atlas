@@ -252,56 +252,67 @@ GENDYN 式随机波形：折点的幅度和时长按随机游走变化，带镜�
 
 起点：给Ladder的截止宏分配LFO1深度0.2；给Grain速度分配LFO2并调慢。Freeze也可被调制，可能周期捕获并产生无限尾音。
 
-### 新增调制目的地（2.3.0 草案 · 待实现确认）
+### 新增调制目的地（2.3.0）
 
-> **状态：草案。** 以下内容来自声源工程师的方案（分支 `feat/mod-targets-230`，基线 991e493），**尚未在本文档所在分支实现，也没有对照实现验证**。名称、编号和语义以该分支落地后的代码为准；落地前请勿把它当作已发布功能。2.2.0 实际可用的仍是上面的 12×7 = 84 个目的地。
+> **状态：** 本节已对照 `integration/2.3.0-rc` 上的实际代码核对：名称来自 `Source/Parameters.cpp` 的 `modulationTargetNames()`，编号与被调制参数来自 `Source/Parameters.h` 的 `modulationExtendedParameter`，参数ID与界面名称来自 `Source/Parameters.cpp` 的参数表，逐项一致；详细规格见 `docs/modulation-destinations.md`。版本号仍是 2.2.0，下面是 2.3.0 的预定内容，尚未发布。2.2.0 里可用的仍是上面的 12×7 = 84 个目的地。
 
-**编号规则（草案）。** `modulation.N.target` 是选项参数：0 = None，1…84 = 12个节点 × 7项（Macro A–D / Mix / Level / Pan），共16行分配。草案只在末尾追加28项，编号 85…112，选项总数从 85 变为 113；已有编号和参数ID不变。
+**编号规则。** `modulation.N.target`（N = 1…16）是选项参数，存档里存的是选项下标：0 = None，1…84 = 12个节点 × 7项（Macro A–D / Mix / Level / Pan），85…112 = 新增的 28 个 Source / FM 目的地，选项总数从 85 变为 113。选项只在末尾追加：1…84 的编号、名称和参数ID都没有变。
 
-| 编号 | 分组 | 被调制的现有参数（参数ID／界面名称） |
-|---|---|---|
-| 85 | Source | `source.gain` / Level |
-| 86 | Source | `source.spread` / Stereo spread |
-| 87 | Source | `source.transpose` / Transpose |
-| 88 | Source（Phase Geometry） | `source.pg.sequency` / Walsh sequency |
-| 89 | Source（Phase Geometry） | `source.pg.walshmix` / Walsh mix |
-| 90 | Source（Phase Geometry） | `source.pg.czdepth` / CZ depth |
-| 91 | Source（Phase Geometry） | `source.pg.czenvelope` / CZ envelope |
-| 92 | Source（Phase Geometry） | `source.pg.czvelocity` / CZ velocity |
-| 93 | Source（Phase Geometry） | `source.pg.vpsd` / VPS breakpoint D |
-| 94 | Source（Phase Geometry） | `source.pg.vpsv` / VPS breakpoint V |
-| 95 | Source（Phase Geometry） | `source.pg.vpsratio` / VPS ratio |
-| 96 | Source（Phase Geometry） | `source.pg.phaserandom` / Phase random |
-| 97 | Source（Chaos） | `source.chaos.ampstep` / Amplitude step |
-| 98 | Source（Chaos） | `source.chaos.durstep` / Duration step |
-| 99 | Source（Chaos） | `source.chaos.durrange` / Duration range |
-| 100 | Source（Chaos） | `source.chaos.momentum` / Momentum |
-| 101 | Source（Chaos） | `source.chaos.ampbarrier` / Amplitude barrier |
-| 102–106 | FM | `fm.index`、`fm.morph`、`fm.feedback`、`fm.gain`、`fm.spread`（调制指数、算法 Morph、反馈、声部电平、立体声分布，依次对应 102、103、104、105、106） |
-| 107–112 | FM | `fm.op.1.level` … `fm.op.6.level`（算子 1…6 的 Level） |
+| 编号 | 菜单名称 | 被调制的参数ID（界面名称） | 所属引擎 | 何时有声 |
+|---|---|---|---|---|
+| 85 | Source / Level | `source.gain`（Level） | 通用（任一 Source 引擎） | Source 引擎已开 |
+| 86 | Source / Spread | `source.spread`（Stereo spread） | 通用 | Source 引擎已开 |
+| 87 | Source / Transpose | `source.transpose`（Transpose） | 通用 | Source 引擎已开 |
+| 88 | Source / Walsh seq | `source.pg.sequency`（Walsh sequency） | Phase Geometry | 引擎 = Phase Geometry |
+| 89 | Source / Walsh mix | `source.pg.walshmix`（Walsh mix） | Phase Geometry | 引擎 = Phase Geometry |
+| 90 | Source / CZ depth | `source.pg.czdepth`（CZ depth） | Phase Geometry | 引擎 = Phase Geometry |
+| 91 | Source / CZ env | `source.pg.czenvelope`（CZ envelope） | Phase Geometry | 引擎 = Phase Geometry |
+| 92 | Source / CZ velocity | `source.pg.czvelocity`（CZ velocity） | Phase Geometry | 引擎 = Phase Geometry |
+| 93 | Source / VPS D | `source.pg.vpsd`（VPS breakpoint D） | Phase Geometry | 引擎 = Phase Geometry |
+| 94 | Source / VPS V | `source.pg.vpsv`（VPS breakpoint V） | Phase Geometry | 引擎 = Phase Geometry |
+| 95 | Source / VPS ratio | `source.pg.vpsratio`（VPS ratio） | Phase Geometry | 引擎 = Phase Geometry |
+| 96 | Source / Phase random | `source.pg.phaserandom`（Phase random） | Phase Geometry | 引擎 = Phase Geometry |
+| 97 | Source / Amp step | `source.chaos.ampstep`（Amplitude step） | Chaos | 引擎 = Chaos |
+| 98 | Source / Dur step | `source.chaos.durstep`（Duration step） | Chaos | 引擎 = Chaos |
+| 99 | Source / Dur range | `source.chaos.durrange`（Duration range） | Chaos | 引擎 = Chaos |
+| 100 | Source / Momentum | `source.chaos.momentum`（Momentum） | Chaos | 引擎 = Chaos |
+| 101 | Source / Amp barrier | `source.chaos.ampbarrier`（Amplitude barrier） | Chaos | 引擎 = Chaos |
+| 102 | FM / Mod index | `fm.index`（Modulation index） | FM | Six operator engine 已开 |
+| 103 | FM / Morph | `fm.morph`（Algorithm morph） | FM | Six operator engine 已开 |
+| 104 | FM / Feedback | `fm.feedback`（Feedback） | FM | Six operator engine 已开 |
+| 105 | FM / Voice level | `fm.gain`（Voice level） | FM | Six operator engine 已开 |
+| 106 | FM / Spread | `fm.spread`（Stereo spread） | FM | Six operator engine 已开 |
+| 107 | FM / Op 1 level | `fm.op.1.level`（Operator 1 / Level） | FM | Six operator engine 已开 |
+| 108 | FM / Op 2 level | `fm.op.2.level`（Operator 2 / Level） | FM | Six operator engine 已开 |
+| 109 | FM / Op 3 level | `fm.op.3.level`（Operator 3 / Level） | FM | Six operator engine 已开 |
+| 110 | FM / Op 4 level | `fm.op.4.level`（Operator 4 / Level） | FM | Six operator engine 已开 |
+| 111 | FM / Op 5 level | `fm.op.5.level`（Operator 5 / Level） | FM | Six operator engine 已开 |
+| 112 | FM / Op 6 level | `fm.op.6.level`（Operator 6 / Level） | FM | Six operator engine 已开 |
 
-**名称（待定）。** 目的地在 Motion 页下拉里的最终名称由声源工程师在 `modulationTargetNames()` 中确定，约定格式为：85–101 以 `Source / ` 开头，102–112 以 `FM / ` 开头，总长不超过 24 个字符；1–84 的名称（`Node N / Macro A…`）保持不变。最终名称出来之前，本文不列出具体名称。
+“Source 引擎已开”指 `source.enabled` 打开且 `source.engine` 不是 Off；“Six operator engine 已开”指 `fm.enabled` 打开。`source.chaos.segments` 是整数结构参数，不是目的地。菜单名称都以 `Source / ` 或 `FM / ` 开头，不超过 24 个字符。
 
-“被调制的现有参数”一列是测试代码里为每个编号假定的目标参数（来自方案的编号表，需与实现核对）；该列里的名称是现有参数的界面名称，不是目的地名称。
+**语义：**
 
-**语义（草案）：**
+- **仅在 `graph.enabled` = 1（Atlas graph 开）时生效。** 调制矩阵跑在图引擎里；图关闭时，所有分配（旧的84个和新的28个）都不起作用。此外只有模式不是 FX、且 Source 或 FM 引擎在运行时，新目的地才被处理器消费。
+- **目的地所属引擎没有在运行时，选中它静音且不报错**：例如引擎为 Chaos 时，指向 Phase Geometry 参数（88–96）的分配不起作用，反之亦然；FM 关闭时 102–112 不起作用；渲染结果与不调制时逐位相同。
+- **调制每 16 个采样更新一次，并且滞后至多一个节拍**：目的地使用上一个 16 采样边界算出的偏移，所以最多比调制源晚一个控制周期（48 kHz 下约 0.33 ms），该滞后是确定的，与宿主块大小和 MIDI 时间无关。
+- **Depth = 1 表示整个旋钮行程**，在参数自身的归一化（含 skew）域里相加，所以有 skew 的参数（例如 VPS ratio）在整个行程上移动的比例一致；Depth 为负则反向。指向同一目的地的多行先求和；结果钳制在参数自己的范围内；总量恰为 0 时保持宿主参数值不变。
+- **不写回宿主参数。** 基线是宿主里的参数值，调制只作用于内部副本；宿主录到的、保存的状态里都只有参数本身的值，关闭分配即回到基线。
+- 目的地 85…112 不影响尾音长度的报告。
+- 宿主自动化提示：`modulation.N.target` 的选项总数从 85 变为 113，宿主按“下标/(总数−1)”录制的归一化自动化值会随之改变，已有的目标自动化曲线要重新核对；存档里存的是选项下标，所以旧工程里 ≤84 的目的地读回后下标不变。
 
-- Depth = 1 表示整个旋钮行程，在参数的归一化（含 skew）域里相加；Depth 为负则反向。
-- 基线仍是宿主里的参数值。调制只作用于内部副本，**不会写回**宿主参数或保存的状态；关闭分配即回到基线。
-- 结果钳制在该参数自身的范围内。
-- 调制每16个采样更新一次（与现有84个目的地相同）。
-- 目的地不属于当前引擎时静音且不报错：例如引擎为 Chaos 时，指向 Phase Geometry 参数（88–96）的分配不起作用，反之亦然。
+**旧存档与降级兼容：**
 
-**待确认（本文没有验证）：**
+- **旧存档不变。** 不含 85…112 目的地的保存（包括所有旧样本和只用 ≤84 的新存档）仍写 schema 3，与 2.2.0 逐字节相同。2.3.0 读 schema 1…4。
+- 含 85…112 目的地的保存（工程状态、A/B 快照、预设 JSON）写 schema 4，布局与 schema 3 相同；读回后目的地下标不变，再保存仍为 schema 4。schema 0、5 及以上被拒绝，损坏的 schema 4 被拒绝，且不改变当前状态。
+- **用 2.2.0 打开含新目的地的存档会被拒绝。** 2.2.0 只认到 schema 3：对 schema 4 的工程状态，`setStateInformation` 直接返回、当前状态不变（预设加载按 991e493 的 `PresetManager.cpp` 源码判断会失败并报 “Unsupported preset product or schema.”，这一条只是源码判断，未实机验证）。这一点用 `--probe-schema` 探针在“源码与 991e493 相同的 2.2.0 构建”上实测过（探针直接调用处理器，不是在真实宿主里打开；也没有用已安装的 2.2.0 插件）。
+- 如果一个 schema ≤3 的存档里仍存有 target > 84（只能是手工改出来的），2.2.0 读到会把它钳到 84（Node 12 / Pan），同样由该探针在上述构建上实测；schema 4 正是为了避免新目的地被 2.2.0 这样静默替换成别的目的地。
 
-- 最终名称（见上）和各编号对应的参数。分组边界（1–84 节点、85–101 Source、102–112 FM）与选项总数 113 是已商定的草案。
-- 新目的地是否同样要求 Atlas graph 为开：现有的调制矩阵只在 `graph.enabled` 打开时运行，测试里按这个前提构造场景；若 Source/FM 目的地要求在“Atlas graph 关闭”时也能调制，需要实现方确认。
-- 宿主自动化：`modulation.N.target` 的选项总数从 85 变为 113，按“下标/(总数−1)”归一化的宿主自动化值会随之变化；保存的状态里存的是选项下标，所以旧工程里 ≤84 的目的地读回后下标不变（由测试覆盖，需实现落地后转绿）。
 ## 7. 全局、旧工程和预设
 
 全局Input/Output/Dry/Wet控制输入/最终输出/与原音混合；Master仍在最后，宽度、Ceiling、Release、Dither在All params。Mix=0仍经过Output和Master；完全透明比较用Bypass。
 
-All params可滚动访问全部467宿主参数。旧Spectral/Modal/Colour/Space参数只用于legacy声音路径；Atlas节点用 `node.*` 四宏。原12个工厂声音保留为legacy，新增24个Atlas/FM/Motion声音启用新引擎。
+All params可滚动访问全部495个宿主参数。旧Spectral/Modal/Colour/Space参数只用于legacy声音路径；Atlas节点用 `node.*` 四宏。原12个工厂声音保留为legacy，新增24个Atlas/FM/Motion声音启用新引擎。
 
 内置算法生效时，All params中的矩阵/send数值表示保存的Custom状态，主画布与FM图显示当前实际算法。开始手工修改时先复制当前有效算法，再进入Custom；不要将尚未启用的Custom存储值误认为当前听到的连接。
 

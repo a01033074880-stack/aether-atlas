@@ -204,6 +204,47 @@ int main(int argc,char** argv) {
         AetherAudioProcessorEditor::setEditionForTesting(-1);
         return good?0:1;
     }
+    // "wire" mode: 2.3.0 real Source / FM modulation destinations (85..112) on the Motion page, with the per-engine notices. Both editions, minimum size and 50% compact, 1x and 2x. Usage: AetherUiSnapshots <dir> wire
+    if(argc>2&&juce::String(argv[2])=="wire") {
+        base.reset(); editor=nullptr;
+        bool good=true;
+        struct Case { const char* name; int edition; float mode; float engine; float fmEnabled; int targets[6]; };
+        // Rows 1..6 target the listed destination option (0 = None). 88 Source / Walsh seq, 90 CZ depth, 94 VPS V (Phase Geometry); 97 Amp step, 99 Dur range, 101 Amp barrier (Chaos); 102 FM / Mod index, 108 FM / Op 2 level; 85 Source / Level; 5 Node 1 / Mix.
+        const Case cases[]={
+            {"pg-ok",-1,-1,1,1,{88,90,94,85,107,5}},
+            {"pg-needs-phase-geometry-engine-is-chaos",-1,-1,2,1,{88,90,94,85,107,5}},
+            {"chaos-ok",-1,-1,2,1,{97,99,101,86,108,5}},
+            {"chaos-needs-chaos-engine-is-phase-geometry",-1,-1,1,1,{97,99,101,86,108,5}},
+            {"fm-ok",-1,-1,1,1,{102,104,106,110,112,5}},
+            {"fm-six-operator-off",-1,-1,1,0,{102,104,106,110,112,5}},
+            {"source-engine-off",-1,-1,0,1,{85,86,87,5,0,0}},
+            {"fm-micro-fx-mode",0,0,1,1,{102,104,106,110,112,5}}};
+        for(int edition=0;edition<2;++edition) {
+            AetherAudioProcessorEditor::setEditionForTesting(edition);
+            AetherAudioProcessor q; q.prepareToPlay(48000,512);
+            std::unique_ptr<juce::AudioProcessorEditor> eBase(q.createEditor());
+            auto* ed=dynamic_cast<AetherAudioProcessorEditor*>(eBase.get());
+            if(ed==nullptr) return 3;
+            auto shot=[&](const juce::String& name) {
+                for(float scale:{1.f,2.f}) good=writePng(dir.getChildFile("Atlas-wire-"+name+"-"+juce::String(int(scale))+"x.png"),ed->createComponentSnapshot(ed->getLocalBounds(),true,scale))&&good;
+            };
+            for(const auto& c:cases) {
+                if(c.edition>=0&&c.edition!=edition) continue;
+                setParam(q,"global.mode",c.mode>=0?c.mode:(edition==1?2.f:1.f)); setParam(q,"fm.enabled",c.fmEnabled); setParam(q,"source.enabled",1); setParam(q,"source.engine",c.engine);
+                for(int row=1;row<=6;++row) {
+                    const auto base2="modulation."+juce::String(row)+".";
+                    setParam(q,(base2+"source").toRawUTF8(),c.targets[row-1]>0?float(row):0.f); setParam(q,(base2+"depth").toRawUTF8(),c.targets[row-1]>0?.5f:0.f); setParam(q,(base2+"target").toRawUTF8(),float(c.targets[row-1]));
+                }
+                ed->setMinimalMode(false); ed->setWorkspace(2);
+                const juce::String prefix=juce::String(edition==1?"synth-":"micro-")+c.name;
+                ed->performUiAction("zoom.100"); ed->setSize(1180,780); shot(prefix+"-min-1180x780");
+                ed->performUiAction("zoom.50"); shot(prefix+"-zoom.50-720x450");
+            }
+            ed->performUiAction("zoom.100");
+        }
+        AetherAudioProcessorEditor::setEditionForTesting(-1);
+        return good?0:1;
+    }
     // "rand" mode: 2.3.0 stage B Randomize popover on the mock backend. Closed header, popover open, after a roll, lock mode, full undo history (16/16), Randomize into B and the FX hint,
     // for both plugin editions at the minimum size, the default size and the 50% compact layout, 1x and 2x. Usage: AetherUiSnapshots <dir> rand
     if(argc>2&&juce::String(argv[2])=="rand") {

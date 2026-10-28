@@ -37,17 +37,19 @@ double contrast(juce::Colour a,juce::Colour b) {const double la=luminance(a),lb=
 // Mode picker helpers: edition 0 = AETHER Micro (FX + Resynth), 1 = AETHER Micro Synth (Synth only). Combo item ids must equal the real parameter index + 1.
 juce::String modeItems(const juce::ComboBox& c) {juce::StringArray a;for(int i=0;i<c.getNumItems();++i)a.add(juce::String(c.getItemId(i))+":"+c.getItemText(i));return a.joinIntoString("|");}
 juce::String modeText(int edition,int raw) {const int shown=edition==1?2:(raw==2?0:juce::jlimit(0,1,raw));return shown==0?"FX":shown==1?"Resynth":"Synth";}
-// PLACEHOLDER modulation destination list for layout validation only: the real list of the new Source / FM destinations is not final (draft from feat/mod-targets-230: ids 85..112 appended to the 85
-// existing options). Names are guesses; nothing here is a parameter ID and nothing reads it from the processor. Replace with the final list when it lands (see "Atlas Motion destination selector").
-juce::StringArray placeholderDestinations() {
-    juce::StringArray items;
-    const auto* spec=[]{for(const auto& s:aether::parameterSpecs()) if(juce::String(s.id)=="modulation.1.target") return &s;return static_cast<const aether::ParameterSpec*>(nullptr);}();
-    if(spec==nullptr) throw std::runtime_error("modulation.1.target spec missing");
-    items=spec->choices;
-    for(const char* n:{"Level","Stereo spread","Transpose","Walsh sequency","Walsh mix","CZ depth","CZ envelope","CZ velocity","VPS D","VPS V","VPS ratio","Phase random","Amplitude step","Duration step","Duration range","Momentum","Amplitude barrier"}) items.add(juce::String("Source / ")+n);
-    for(const char* n:{"Modulation index","Algorithm morph","Feedback","Voice level","Stereo spread","Op1 level","Op2 level","Op3 level","Op4 level","Op5 level","Op6 level"}) items.add(juce::String("FM / ")+n);
-    return items;
+// The real modulation destination names (85 + 28 options), exactly as the host sees them; the tests below also pin them against docs/modulation-destinations.md.
+juce::StringArray realDestinations() {
+    for(const auto& s:aether::parameterSpecs()) if(juce::String(s.id)=="modulation.1.target") return s.choices;
+    throw std::runtime_error("modulation.1.target spec missing");
 }
+// docs/modulation-destinations.md, options 85..112 (menu name -> engine: 1 generic Source, 2 Phase Geometry, 3 Chaos, 4 FM).
+struct DocDestination {const char* name;int engine;};
+const DocDestination docDestinations[28]={
+    {"Source / Level",1},{"Source / Spread",1},{"Source / Transpose",1},
+    {"Source / Walsh seq",2},{"Source / Walsh mix",2},{"Source / CZ depth",2},{"Source / CZ env",2},{"Source / CZ velocity",2},{"Source / VPS D",2},{"Source / VPS V",2},{"Source / VPS ratio",2},{"Source / Phase random",2},
+    {"Source / Amp step",3},{"Source / Dur step",3},{"Source / Dur range",3},{"Source / Momentum",3},{"Source / Amp barrier",3},
+    {"FM / Mod index",4},{"FM / Morph",4},{"FM / Feedback",4},{"FM / Voice level",4},{"FM / Spread",4},
+    {"FM / Op 1 level",4},{"FM / Op 2 level",4},{"FM / Op 3 level",4},{"FM / Op 4 level",4},{"FM / Op 5 level",4},{"FM / Op 6 level",4}};
 juce::String headingTexts(juce::ComboBox& c) {
     juce::StringArray a;juce::PopupMenu::MenuItemIterator it(*c.getRootMenu());
     while(it.next()) if(it.getItem().isSectionHeader) a.add(it.getItem().text);
@@ -713,11 +715,14 @@ int main(int argc,char** argv) {
             const std::vector<Case> cases={{"zoom.50",{{720,450},{800,450},{720,620},{1000,625},{1030,640},{1100,750}}},{"zoom.75",{{885,585},{1080,675},{1500,900}}},{"zoom.100",{{1180,780},{1440,900},{2200,1500}}}};
             for(const auto& testCase:cases) {
             require(editor->performUiAction(testCase.zoom),"zoom action missing");
-            // pages 0-2 patch/fm/motion, 3-6 Source (Off / Phase Geometry / Chaos / Phase Geometry with Mode=FX), 7 All params, 8 FM with the Six operator engine off, 9 FM with Mode=FX (effect edition).
-            for(int page=0;page<10;++page) for(const auto& sizePair:testCase.sizes) {
-                const int workspace=page<3?page:(page<7?3:(page==7?4:1));
+            // pages 0-2 patch/fm/motion, 3-6 Source (Off / Phase Geometry / Chaos / Phase Geometry with Mode=FX), 7 All params, 8 FM with the Six operator engine off, 9 FM with Mode=FX (effect edition), 10-13 Motion row 1 targeting a Phase Geometry / Chaos / FM / generic Source destination that is silent (engine Chaos, engine Phase Geometry, FM off, engine Off).
+            for(int page=0;page<14;++page) for(const auto& sizePair:testCase.sizes) {
+                const int workspace=page<3?page:(page<7?3:(page==7?4:((page==8||page==9)?1:2)));
                 const int size[2]={sizePair.first,sizePair.second};
-                p.setParameterValue("fm.enabled",page==8?0.f:1.f);if(workspace!=3)p.setParameterValue("global.mode",(page==9&&edition==0)?0.f:(edition==1?2.f:1.f));
+                p.setParameterValue("fm.enabled",(page==8||page==12)?0.f:1.f);
+                p.setParameterValue("modulation.1.source",page>=10?1.f:0.f);p.setParameterValue("modulation.1.depth",page>=10?.5f:0.f);p.setParameterValue("modulation.1.target",page==10?88.f:(page==11?97.f:(page==12?102.f:(page==13?85.f:0.f))));
+                if(workspace!=3){p.setParameterValue("source.engine",page==10?2.f:(page==13?0.f:1.f));p.setParameterValue("source.enabled",1.f);}
+                if(workspace!=3)p.setParameterValue("global.mode",(page==9&&edition==0)?0.f:(edition==1?2.f:1.f));
                 if(workspace==3){p.setParameterValue("global.mode",page==6?0.f:(edition==1?2.f:1.f));p.setParameterValue("source.engine",page==3?0.f:(page==5?2.f:1.f));p.setParameterValue("source.enabled",1.f);}
                 editor->setMinimalMode(workspace==4);if(workspace<4)editor->setWorkspace(workspace);editor->setSize(size[0],size[1]);if(workspace==3)(void)editor->sourceStatus();
                 const float scale=content->getTransform().getScaleFactor();
@@ -787,7 +792,11 @@ int main(int argc,char** argv) {
                 if(workspace<3) {
                     // Header notice (right of the tabs): which text, which colour, and that it fits its label at the real font.
                     auto* notice=findShown<juce::Label>(*content,"page.notice");juce::String expected;bool warn=false;
-                    if(page==0&&edition==1) expected="No audio input: IN carries the Source and FM voices.";
+                    if(page==10){expected="A row targets Phase Geometry, but engine is Chaos.";warn=true;}
+                    else if(page==11){expected="A row targets Chaos, but engine is Phase Geometry.";warn=true;}
+                    else if(page==12){expected="A row targets FM, but FM is silent now.";warn=true;}
+                    else if(page==13){expected="A row targets Source, but Source is silent now.";warn=true;}
+                    else if(page==0&&edition==1) expected="No audio input: IN carries the Source and FM voices.";
                     else if(workspace==1) {
                         if(page==8){expected="Six operator engine is off. Turn it on to hear FM.";warn=true;}
                         else if(page==9&&edition==0){expected="Idle: Mode is FX. Switch Mode to Resynth for FM.";warn=true;}
@@ -806,14 +815,15 @@ int main(int argc,char** argv) {
                         require(notice->getY()<content->getHeight()/4,"page notice is not in the header band: "+here);
                     }
                     if(workspace==2) {
-                        // Every Motion row: the destination box must hold the longest destination, the real list and the placeholder list for the new Source / FM groups.
-                        const auto placeholder=placeholderDestinations();
+                        // Every Motion row: the destination box must hold the longest real destination name (all 113 options).
+                        const auto names=realDestinations();
                         for(int n=1;n<=16;++n) {
                             auto* cb=findShown<juce::ComboBox>(*content,"modulation."+juce::String(n)+".target");require(cb!=nullptr,"Motion destination box missing: "+here);
+                            require(cb->getNumItems()==113,"destination box item count "+juce::String(cb->getNumItems())+": "+here);
                             const auto font=cb->getLookAndFeel().getComboBoxFont(*cb);int widest=0;juce::String longest;
-                            for(const auto& item:placeholder){const int w=juce::GlyphArrangement::getStringWidthInt(font,item);if(w>widest){widest=w;longest=item;}}
+                            for(const auto& item:names){const int w=juce::GlyphArrangement::getStringWidthInt(font,item);if(w>widest){widest=w;longest=item;}}
                             if(cb->getWidth()-40-widest<destSlack){destSlack=cb->getWidth()-40-widest;destSlackWhere=here;destLongest=longest;}
-                            require(widest<=cb->getWidth()-40,"placeholder destination would be truncated ("+longest+", "+juce::String(widest)+"px in "+juce::String(cb->getWidth())+"px): "+here);
+                            require(widest<=cb->getWidth()-40,"destination would be truncated ("+longest+", "+juce::String(widest)+"px in "+juce::String(cb->getWidth())+"px): "+here);
                         }
                     }
                 }
@@ -871,7 +881,7 @@ int main(int argc,char** argv) {
             }
             }
             editor->performUiAction("zoom.100");editor->setMinimalMode(false);editor->setWorkspace(0);
-            std::cout<<"  placeholder destinations: tightest fit "<<destSlack<<" px spare for \""<<destLongest.toStdString()<<"\" at "<<destSlackWhere.toStdString()<<"\n";
+            std::cout<<"  real destinations: tightest fit "<<destSlack<<" px spare for \""<<destLongest.toStdString()<<"\" at "<<destSlackWhere.toStdString()<<"\n";
             }
         });
         test("Atlas page notices (Patch / FM / Motion) follow edition, Mode and the Six operator engine",[&] {
@@ -939,34 +949,81 @@ int main(int argc,char** argv) {
                 }
             }
         });
-        test("Atlas Motion destination selector: grouped headings, unchanged indices, room for the Source and FM groups (placeholder list)",[&] {
+        test("Atlas Motion destination selector: real 113 options, Node / Source / FM headings, unchanged indices (both editions)",[&] {
             using Editor=AetherAudioProcessorEditor;
             require(Editor::modulationTargetGroup("None").isEmpty()&&Editor::modulationTargetGroup("Node 3 / Mix")=="Node 3"&&Editor::modulationTargetGroup("Source / Walsh mix")=="Source"&&Editor::modulationTargetGroup("FM / Feedback")=="FM","destination group parsing wrong");
+            const auto real=realDestinations();
+            // Option table: 0 None, 1..84 Node n / Macro A..D, Mix, Level, Pan, 85..112 exactly the names and parameters of docs/modulation-destinations.md; every name is <= 24 characters.
+            require(real.size()==113&&aether::modulationTargetCount==113,"destination count "+juce::String(real.size()));
+            require(real[0]=="None"&&real[1]=="Node 1 / Macro A"&&real[84]=="Node 12 / Pan","node destinations changed");
+            for(int i=0;i<28;++i) {
+                require(real[85+i]==docDestinations[i].name,"destination "+juce::String(85+i)+" is '"+real[85+i]+"', docs say '"+docDestinations[i].name+"'");
+                require(real[85+i].length()<=24,"destination name longer than 24: "+real[85+i]);
+                const auto& spec=aether::parameterSpecs()[size_t(aether::modulationExtendedParameter[size_t(i)])];const juce::String id(spec.id);
+                const int engine=id.startsWith("source.pg.")?2:(id.startsWith("source.chaos.")?3:(id.startsWith("source.")?1:(id.startsWith("fm.")?4:0)));
+                require(engine==docDestinations[i].engine,"destination "+real[85+i]+" modulates "+id+" (engine "+juce::String(engine)+"), docs say engine "+juce::String(docDestinations[i].engine));
+            }
+            juce::StringArray expectedHeadings;for(int n=1;n<=12;++n)expectedHeadings.add("Node "+juce::String(n));
+            const auto allHeadings=expectedHeadings.joinIntoString("|")+"|Source|FM";
             for(int edition=0;edition<2;++edition) {
                 ScopedEdition editionGuard(edition);
                 AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
                 auto* editor=dynamic_cast<Editor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
                 auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
                 editor->setSize(1440,900);editor->setWorkspace(2);
-                const auto real=placeholderDestinations();
-                auto* box=findShown<juce::ComboBox>(*content,"modulation.1.target");require(box!=nullptr,"Motion destination box missing");
-                // Current 85 options: None + 12 nodes x 7, a heading per node, index == item id - 1 == parameter value.
-                require(box->getNumItems()==85,"destination count "+juce::String(box->getNumItems()));
-                juce::StringArray expectedHeadings;for(int n=1;n<=12;++n)expectedHeadings.add("Node "+juce::String(n));
-                require(headingTexts(*box)==expectedHeadings.joinIntoString("|"),"destination headings: "+headingTexts(*box));
-                for(int i=0;i<box->getNumItems();++i) require(box->getItemId(i)==i+1&&box->getItemText(i)==real[i],"destination item mapping changed at "+juce::String(i));
-                for(int idx:{0,1,7,84}) {box->setSelectedItemIndex(idx,juce::sendNotificationSync);require(int(p.parameterValue("modulation.1.target")+.5f)==idx,"destination "+juce::String(idx)+" does not drive modulation.1.target");}
-                p.setParameterValue("modulation.1.target",43.f);require(box->getSelectedItemIndex()==43&&box->getText()==real[43],"host change does not select the right destination");
-                // Placeholder list with the draft's extra 28 destinations (113 options): same container, headings Node 1..12 | Source | FM, ids stay index + 1.
-                require(real.size()==113,"placeholder size "+juce::String(real.size()));
-                juce::ComboBox probe;Editor::fillModulationTargets(probe,real);
-                require(probe.getNumItems()==113,"placeholder combo count");
-                require(headingTexts(probe)==expectedHeadings.joinIntoString("|")+"|Source|FM","placeholder headings: "+headingTexts(probe));
-                for(int i=0;i<probe.getNumItems();++i) require(probe.getItemId(i)==i+1&&probe.getItemText(i)==real[i],"placeholder item mapping at "+juce::String(i));
-                probe.setSelectedItemIndex(102,juce::dontSendNotification);require(probe.getText()=="FM / Modulation index"&&probe.getSelectedId()==103,"placeholder index 102 should be the first FM destination");
-                probe.setSelectedItemIndex(85,juce::dontSendNotification);require(probe.getText()=="Source / Level","placeholder index 85 should be the first Source destination");probe.setSelectedItemIndex(101,juce::dontSendNotification);require(probe.getText()=="Source / Amplitude barrier","placeholder index 101 should be the last Source destination");
-                std::cout<<"  edition "<<edition<<": placeholder destination groups OK (113 options, headings "<<headingTexts(probe).toStdString()<<")\n";
+                for(int row=1;row<=16;++row) {
+                    auto* box=findShown<juce::ComboBox>(*content,"modulation."+juce::String(row)+".target");require(box!=nullptr,"Motion destination box missing");
+                    require(box->getNumItems()==113,"destination box count "+juce::String(box->getNumItems()));
+                    require(headingTexts(*box)==allHeadings,"destination headings: "+headingTexts(*box));
+                    for(int i=0;i<113;++i) require(box->getItemId(i)==i+1&&box->getItemText(i)==real[i],"destination item mapping changed at "+juce::String(i));
+                }
+                auto* box=findShown<juce::ComboBox>(*content,"modulation.1.target");
+                // Group boundaries: the heading sits in front of 85 (Source) and 102 (FM) only; selecting an item writes its index.
+                for(int idx:{0,1,84,85,87,88,96,97,101,102,106,107,112}) {box->setSelectedItemIndex(idx,juce::sendNotificationSync);require(int(p.parameterValue("modulation.1.target")+.5f)==idx&&box->getText()==real[idx],"destination "+juce::String(idx)+" does not drive modulation.1.target");}
+                for(int idx:{43,85,101,102,112}) {p.setParameterValue("modulation.1.target",float(idx));require(box->getSelectedItemIndex()==idx&&box->getText()==real[idx],"host change does not select destination "+juce::String(idx));}
+                require(Editor::modulationTargetGroup(real[84])=="Node 12"&&Editor::modulationTargetGroup(real[85])=="Source"&&Editor::modulationTargetGroup(real[101])=="Source"&&Editor::modulationTargetGroup(real[102])=="FM"&&Editor::modulationTargetGroup(real[112])=="FM","group boundaries wrong");
             }
+        });
+        test("Atlas Motion engine notices: Phase Geometry / Chaos / generic Source / FM destinations warn only when they are silent (both editions)",[&] {
+            using Editor=AetherAudioProcessorEditor;
+            const juce::String sourceSilent="A row targets Source, but Source is silent now.",pgNeedsEngine="A row targets Phase Geometry, but engine is Chaos.",chaosNeedsEngine="A row targets Chaos, but engine is Phase Geometry.",fmSilent="A row targets FM, but FM is silent now.";
+            const juce::String synthInfo="Envelope follows the voices; Pitch the last MIDI note.";
+            int checks=0;
+            for(int edition=0;edition<2;++edition) {
+                ScopedEdition editionGuard(edition);
+                AetherAudioProcessor p;std::unique_ptr<juce::AudioProcessorEditor> base(p.createEditor());
+                auto* editor=dynamic_cast<Editor*>(base.get());require(editor!=nullptr,"Atlas editor missing");
+                auto* content=editor->getChildComponent(0);require(content!=nullptr,"Atlas content missing");
+                editor->setSize(1440,900);editor->setWorkspace(2);
+                const float soundingMode=edition==1?2.f:1.f;
+                // Mode: the sounding one, and (effect edition only) FX, where neither Source nor FM sound.
+                std::vector<float> modes{soundingMode};if(edition==0) modes.push_back(0.f);
+                for(float mode:modes) for(int enabled=0;enabled<2;++enabled) for(int engine=0;engine<3;++engine) for(int fmOn=0;fmOn<2;++fmOn) for(int target:{0,20,85,87,88,96,97,101,102,107,112}) for(int depth=0;depth<2;++depth) for(int src:{0,1}) {
+                    p.setParameterValue("global.mode",mode);p.setParameterValue("source.enabled",float(enabled));p.setParameterValue("source.engine",float(engine));p.setParameterValue("fm.enabled",float(fmOn));
+                    p.setParameterValue("modulation.1.source",float(src));p.setParameterValue("modulation.1.depth",depth?-.4f:0.f);p.setParameterValue("modulation.1.target",float(target));
+                    // Independent expectation from the docs table (engine of each destination) and the Source / FM sounding rules.
+                    const bool sounding=mode==soundingMode;const bool sourceOn=sounding&&enabled&&engine>0,fmRuns=sounding&&fmOn;
+                    juce::String expected;
+                    if(src>0&&depth&&target>=85) {
+                        const int needs=docDestinations[target-85].engine;
+                        if(needs==4) {if(!fmRuns) expected=fmSilent;}
+                        else if(!sourceOn) expected=sourceSilent;
+                        else if(needs==2&&engine!=1) expected=pgNeedsEngine;
+                        else if(needs==3&&engine!=2) expected=chaosNeedsEngine;
+                    }
+                    const juce::String here="edition "+juce::String(edition)+" mode "+juce::String(mode)+" on "+juce::String(enabled)+" engine "+juce::String(engine)+" fm "+juce::String(fmOn)+" target "+juce::String(target)+" depth "+juce::String(depth)+" source "+juce::String(src);
+                    const auto notice=editor->pageNotice();
+                    if(expected.isEmpty()) require(notice==(edition==1?synthInfo:juce::String()),"unexpected Motion notice ("+notice+"): "+here);
+                    else {
+                        require(notice==expected,"Motion notice '"+notice+"' != '"+expected+"': "+here);
+                        auto* label=findShown<juce::Label>(*content,"page.notice");require(label!=nullptr,"warning label hidden: "+here);
+                        require(label->findColour(juce::Label::textColourId)==juce::Colour(0xff963c24)&&contrast(label->findColour(juce::Label::textColourId),juce::Colour(0xffeee9dc))>=4.5,"warning colour / contrast: "+here);
+                        requireEditionWording(edition,notice,here);
+                    }
+                    ++checks;
+                }
+            }
+            std::cout<<"  engine notice matrix: "<<checks<<" states checked\n";
         });
         test("Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)",[&] {
             for(int edition=0;edition<2;++edition) {
