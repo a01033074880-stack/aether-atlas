@@ -1,0 +1,8 @@
+# heapfill-regress s3 new destinations D-all (depth 0.5) start 2026-10-25 23:26:29 Asia/Shanghai exe=C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherReproTool_artefacts\Release\AetherReproTool.exe built=10/25/2026 23:19:25
+== default baseline(fill 0x00, block 256) sha=c38e9a234bf5 ; no-fill-env run: sha=c38e9a234bf5 (same=True)
+default SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+== factory-12 baseline(fill 0x00, block 256) sha=14d7dcfe4a6c ; no-fill-env run: sha=14d7dcfe4a6c (same=True)
+factory-12 SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+== custom-graph-fm baseline(fill 0x00, block 256) sha=c80b789e5106 ; no-fill-env run: sha=c80b789e5106 (same=True)
+custom-graph-fm SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+# heapfill-regress s3 new destinations D-all (depth 0.5) end 2026-10-25 23:26:56 TOTAL runs=54 differ_from_baseline=0

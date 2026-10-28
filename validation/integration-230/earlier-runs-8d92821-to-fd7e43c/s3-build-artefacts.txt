@@ -1,0 +1,14 @@
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3 | 2026-10-25T21:11:23.2727813+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3 | 2026-10-25T23:19:23.4717187+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3 | 2026-10-25T21:11:23.3837697+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3 | 2026-10-25T23:19:23.6801875+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherModContractFx_artefacts\Release\AetherModContractFx.exe | 2026-10-25T23:19:27.1665294+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherModContractSynth_artefacts\Release\AetherModContractSynth.exe | 2026-10-25T23:19:27.2895993+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherModTargetsFx_artefacts\Release\AetherModTargetsFx.exe | 2026-10-25T23:19:26.4911848+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherModTargetsSynth_artefacts\Release\AetherModTargetsSynth.exe | 2026-10-25T23:19:26.7883792+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe | 2026-10-25T23:19:25.6434139+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherReproTool_artefacts\Release\AetherReproTool.exe | 2026-10-25T23:19:25.9757169+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicro.dir\Source\PluginProcessor.cpp.obj | 2026-10-25T23:19:21.0096297+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicroSynth.dir\Source\PluginProcessor.cpp.obj | 2026-10-25T23:19:20.8036268+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj | 2026-10-25T23:19:25.1193062+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj | 2026-10-25T23:19:24.8974885+08:00

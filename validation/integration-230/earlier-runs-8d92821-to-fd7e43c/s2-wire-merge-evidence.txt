@@ -1,0 +1,12 @@
+wire merge = f6bca64 parents 8d92821 + 1f53495
+files changed vs first parent:
+ Source/PluginEditor.cpp     |  20 +++++--  tests/PluginTests.cpp       | 135 +++++++++++++++++++++++++++++++-------------  tools/RenderUiSnapshots.cpp |  41 ++++++++++++++  3 files changed, 152 insertions(+), 44 deletions(-)
+DSP/processor/Parameters/ReproTool/RenderPresets touched: NONE
+deleted objs before rebuild (merge time 2026-10-25T22:48:05.6766180+08:00):
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj mtime=10/25/2026 21:30:20
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj mtime=10/25/2026 21:32:44
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicro.dir\Source\PluginEditor.cpp.obj mtime=10/25/2026 21:12:27
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicroSynth.dir\Source\PluginEditor.cpp.obj mtime=10/25/2026 21:15:23
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherPluginTests.dir\tests\PluginTests.cpp.obj mtime=10/25/2026 21:23:16
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherPluginTestsSynth.dir\tests\PluginTests.cpp.obj mtime=10/25/2026 21:24:25
+DELETE C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherUiSnapshots.dir\tools\RenderUiSnapshots.cpp.obj mtime=10/25/2026 21:25:33
