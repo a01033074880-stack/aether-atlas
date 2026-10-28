@@ -98,10 +98,12 @@ juce::StringArray groupsFromLocks(const ar::LockSet& set) {
 }
 bool lockSetEmpty(const ar::LockSet& l) { return l.params.none()&&l.sections==0&&l.modRows==0; }
 
-// ADAPT POINT (Motion roll, engine side not merged yet): the engine engineer adds the Motion options to aether::rand::Config
-// (re-roll every modulation row's source / destination, randomize the values of the rows and LFOs that are already loaded).
-// Set them here, from the request, once their names are known. Until then Motion is reached only through ScopeMotion above.
-void applyMotionOptions(ar::Config& cfg,const RandomizeRequest& r) { (void)cfg; (void)r; }
+// Motion options of the engine (2.3.1). Full mode and the Randomize Motion button (scope = ScopeMotion, Mode::Full) rebuild every
+// unlocked modulation row (source, destination, depth) and redraw the LFO values; with the graph off the engine switches it on itself.
+// A Mutate roll that reaches the Motion group gets the same Full semantics through Config::motionFull.
+void applyMotionOptions(ar::Config& cfg,const RandomizeRequest& r) {
+    if(r.scope==RandomizeScope::motion||(cfg.mode==ar::Mode::Mutate&&(cfg.scopeMask&std::uint32_t(ar::ScopeMotion))!=0)) cfg.motionFull=true;
+}
 
 class EngineBackend final:public RandomizeBackend {
 public:
@@ -159,7 +161,7 @@ private:
         rec.algoVersion=ar::kRandAlgoVersion;
         if(!onOwnerThread()) { rec.rejected=true; rec.note="wrong thread"; return rec; }
         ar::Config cfg; cfg.seed=rec.seed; cfg.mode=r.mode==RandomizeMode::full?ar::Mode::Full:ar::Mode::Mutate;
-        cfg.amount=juce::jlimit(0.f,1.f,r.amount); cfg.safety=ar::Safety::Safe; cfg.intoB=intoB;
+        cfg.amount=juce::jlimit(0.f,1.f,r.amount); cfg.intoB=intoB;   // Config::safety stays at its default, Safety::Global (2.3.1)
         const auto locks=engineLocksFor(r.lockedGroups); cfg.scopeMask=locks.scope;
         if(r.scope==RandomizeScope::motion) cfg.scopeMask&=std::uint32_t(ar::ScopeMotion);   // Randomize Motion: nothing outside the Motion group may be written
         applyMotionOptions(cfg,r);
@@ -167,13 +169,19 @@ private:
         const auto face=intoB?ar::Face::B:ctl.liveFace();
         const auto before=ctl.captureSnapshot(face);
         ar::Outcome out; juce::String why;
-        for(int attempt=0;attempt<=5;++attempt) {
+        // At most one retry with the next attempt seed: the engine repairs and validates its own patch, so a refusal means the locks
+        // (or a closed edition section) leave nothing it may write.
+        for(int attempt=0;attempt<=1;++attempt) {
             cfg.attempt=attempt; out=ctl.randomize(cfg,ctl.locks());
             if(out.ok) break;
             why=out.reason&&*out.reason?out.reason:"generate";
             if(why=="not-message-thread"||why=="graph-disabled") break;   // retrying cannot help: the same state is read again
         }
-        if(!out.ok) { rec.rejected=true; rec.note=why=="not-message-thread"?juce::String("wrong thread"):(why=="graph-disabled"?juce::String("graph is off"):"no safe patch: "+why); return rec; }   // nothing written, ring and recipe untouched
+        if(!out.ok) {
+            rec.rejected=true;
+            rec.note=why=="not-message-thread"?juce::String("wrong thread"):(why=="graph-disabled"?juce::String("graph is off"):"locks leave nothing to randomize");
+            return rec;   // nothing written, ring and recipe untouched
+        }
         rec.attempt=cfg.attempt;
         const auto after=ctl.captureSnapshot(face); const auto table=ar::paramTable();
         for(int i=0;i<ar::kParamCount;++i) if(std::memcmp(&before.value[size_t(i)],&after.value[size_t(i)],sizeof(float))!=0) rec.touchedGroups.addIfNotAlreadyThere(randomSpecGroups()[int(table[size_t(i)].group)]);
@@ -337,7 +345,13 @@ void RandomizePanel::setLocked(const juce::String& g,bool on) {
     backend.setLockedGroups(locked); refreshWidgets();
 }
 void RandomizePanel::resetLocks() { locked=backend.defaultLocked(); backend.setLockedGroups(locked); refreshWidgets(); }
-void RandomizePanel::clearRecipe() { noChangeNote={}; if(backend.recipe()) { backend.forgetRecipe(); refreshWidgets(); if(changed) changed(); } }
+// The recipe is read from the backend once after a roll / undo / clear and once per notePreset tick (the editor throttles those), never per
+// paint: recipe() hashes all 495 values and, for a roll sitting in B, parses the snapshot tree.
+const std::optional<RandomizeRecipe>& RandomizePanel::currentRecipe() const {
+    if(!recipeValid) { recipeCache=backend.recipe(); recipeValid=true; }
+    return recipeCache;
+}
+void RandomizePanel::clearRecipe() { noChangeNote={}; if(currentRecipe()) { backend.forgetRecipe(); recipeValid=false; refreshWidgets(); if(changed) changed(); } }
 
 void RandomizePanel::setBusy(bool b) {
     if(busy==b) return; busy=b; refreshWidgets(); if(changed) changed();
@@ -348,34 +362,34 @@ RandomizeRecipe RandomizePanel::roll(bool intoB,RandomizeScope scope) {
     RandomizeRequest r; r.mode=scope==RandomizeScope::motion?RandomizeMode::full:requestMode; r.amount=requestAmount; r.lockedGroups=locked; r.scope=scope;
     if(!seedPinned) seed=seedSource()&randomSeedMask;
     r.seed=seed; seedEdit.setText(formatRandomSeed(seed),juce::dontSendNotification);
-    const auto rec=intoB?backend.randomizeIntoB(r):backend.randomize(r);
-    noChangeNote=rec.rejected?juce::String("Nothing changed (no safe patch)"):(rec.changedValues==0?"Nothing changed ("+(rec.note.isEmpty()?juce::String("no change"):rec.note)+")":juce::String());
+    const auto rec=intoB?backend.randomizeIntoB(r):backend.randomize(r); recipeValid=false;
+    noChangeNote=rec.rejected?"Nothing changed ("+(rec.note.isEmpty()?juce::String("no safe patch"):rec.note)+")":(rec.changedValues==0?"Nothing changed ("+(rec.note.isEmpty()?juce::String("no change"):rec.note)+")":juce::String());
     refreshWidgets(); if(changed) changed();
     return rec;
 }
 bool RandomizePanel::undo() {
     if(busy) return false;
-    const bool ok=backend.undo();
+    const bool ok=backend.undo(); recipeValid=false;
     if(ok) { noChangeNote={}; refreshWidgets(); if(changed) changed(); }
     return ok;
 }
 juce::String RandomizePanel::presetLabel() const {
-    const auto rec=backend.recipe();
+    const auto& rec=currentRecipe();
     return rec&&!rec->intoB&&rec->onLiveFace?randomPresetLabel(rec->seed):juce::String();
 }
-juce::String RandomizePanel::sourcePreset() const { const auto rec=backend.recipe(); return rec?rec->sourcePreset:juce::String(); }
+juce::String RandomizePanel::sourcePreset() const { const auto& rec=currentRecipe(); return rec?rec->sourcePreset:juce::String(); }
 // Called by the editor's timer. The processor's preset name is the truth: a roll on the live face renames it to
 // randomPresetName(source, seed), so the recipe stays on screen while the name is that one. Any other change of the name
 // (a preset was loaded) ends the roll on screen. Also follows the controller's LockSet (a state load restores the locks)
 // and the "modified" mark of the roll (values edited since).
 void RandomizePanel::notePreset(const juce::String& name,bool) {
     const bool nameChanged=havePresetName&&name!=presetName; presetName=name; havePresetName=true;
-    bool refresh=false;
-    if(const auto rec=backend.recipe()) {
+    bool refresh=false; recipeValid=false;   // the one refresh per tick
+    if(const auto rec=currentRecipe()) {   // copy: the cache is dropped below when the roll is forgotten
         const auto expected=juce::String(juce::CharPointer_UTF8(ar::randomPresetName(std::string(rec->sourcePreset.toRawUTF8()),rec->seed).c_str()));
-        if(nameChanged&&name!=expected) { noChangeNote={}; backend.forgetRecipe(); if(changed) changed(); refresh=true; }
+        if(nameChanged&&name!=expected) { noChangeNote={}; backend.forgetRecipe(); recipeValid=false; if(changed) changed(); refresh=true; }
         else if(rec->modified!=shownModified) refresh=true;
-        shownModified=backend.recipe()?backend.recipe()->modified:false;
+        { const auto& now=currentRecipe(); shownModified=now?now->modified:false; }
     } else shownModified=false;
     if(const auto groups=backend.lockedGroups(); groups!=locked) { locked=groups; refresh=true; }
     if((refresh||nameChanged)&&open) refreshWidgets();
@@ -385,13 +399,13 @@ void RandomizePanel::setHint(const juce::String& h) { if(h!=hint) { hint=h; repa
 juce::String RandomizePanel::undoText() const { return "Undo Random  "+juce::String(backend.undoDepth())+"/"+juce::String(randomUndoSteps); }
 juce::String RandomizePanel::lockCountText() const { return juce::String(locked.size())+" locked"; }
 juce::String RandomizePanel::sourceText() const {
-    const auto rec=backend.recipe(); if(!rec) return "No random roll yet.";
+    const auto& rec=currentRecipe(); if(!rec) return "No random roll yet.";
     return "from "+rec->sourcePreset+(rec->intoB?"  (in B)":"");
 }
 juce::String RandomizePanel::lastRollText() const {
     if(busy) return "Re-rolling...";
     if(noChangeNote.isNotEmpty()) return noChangeNote;
-    const auto rec=backend.recipe(); if(!rec) return {};
+    const auto& rec=currentRecipe(); if(!rec) return {};
     if(rec->changedValues<0) return rec->modified?"Edited since the roll":juce::String();   // restored from a saved state: the counts were not saved
     return juce::String(rec->changedValues)+(rec->changedValues==1?" value":" values")+" changed in "+juce::String(rec->touchedGroups.size())+(rec->touchedGroups.size()==1?" group":" groups")+(rec->modified?", edited":"");
 }

@@ -162,6 +162,7 @@ private:
     class PanelButton; class LockChip; struct OutsideClicks;
     RandomizeBackend& backend; RandomizeStyle style; std::function<void()> changed;
     bool open=false,seedPinned=false,busy=false,havePresetName=false,shownModified=false;
+    mutable std::optional<RandomizeRecipe> recipeCache; mutable bool recipeValid=false;   // see currentRecipe()
     RandomizeMode requestMode=RandomizeMode::full; float requestAmount=1.f; std::uint64_t seed=0;
     juce::String hint,presetName,noChangeNote;
     juce::StringArray locked;
@@ -173,6 +174,7 @@ private:
     std::vector<std::unique_ptr<LockChip>> chips;
     juce::Slider amountSlider; juce::TextEditor seedEdit;
     struct Rows { juce::Rectangle<int> title,amountLabel,amountValue,seedLabel,lockHeading,lockCount,presetLabel,presetValue,presetSource,hintLine,lastLine; } rows;
+    const std::optional<RandomizeRecipe>& currentRecipe() const;
     void refreshWidgets();
     void commitSeedText();
     float floorSize() const;
