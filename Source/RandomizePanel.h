@@ -28,12 +28,17 @@ juce::String randomPresetLabel(std::uint64_t seed);
 // Maps to aether::rand::Mode { Mutate, Full } (§P.1). UI keeps lower-case enumerators.
 enum class RandomizeMode { mutate, full };
 
+// What a roll may write. all = every unlocked group; motion = only the Motion group (03 Motion page: LFO values, modulation depths,
+// and, once the engine has it, the source / destination of every modulation row). Maps to aether::rand::Config::scopeMask.
+enum class RandomizeScope { all, motion };
+
 // UI-facing subset of aether::rand::Config + LockSet (§P.1 / §P.3). Real engine also has Safety / scopeMask / attempt.
 struct RandomizeRequest {
     std::uint64_t seed=0;           // 40-bit, same as Config::seed
     RandomizeMode mode=RandomizeMode::mutate;
     float amount=.35f;              // 0..1; Mutate + amount==0 => empty patch (§6.2)
     juce::StringArray lockedGroups; // section names from RandomizeBackend::lockGroups(); projection of LockSet::sections
+    RandomizeScope scope=RandomizeScope::all;
 };
 
 // UI-facing subset of aether::rand::RandomRecipe (§P.4). Metadata only — not part of the .aether preset format.
@@ -58,7 +63,8 @@ struct RandomizeRecipe {
 class RandomizeBackend {
 public:
     virtual ~RandomizeBackend()=default;
-    // Lockable sections in display order (UI chips) and the ones that start locked. Real LockSet is finer (§P.3).
+    // Lockable sections in display order (UI chips) and the ones that start locked (none since 2.3.1: everything is open by default).
+    // Real LockSet is finer (§P.3). MixGlobal / System (bus volume, master, global mode) are Never in the engine and have no chip.
     virtual juce::StringArray lockGroups() const=0;
     virtual juce::StringArray defaultLocked() const=0;
     // Live slot (= SnapshotRing Target::Live) / into B (= Target::AlternateSnapshot). Both push one SnapshotRing step.
@@ -136,7 +142,8 @@ public:
     void setBusy(bool);
     bool isBusy() const noexcept { return busy; }
     // Actions (the same as the buttons)
-    RandomizeRecipe roll(bool intoB);
+    RandomizeRecipe roll(bool intoB,RandomizeScope scope=RandomizeScope::all);
+    RandomizeRecipe rollMotion() { return roll(false,RandomizeScope::motion); }   // "Randomize Motion": Motion group only
     bool undo();
     int undoDepth() const { return backend.undoDepth(); }
     // Naming: "(Random) <seed>" while the roll on screen sits on the live face; empty otherwise. notePreset (called by the editor's timer) drops
@@ -155,14 +162,14 @@ private:
     class PanelButton; class LockChip; struct OutsideClicks;
     RandomizeBackend& backend; RandomizeStyle style; std::function<void()> changed;
     bool open=false,seedPinned=false,busy=false,havePresetName=false,shownModified=false;
-    RandomizeMode requestMode=RandomizeMode::mutate; float requestAmount=.35f; std::uint64_t seed=0;
+    RandomizeMode requestMode=RandomizeMode::full; float requestAmount=1.f; std::uint64_t seed=0;
     juce::String hint,presetName,noChangeNote;
     juce::StringArray locked;
     std::function<std::uint64_t()> seedSource;
     std::vector<juce::Component*> anchors;
     std::unique_ptr<OutsideClicks> outside;
     std::unique_ptr<GlyphButton> closeButton;
-    std::unique_ptr<PanelButton> mutateButton,fullButton,pinButton,newButton,rollButton,rollBButton,undoButton;
+    std::unique_ptr<PanelButton> mutateButton,fullButton,pinButton,newButton,rollButton,rollMotionButton,rollBButton,undoButton;
     std::vector<std::unique_ptr<LockChip>> chips;
     juce::Slider amountSlider; juce::TextEditor seedEdit;
     struct Rows { juce::Rectangle<int> title,amountLabel,amountValue,seedLabel,lockHeading,lockCount,presetLabel,presetValue,presetSource,hintLine,lastLine; } rows;

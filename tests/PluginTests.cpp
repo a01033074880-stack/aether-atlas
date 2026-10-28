@@ -1216,12 +1216,13 @@ int main(int argc,char** argv) {
         test("Randomize: locked groups keep their values, every group is lockable and non-empty",[&] {
             ScopedRandomBackend backend;
             RandomRig rig;auto& panel=*rig.panel;panel.setMode(aether::ui::RandomizeMode::full);
-            require(aether::ui::randomSpecGroups()==randomGroups&&panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"default locks are not MixGlobal + System: "+panel.lockedGroups().joinIntoString(","));
+            require(aether::ui::randomSpecGroups()==randomGroups&&panel.lockedGroups().isEmpty(),"default locks are not empty: "+panel.lockedGroups().joinIntoString(","));
             {int counts[7]={0,0,0,0,0,0,0},total=0;const int expected[7]={194,84,84,28,64,9,32};
              for(const auto& spec:aether::parameterSpecs()) {++counts[randomGroups.indexOf(randomGroupOf(spec.id))];++total;require(aether::ui::randomGroupOf(spec.id)==randomGroupOf(spec.id),"engine grouping differs from the spec rule: "+juce::String(spec.id));}
              for(int i=0;i<7;++i) require(counts[i]==expected[i],"RandSpec §1.2 count of "+randomGroups[i]+": "+juce::String(counts[i])+" vs "+juce::String(expected[i]));
              require(total==495,"parameter total "+juce::String(total));}
-            for(const auto& g:randomGroups) require(rig.panel->findChildWithID("random.lock."+g)!=nullptr,"lock chip missing: "+g);
+            for(int gi=0;gi<7;++gi) require((rig.panel->findChildWithID("random.lock."+randomGroups[gi])!=nullptr)==(gi<5),"lock chip of "+randomGroups[gi]+" (only the five movable groups get one, bus volume has none)");
+            require(rig.panel->findChildWithID("random.rollmotion")!=nullptr&&rig.panel->mode()==aether::ui::RandomizeMode::full&&std::abs(rig.panel->amount()-1.f)<1.0e-6f,"Randomize Motion button missing or defaults are not Full / 100 %");
             randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",1);   // Chain / ModuleParams / Motion are idle while the graph is off (engine ActiveWhen)
             // The seed field must be readable before the first roll too (its text used to keep the default pale colour).
             {panel.setOpen(true);auto* seed=panel.findChildWithID("random.seed");require(seed!=nullptr,"seed field missing");
@@ -1249,8 +1250,8 @@ int main(int argc,char** argv) {
             for(const auto& g:randomGroups) panel.setLocked(g,true);
             before=randomValues(rig.p);const auto none=panel.roll(false);require(sameValues(before,randomValues(rig.p))&&none.changedValues==0,"all-locked roll changed values");
             require(rig.textOf("last")=="Nothing changed (all locked)","all-locked message: "+rig.textOf("last"));
-            panel.resetLocks();require(panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"resetLocks");
-            panel.setLocked("Motion",true);require(panel.isLocked("Motion")&&rig.textOf("lock.count")=="3 locked","lock count text: "+rig.textOf("lock.count"));
+            panel.resetLocks();require(panel.lockedGroups().isEmpty(),"resetLocks");
+            panel.setLocked("Motion",true);require(panel.isLocked("Motion")&&rig.textOf("lock.count")=="1 locked","lock count text: "+rig.textOf("lock.count"));
             // §4.2 edition rules: FM and Source stay put in FX (effect build) and in Resynth while Source is off.
             for(const auto& g:randomGroups) panel.setLocked(g,g!="FM"&&g!="Source");
             if(!JucePlugin_IsSynth) {
@@ -1263,6 +1264,17 @@ int main(int argc,char** argv) {
             }
             randomSourceLive(rig.p);before=randomValues(rig.p);panel.roll(false);after=randomValues(rig.p);require(!sameValues(before,after),"FM / Source did not move with Source on");
             panel.setLocked("Nope",true);require(!panel.isLocked("Nope"),"unknown group accepted");
+        });
+        test("Randomize Motion: only Motion-group values move (LFOs, modulation rows), nothing else",[&] {
+            ScopedRandomBackend backend;
+            RandomRig rig;auto& panel=*rig.panel;
+            randomSourceLive(rig.p);rig.p.setParameterValue("graph.enabled",1);
+            panel.setPinned(true);panel.setSeedText("5A5A-5A5A");
+            auto before=randomValues(rig.p);const auto rec=panel.rollMotion();auto after=randomValues(rig.p);int moved=0;
+            for(const auto& [id,v]:before) {const bool changed=after[id]!=v;if(randomGroupOf(id)=="Motion") {if(changed)++moved;} else require(!changed,"Randomize Motion moved a value outside Motion: "+id);}
+            require(!rec.rejected&&moved>0,"Randomize Motion moved nothing (rejected "+juce::String(int(rec.rejected))+", note '"+rec.note+"')");
+            panel.setLocked("Motion",true);before=randomValues(rig.p);panel.setSeedText("1111-2222");panel.rollMotion();
+            require(sameValues(before,randomValues(rig.p)),"Randomize Motion moved values while Motion is locked");
         });
         test("Randomize: undo history is capped at 16, steps restore the states (<= 4 ulp per parameter), button shows x/16",[&] {
             ScopedRandomBackend backend;
@@ -1430,10 +1442,10 @@ int main(int argc,char** argv) {
         test("Randomize: locks follow the controller's LockSet in both directions, survive a state save and load, and the roll shows 'edited' after a change",[&] {
             ScopedRandomBackend backend;
             RandomRig a;auto& panel=*a.panel;
-            require(a.p.randomizer().locks().params.none()&&panel.lockedGroups()==juce::StringArray({"MixGlobal","System"}),"fresh locks are not the default");
+            require(a.p.randomizer().locks().params.none()&&panel.lockedGroups().isEmpty(),"fresh locks are not the default");
             panel.setLocked("FM",true);panel.setLocked("MixGlobal",false);
             {const auto set=a.p.randomizer().locks();const auto table=aether::rand::paramTable();
-             for(size_t i=0;i<table.size();++i) {const auto g=randomGroups[int(table[i].group)];const bool want=g=="FM"||g=="System";require(set.params.test(i)==want,"LockSet bit of "+juce::String(table[i].id)+" ("+g+") is "+juce::String(int(set.params.test(i))));}
+             for(size_t i=0;i<table.size();++i) {const auto g=randomGroups[int(table[i].group)];const bool want=g=="FM";require(set.params.test(i)==want,"LockSet bit of "+juce::String(table[i].id)+" ("+g+") is "+juce::String(int(set.params.test(i))));}
              require((set.sections&aether::rand::kLockFm)!=0&&(set.sections&aether::rand::kLockSource)==0,"LockSet sections");}
             // LockSet written elsewhere (state load, host) shows in the chips on the next tick
             aether::rand::LockSet other;{const auto table=aether::rand::paramTable();for(size_t i=0;i<table.size();++i) if(randomGroups[int(table[i].group)]=="Source") other.params.set(i);other.sections|=aether::rand::kLockSource;}
@@ -1442,7 +1454,7 @@ int main(int argc,char** argv) {
             panel.setLocked("Motion",true);panel.setLocked("Source",true);panel.setLocked("Chain",false);panel.setSeedText("A7F3-92C1");panel.setPinned(true);panel.roll(false);
             const auto rolled=a.p.randomizer().recipe();require(rolled.valid&&rolled.seed==0x51DE348981ull,"recipe not recorded (seed "+juce::String(std::int64_t(rolled.seed))+")");
             juce::MemoryBlock saved;a.p.getStateInformation(saved);
-            RandomRig b;require(b.panel->lockedGroups()==juce::StringArray({"MixGlobal","System"}),"second rig does not start with the default");
+            RandomRig b;require(b.panel->lockedGroups().isEmpty(),"second rig does not start with the default");
             b.p.setStateInformation(saved.getData(),int(saved.getSize()));b.panel->notePreset(b.p.currentPresetName(),b.p.isSnapshotB());
             auto sorted=[](juce::StringArray s){s.sort(false);return s;};
             require(sorted(b.panel->lockedGroups())==sorted(panel.lockedGroups()),"locks lost by save/load: "+b.panel->lockedGroups().joinIntoString(",")+" vs "+panel.lockedGroups().joinIntoString(","));

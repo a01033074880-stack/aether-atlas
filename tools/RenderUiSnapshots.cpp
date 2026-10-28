@@ -281,7 +281,7 @@ int main(int argc,char** argv) {
             // Reserved re-rolling state (audition stage): buttons disabled, last line "Re-rolling...".
             panel->setBusy(true); shot("busy-min-1180x780"); panel->setBusy(false);
             ed->performUiAction("random.open");
-            // Lock mode: Chain, Motion and FM locked next to the default MixGlobal / System locks.
+            // Lock mode: Chain, Motion and FM locked (the five lock chips start open).
             panel->setLocked("Chain",true); panel->setLocked("Motion",true); panel->setLocked("FM",true); sizes("locks",true);
             // Full undo ring: twenty rolls leave 16 steps.
             panel->setPinned(false); for(int i=0;i<20;++i) panel->roll(false); sizes("history-full",false);

@@ -59,6 +59,9 @@ juce::String randomPresetLabel(std::uint64_t seed) { return "(Random) "+formatRa
 //     (trimDbForLoudness) is not written: that is the sound engineer's P2 item.
 // ------------------------------------------------------------------------------------------------------------------------
 juce::StringArray randomSpecGroups() { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
+// Groups that get a lock chip: the first five. MixGlobal (bus volume, master, global mix) and System (global mode, classic effects) are
+// Never in the engine, so a chip for them would only suggest a random that does not exist.
+constexpr int lockableGroupCount=5;
 // RandSpec 1.2 group of a parameter id, read from the engine's table (a single source of truth with the locks).
 juce::String randomGroupOf(const juce::String& id) {
     const int i=ar::paramIndex(id.toStdString());
@@ -90,18 +93,23 @@ juce::StringArray groupsFromLocks(const ar::LockSet& set) {
     const auto table=ar::paramTable(); const auto groups=randomSpecGroups();
     std::array<int,7> total{},held{};
     for(int i=0;i<ar::kParamCount;++i) { const int g=int(table[size_t(i)].group); ++total[size_t(g)]; if(set.params.test(size_t(i))) ++held[size_t(g)]; }
-    juce::StringArray out; for(int g=0;g<groups.size();++g) if(total[size_t(g)]>0&&held[size_t(g)]==total[size_t(g)]) out.add(groups[g]);
+    juce::StringArray out; for(int g=0;g<lockableGroupCount;++g) if(total[size_t(g)]>0&&held[size_t(g)]==total[size_t(g)]) out.add(groups[g]);
     return out;
 }
 bool lockSetEmpty(const ar::LockSet& l) { return l.params.none()&&l.sections==0&&l.modRows==0; }
 
+// ADAPT POINT (Motion roll, engine side not merged yet): the engine engineer adds the Motion options to aether::rand::Config
+// (re-roll every modulation row's source / destination, randomize the values of the rows and LFOs that are already loaded).
+// Set them here, from the request, once their names are known. Until then Motion is reached only through ScopeMotion above.
+void applyMotionOptions(ar::Config& cfg,const RandomizeRequest& r) { (void)cfg; (void)r; }
+
 class EngineBackend final:public RandomizeBackend {
 public:
     explicit EngineBackend(AetherAudioProcessor& proc):p(proc),ctl(proc.randomizer()),owner(std::this_thread::get_id()) {}
-    // UI section chips: the seven RandSpec 1.2 groups. MixGlobal and System hold only Never ids plus graph.trim (2.3), so they
-    // start locked: the engine would not move them anyway.
-    juce::StringArray lockGroups() const override { return randomSpecGroups(); }
-    juce::StringArray defaultLocked() const override { return {"MixGlobal","System"}; }
+    // UI section chips: the five groups the engine can move (Chain, ModuleParams, FM, Source, Motion), all open by default.
+    // MixGlobal and System hold only Never ids plus graph.trim: no chip, never randomized.
+    juce::StringArray lockGroups() const override { auto g=randomSpecGroups(); g.removeRange(lockableGroupCount,g.size()-lockableGroupCount); return g; }
+    juce::StringArray defaultLocked() const override { return {}; }
     // The chips follow the controller's LockSet (restored with the plugin state). Until a lock was ever written (an empty LockSet
     // and no chip touched in this session) the default applies; an all-unlocked choice that is saved and reloaded reads as the default again.
     juce::StringArray lockedGroups() const override {
@@ -153,6 +161,8 @@ private:
         ar::Config cfg; cfg.seed=rec.seed; cfg.mode=r.mode==RandomizeMode::full?ar::Mode::Full:ar::Mode::Mutate;
         cfg.amount=juce::jlimit(0.f,1.f,r.amount); cfg.safety=ar::Safety::Safe; cfg.intoB=intoB;
         const auto locks=engineLocksFor(r.lockedGroups); cfg.scopeMask=locks.scope;
+        if(r.scope==RandomizeScope::motion) cfg.scopeMask&=std::uint32_t(ar::ScopeMotion);   // Randomize Motion: nothing outside the Motion group may be written
+        applyMotionOptions(cfg,r);
         setLockedGroups(r.lockedGroups);                       // the controller's LockSet is the one that gets saved with the state
         const auto face=intoB?ar::Face::B:ctl.liveFace();
         const auto before=ctl.captureSnapshot(face);
@@ -161,14 +171,14 @@ private:
             cfg.attempt=attempt; out=ctl.randomize(cfg,ctl.locks());
             if(out.ok) break;
             why=out.reason&&*out.reason?out.reason:"generate";
-            if(why=="not-message-thread") break;
+            if(why=="not-message-thread"||why=="graph-disabled") break;   // retrying cannot help: the same state is read again
         }
-        if(!out.ok) { rec.rejected=true; rec.note=why=="not-message-thread"?juce::String("wrong thread"):"no safe patch: "+why; return rec; }   // nothing written, ring and recipe untouched
+        if(!out.ok) { rec.rejected=true; rec.note=why=="not-message-thread"?juce::String("wrong thread"):(why=="graph-disabled"?juce::String("graph is off"):"no safe patch: "+why); return rec; }   // nothing written, ring and recipe untouched
         rec.attempt=cfg.attempt;
         const auto after=ctl.captureSnapshot(face); const auto table=ar::paramTable();
         for(int i=0;i<ar::kParamCount;++i) if(std::memcmp(&before.value[size_t(i)],&after.value[size_t(i)],sizeof(float))!=0) rec.touchedGroups.addIfNotAlreadyThere(randomSpecGroups()[int(table[size_t(i)].group)]);
         rec.changedValues=out.changedParams;
-        if(rec.changedValues==0) rec.note=r.lockedGroups.size()>=7?"all locked":(cfg.mode==ar::Mode::Mutate&&cfg.amount<=0.f?"amount 0":"no change");
+        if(rec.changedValues==0) rec.note=r.lockedGroups.size()>=lockGroups().size()||cfg.scopeMask==0?"all locked":(cfg.mode==ar::Mode::Mutate&&cfg.amount<=0.f?"amount 0":"no change");
         rec.onLiveFace=out.wroteLive; dismissed.reset();
         if(rec.changedValues>0) {      // an unchanged roll leaves the controller's recipe and ring alone
             const auto cr=ctl.recipe();
@@ -258,7 +268,7 @@ struct RandomizePanel::OutsideClicks final:juce::MouseListener {
 namespace { constexpr int pad=16,chipTop=184,chipH=28,chipStep=36,buttonH=32; }
 int RandomizePanel::heightFor(int groups) {
     const int rowsOfChips=juce::jmax(1,(groups+1)/2),chipsBottom=chipTop+chipStep*rowsOfChips-(chipStep-chipH);
-    return chipsBottom+16+3*buttonH+2*8+16+24+20+20+20+16;
+    return chipsBottom+16+4*buttonH+3*8+16+24+20+20+20+16;
 }
 
 RandomizePanel::RandomizePanel(RandomizeBackend& b,RandomizeStyle s,std::function<void()> onChanged):backend(b),style(std::move(s)),changed(std::move(onChanged)) {
@@ -278,9 +288,10 @@ RandomizePanel::RandomizePanel(RandomizeBackend& b,RandomizeStyle s,std::functio
     pinButton->onClick=[this] { seedPinned=pinButton->getToggleState(); };
     newButton=std::make_unique<PanelButton>(style,V::normal,"New"); newButton->setComponentID("random.newseed"); newButton->setTooltip("Draw a new seed without rolling."); newButton->onClick=[this] { newSeed(); };
     rollButton=std::make_unique<PanelButton>(style,V::primary,"Randomize"); rollButton->setComponentID("random.roll"); rollButton->setTooltip("Randomize with this amount, seed and locks."); rollButton->onClick=[this] { roll(false); };
+    rollMotionButton=std::make_unique<PanelButton>(style,V::normal,"Randomize Motion"); rollMotionButton->setComponentID("random.rollmotion"); rollMotionButton->setTooltip("Randomize only the Motion page: LFO values, modulation depths and the source and destination of every modulation row."); rollMotionButton->onClick=[this] { roll(false,RandomizeScope::motion); };
     rollBButton=std::make_unique<PanelButton>(style,V::normal,"Randomize into B"); rollBButton->setComponentID("random.rollb"); rollBButton->setTooltip("Keep this patch in A and write the result into B."); rollBButton->onClick=[this] { roll(true); };
     undoButton=std::make_unique<PanelButton>(style,V::normal,"Undo Random"); undoButton->setComponentID("random.undo"); undoButton->setTooltip("Step back one random roll (up to 16)."); undoButton->onClick=[this] { undo(); };
-    for(auto* c:std::initializer_list<juce::Component*>{closeButton.get(),mutateButton.get(),fullButton.get(),pinButton.get(),newButton.get(),rollButton.get(),rollBButton.get(),undoButton.get()}) addAndMakeVisible(*c);
+    for(auto* c:std::initializer_list<juce::Component*>{closeButton.get(),mutateButton.get(),fullButton.get(),pinButton.get(),newButton.get(),rollButton.get(),rollMotionButton.get(),rollBButton.get(),undoButton.get()}) addAndMakeVisible(*c);
     for(const auto& group:backend.lockGroups()) {
         auto chip=std::make_unique<LockChip>(style,group); chip->setComponentID("random.lock."+group); chip->setToggleState(locked.contains(group),juce::dontSendNotification);
         chip->onClick=[this,c=chip.get()] { const auto name=c->getButtonText(); if(c->getToggleState()) locked.addIfNotAlreadyThere(name); else locked.removeString(name); backend.setLockedGroups(locked); repaint(); };
@@ -331,10 +342,10 @@ void RandomizePanel::clearRecipe() { noChangeNote={}; if(backend.recipe()) { bac
 void RandomizePanel::setBusy(bool b) {
     if(busy==b) return; busy=b; refreshWidgets(); if(changed) changed();
 }
-RandomizeRecipe RandomizePanel::roll(bool intoB) {
+RandomizeRecipe RandomizePanel::roll(bool intoB,RandomizeScope scope) {
     if(busy) { RandomizeRecipe rec; rec.rejected=true; rec.note="re-rolling"; return rec; }   // reserved for the audition stage (graph.trim compensation, sound engineer P2)
     commitSeedText();
-    RandomizeRequest r; r.mode=requestMode; r.amount=requestAmount; r.lockedGroups=locked;
+    RandomizeRequest r; r.mode=scope==RandomizeScope::motion?RandomizeMode::full:requestMode; r.amount=requestAmount; r.lockedGroups=locked; r.scope=scope;
     if(!seedPinned) seed=seedSource()&randomSeedMask;
     r.seed=seed; seedEdit.setText(formatRandomSeed(seed),juce::dontSendNotification);
     const auto rec=intoB?backend.randomizeIntoB(r):backend.randomize(r);
@@ -389,7 +400,7 @@ void RandomizePanel::refreshWidgets() {
     pinButton->setToggleState(seedPinned,juce::dontSendNotification);
     for(auto& c:chips) c->setToggleState(locked.contains(c->getButtonText()),juce::dontSendNotification);
     undoButton->setButtonText(undoText()); undoButton->setEnabled(!busy&&backend.undoDepth()>0);
-    rollButton->setEnabled(!busy); rollBButton->setEnabled(!busy);
+    rollButton->setEnabled(!busy); rollMotionButton->setEnabled(!busy); rollBButton->setEnabled(!busy);
     repaint(); for(auto* c:{static_cast<juce::Component*>(mutateButton.get()),static_cast<juce::Component*>(fullButton.get()),static_cast<juce::Component*>(pinButton.get()),static_cast<juce::Component*>(undoButton.get())}) c->repaint();
 }
 
@@ -404,8 +415,8 @@ void RandomizePanel::resized() {
     for(size_t i=0;i<chips.size();++i) chips[i]->setBounds(pad+int(i%2)*(colW+8),chipTop+int(i/2)*chipStep,colW,chipH);
     const int rowsOfChips=juce::jmax(1,int(chips.size()+1)/2),chipsBottom=chipTop+chipStep*rowsOfChips-(chipStep-chipH);
     int y=chipsBottom+16;
-    rollButton->setBounds(pad,y,inner,buttonH); rollBButton->setBounds(pad,y+buttonH+8,inner,buttonH); undoButton->setBounds(pad,y+2*(buttonH+8),inner,buttonH);
-    y+=3*buttonH+2*8+16;
+    rollButton->setBounds(pad,y,inner,buttonH); rollMotionButton->setBounds(pad,y+buttonH+8,inner,buttonH); rollBButton->setBounds(pad,y+2*(buttonH+8),inner,buttonH); undoButton->setBounds(pad,y+3*(buttonH+8),inner,buttonH);
+    y+=4*buttonH+3*8+16;
     rows.presetLabel={pad,y,56,24}; rows.presetValue={pad+64,y,inner-64,24}; rows.presetSource={pad,y+24,inner,20}; rows.hintLine={pad,y+44,inner,20}; rows.lastLine={pad,y+64,inner,20};
     seedEdit.applyFontToAllText(style.font?style.font(juce::jmax(12.f,floorSize())):juce::Font(juce::FontOptions(12.f)),true);
     // The seed text is inserted in the constructor, before the editor sees the look-and-feel colours; repaint it in ink or it stays near-invisible until the first roll.
@@ -432,7 +443,7 @@ std::vector<RandomizeTextItem> RandomizePanel::textItems() const {
     add("hint",hint,rows.hintLine,11,style.muted,style.light);
     add("last",lastRollText(),rows.lastLine,11,style.ink,style.light);
     auto widgetText=[&](const juce::Component& c,const juce::String& id,const juce::String& text,juce::Rectangle<int> area,juce::Colour fg,juce::Colour bg) { (void)c; add(id.toRawUTF8(),text,area.translated(c.getX(),c.getY()),11,fg,bg,J::centred,false,true); };
-    for(auto* b:{mutateButton.get(),fullButton.get(),pinButton.get(),newButton.get(),rollButton.get(),rollBButton.get(),undoButton.get()})
+    for(auto* b:{mutateButton.get(),fullButton.get(),pinButton.get(),newButton.get(),rollButton.get(),rollMotionButton.get(),rollBButton.get(),undoButton.get()})
         widgetText(*b,b->getComponentID(),b->getButtonText(),b->textArea(),b->foreground(),b->background());
     for(auto& c:chips) { auto id=c->getComponentID(); v.push_back({id,c->getButtonText(),c->textArea().translated(c->getX(),c->getY()),11,c->foreground(),c->background(),J::centredLeft,false,true}); }
     v.push_back({"random.seed",seedEdit.getText(),seedEdit.getBounds().reduced(10,0),juce::jmax(12.f,floorSize()),style.ink,style.light,J::centredLeft,false,true});
