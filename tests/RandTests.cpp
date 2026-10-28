@@ -13,7 +13,7 @@
 using namespace aether::rand;
 
 // Golden hash of 72 generate() calls (Full+Mutate, 3 editions x 3 safeties x 4 seeds). Pinned on both MSVC and clang.
-static constexpr std::uint64_t kGolden = 0x3f54ff2101685d81ULL;
+static constexpr std::uint64_t kGolden = 0xbc33e2a95d186b30ULL;
 
 static int g_checks = 0, g_failures = 0;
 #define CHECK(cond)                                                                                      \
@@ -125,7 +125,7 @@ void testTable() {
         }
     }
     CHECK(ids.size() == static_cast<std::size_t>(kParamCount));
-    CHECK_MSG(cls[0] == 175 && cls[1] == 273 && cls[2] == 47, "classes %d/%d/%d", cls[0], cls[1], cls[2]);
+    CHECK_MSG(cls[0] == 445 && cls[1] == 1 && cls[2] == 49, "classes %d/%d/%d", cls[0], cls[1], cls[2]);
     CHECK(paramIndex("graph.enabled") == kGraphEnabled && paramIndex("fm.enabled") == kFmEnabled && paramIndex("source.engine") == kSourceEngine);
     CHECK(paramIndex("no.such.param") == -1);
     // macro / fm / route tables
@@ -532,7 +532,7 @@ void testNoGlobalState() {
     CHECK(std::memcmp(&copy.value, &s2.value, sizeof(copy.value)) == 0);
 }
 
-// ---- golden: bit-exactness across compilers (spec 6.1, kRandAlgoVersion = 1) ---------------------------------------------
+// ---- golden: bit-exactness across compilers (spec 6.1, kRandAlgoVersion = 2) ---------------------------------------------
 std::uint64_t goldenHash() {
     std::uint64_t h = 0xcbf29ce484222325ULL;
     for (int mode = 0; mode < 3; ++mode)
@@ -549,7 +549,7 @@ std::uint64_t goldenHash() {
     return h;
 }
 void testGolden() {
-    static_assert(kRandAlgoVersion == 1, "update the golden hash when the algorithm version changes");
+    static_assert(kRandAlgoVersion == 2, "update the golden hash when the algorithm version changes");
     const std::uint64_t h = goldenHash();
     std::printf("golden hash (kRandAlgoVersion=%d): 0x%016llx\n", kRandAlgoVersion, static_cast<unsigned long long>(h));
     CHECK_MSG(h == kGolden, "golden hash changed: 0x%016llx", static_cast<unsigned long long>(h));

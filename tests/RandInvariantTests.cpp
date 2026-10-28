@@ -3,7 +3,7 @@
 // Complements tests/RandTests.cpp (aether_rand) and tests/RandCoverageTests.cpp (aether_rand_coverage); it does not repeat them.
 // Implements the engine-layer items of docs/randomization-test-plan.md (branch docs/rand-test-plan-230, 01ea237):
 //   R02 per-parameter PCG32 sub-streams (known answers from the PUBLIC Pcg32/fnv1a64, lock-one-parameter independence)
-//   R05 Never 47: id list == docs/randomization-spec-params.tsv, bit-identical under every seed / config / scope / safety / edition
+//   R05 Never 49: id list == docs/randomization-spec-params.tsv, bit-identical under every seed / config / scope / safety / edition
 //   R06 seven groups (Chain/ModuleParams/FM/Source/Motion/MixGlobal/System = 194/84/84/28/64/9/32): whole-group lock => bit-identical;
 //       every lock-section bit and modRows bit == its parameter set
 //   R08 EditionContext combinations incl. the real Synth pair (effectiveMode 2, isSynth true)
@@ -85,6 +85,8 @@ constexpr Safety kSafeties[3] = {Safety::Safe, Safety::Normal, Safety::Wild};
 constexpr std::uint64_t kSeedSet[] = {0, 1, 2, 3, 7, 42, 12345, 0xFFFFFFFFFFULL, 0x8000000000000000ULL, 0xFFFFFFFFFFFFFFFFULL};
 
 const ParamInfo& P(int i) { return paramTable()[static_cast<std::size_t>(i)]; }
+// value parameters are sampled one by one; Structural / ModSource / ModDest / Derived ones are built by the structure stages (2.3.1)
+bool isValueParam(const ParamInfo& p) { return p.role != Role::Structural && p.role != Role::ModSource && p.role != Role::ModDest && p.dist != Dist::Derived; }
 std::uint32_t bitsOf(float f) { std::uint32_t u; std::memcpy(&u, &f, 4); return u; }
 bool bitEq(float a, float b) { return bitsOf(a) == bitsOf(b); }
 bool sameArr(const Arr& a, const Arr& b) { return std::memcmp(a.data(), b.data(), sizeof(Arr)) == 0; }
@@ -241,7 +243,7 @@ void secR02() {
     //     legitimately moves fm.index and the fm.op.*.ratio sets (they read the morph neighbour, spec 5.4).
     std::vector<int> pool;
     for (int i = 0; i < kParamCount; ++i)
-        if (P(i).cls == Classification::Random && (P(i).group == Group::ModuleParams || P(i).group == Group::FM || P(i).group == Group::Source || i == kGraphFeedback)) pool.push_back(i);
+        if (P(i).cls == Classification::Random && isValueParam(P(i)) && (P(i).group == Group::ModuleParams || P(i).group == Group::FM || P(i).group == Group::Source || i == kGraphFeedback)) pool.push_back(i);
     CHECKF(pool.size() >= 140, "pool size %zu", pool.size());
     auto dependsOnMorph = [](int q) { return q == kFmIndex || (q >= kOpOffset && q < kEdgeOffset && (q - kOpOffset) % 6 == 0); };
     long compared = 0;
@@ -283,7 +285,7 @@ void secR02() {
 }  // namespace
 
 // =====================================================================================================================
-// R05: Never 47
+// R05: Never 49
 // =====================================================================================================================
 namespace {
 std::vector<std::string> splitTab(const std::string& s) {
@@ -314,10 +316,10 @@ void secR05(const char* tsv) {
             if (c[3] == "Never") tsvNever.insert(c[0]);
         }
         CHECK(rows == kParamCount);
-        CHECKF(tsvNever.size() == 47, "TSV Never rows: %zu", tsvNever.size());
+        CHECKF(tsvNever.size() == 49, "TSV Never rows: %zu", tsvNever.size());
         CHECK(tsvNever == tableNever);
     }
-    CHECK(tableNever.size() == 47);
+    CHECK(tableNever.size() == 49);
     for (const char* id : {"global.mode", "graph.enabled", "lfo.1.sync", "lfo.4.sync", "source.antialias", "source.seed", "source.transpose", "global.bypass", "master.ceiling"})
         CHECKF(tableNever.count(id) == 1, "%s not in the Never list", id);
 
@@ -674,7 +676,7 @@ void secR11() {
     for (int a = 0; a < 17; ++a) info("R11 Random writes per ActiveWhen %-18s %ld", an[a], observedActive[a]);
     // non-vacuity: every ActiveWhen that exists among Random parameters (except those that cannot be exercised) was seen written
     bool existsRandom[17] = {};
-    for (int i = 0; i < kParamCount; ++i) if (P(i).cls == Classification::Random) existsRandom[static_cast<int>(P(i).active)] = true;
+    for (int i = 0; i < kParamCount; ++i) if (P(i).cls == Classification::Random && isValueParam(P(i))) existsRandom[static_cast<int>(P(i).active)] = true;
     for (int a = 0; a < 17; ++a) if (existsRandom[a] && a != static_cast<int>(ActiveWhen::ClassicOnly)) CHECKF(observedActive[a] > 0, "ActiveWhen %s: no Random write observed (rule untested)", an[a]);
     CHECKF(rowsChecked > 1000, "rows inspected %ld", rowsChecked);
 }

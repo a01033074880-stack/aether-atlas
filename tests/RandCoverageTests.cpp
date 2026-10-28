@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
             ++rows;
         }
         CHECK_MSG(rows == kParamCount, "TSV rows %d", rows);
-        CHECK_MSG(cls[0] == 175 && cls[1] == 273 && cls[2] == 47, "TSV classes %d/%d/%d", cls[0], cls[1], cls[2]);
+        CHECK_MSG(cls[0] == 445 && cls[1] == 1 && cls[2] == 49, "TSV classes %d/%d/%d", cls[0], cls[1], cls[2]);
 
         // run the engine on the real default state of each edition and check against the real ranges
         for (int mode = 0; mode < 3; ++mode) {
