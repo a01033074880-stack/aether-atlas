@@ -1,0 +1,496 @@
+id	type	default_norm	classification	group	role	safety	range_lo	range_hi	safe_lo	safe_hi	wild_lo	wild_hi	distribution	edition	activeWhen	note
+global.input	float	0.5	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 用户增益结构;Input 同时是 FM/Source 声部增益(processBlock),随机化会直接改变响度
+global.output	float	0.666667	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 用户增益结构;Input 同时是 FM/Source 声部增益(processBlock),随机化会直接改变响度
+global.mix	float	1	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 用户增益结构;Input 同时是 FM/Source 声部增益(processBlock),随机化会直接改变响度
+global.bypass	bool	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 宿主旁通开关;随机化不得改变
+global.mode	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 版本/模式由插件形态与用户决定(clampModeForPluginType),随机化只读取不写入
+global.order	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典链顺序,仅旧路径使用,UI 不暴露
+spectral.enabled	bool	1	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+spectral.amount	float	0.35	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+spectral.threshold	float	0.6	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+spectral.focus	float	0.581866	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+spectral.transient	float	0.65	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.enabled	bool	1	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.mix	float	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.decay	float	0.388308	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.tune	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.brightness	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+modal.material	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+colour.enabled	bool	1	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+colour.drive	float	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+colour.tone	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+colour.bias	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+colour.model	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.enabled	bool	1	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.mix	float	0.12	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.size	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.decay	float	0.429085	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.damping	float	0.5	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.dispersion	float	0.2	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+space.freeze	bool	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	graph.enabled=0 且 FM/Source 均未启用时才发声	Never: 经典链参数:Atlas/FM/Source 活动时 processBlock 将其整体禁用,UI 不暴露;modal.tune 另兼作 FM 移调
+master.enabled	bool	1	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 输出级(outputStage)限幅/抖动/宽度,属母线安全设置
+master.width	float	0.5	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 输出级(outputStage)限幅/抖动/宽度,属母线安全设置
+master.ceiling	float	0.975	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 输出级(outputStage)限幅/抖动/宽度,属母线安全设置
+master.release	float	0.428571	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 输出级(outputStage)限幅/抖动/宽度,属母线安全设置
+master.dither	choice	0	Never	MixGlobal	Never	S1	-	-	-	-	-	-	-	ALL	-	Never: 输出级(outputStage)限幅/抖动/宽度,属母线安全设置
+mod.rate	float	0.265243	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典单调制器,UI 不暴露;Atlas 路径下不生效
+mod.depth	float	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典单调制器,UI 不暴露;Atlas 路径下不生效
+mod.target	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典单调制器,UI 不暴露;Atlas 路径下不生效
+mod.shape	choice	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典单调制器,UI 不暴露;Atlas 路径下不生效
+mod.sync	bool	0	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 经典单调制器,UI 不暴露;Atlas 路径下不生效
+graph.enabled	bool	1	Never	System	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: Atlas 图总开关;关闭则 node/route/motion 全部失效,随机化在 graph=0 时应拒绝或先提示
+routing.algorithm	choice	0	Structural	Chain	Structural	S7	0	31	0	31	0	32	Choice	ALL	graph.enabled=1	抽 0..31;32(Custom constellation)仅 Wild 且显式允许;权重见 §5.3
+graph.feedback	float	0.684211	Random	Chain	Value	S2	0.15	0.8	0.15	0.6	0.1	0.9	Uniform	ALL	graph.enabled=1 && 算法含反馈弧	仅含反馈弧的算法才有意义;代码硬上限 0.95
+graph.trim	float	0.666667	Structural	MixGlobal	Structural	S1	-24	0	-24	0	-24	0	Derived	ALL	graph.enabled=1	仅由响度修整步骤写入(§7.3),不参与抽样;只允许降低(≤0 dB)
+node.1.type	choice	0.05	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.1.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.1.mix	float	0.35	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.1.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.1.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.1.a	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.1.b	float	0.45	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.1.c	float	0.2	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.1.d	float	0.6	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.1.input	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.1.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.2.type	choice	0.4	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.2.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.2.mix	float	0.22	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.2.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.2.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.2.a	float	0.25	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.2.b	float	0.25	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.2.c	float	0.2	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.2.d	float	0.33	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.2.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.2.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.3.type	choice	0.45	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.3.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.3.mix	float	0.18	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.3.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.3.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.3.a	float	0.12	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.3.b	float	0.65	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.3.c	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.3.d	float	0.7	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.3.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.3.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.4.type	choice	0.85	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.4.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.4.mix	float	0.12	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.4.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.4.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.4.a	float	0.25	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.4.b	float	0.3	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.4.c	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.4.d	float	0.2	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.4.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.4.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.5.type	choice	0.25	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.5.on	bool	0	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.5.mix	float	0	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.5.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.5.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.5.a	float	0.625	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.5.b	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.5.c	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.5.d	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.5.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.5.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.6.type	choice	0.3	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.6.on	bool	0	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.6.mix	float	0	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.6.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.6.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.6.a	float	0.43	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.6.b	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.6.c	float	0.4	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.6.d	float	0	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.6.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.6.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.7.type	choice	0.6	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.7.on	bool	0	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.7.mix	float	0	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.7.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.7.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.7.a	float	0.6	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.7.b	float	0.1	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.7.c	float	0.15	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.7.d	float	1	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.7.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.7.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.8.type	choice	1	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.8.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.8.mix	float	0.12	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.8.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.8.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.8.a	float	0.12	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.8.b	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.8.c	float	0.4	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.8.d	float	0.25	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.8.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.8.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.9.type	choice	0.75	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.9.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.9.mix	float	0.14	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.9.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.9.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.9.a	float	0.35	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.9.b	float	0.65	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.9.c	float	0.4	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.9.d	float	0.6	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.9.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.9.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.10.type	choice	0.2	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.10.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.10.mix	float	0.12	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.10.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.10.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.10.a	float	0.4	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.10.b	float	0.18	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.10.c	float	0.45	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.10.d	float	0.65	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.10.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.10.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.11.type	choice	0.8	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.11.on	bool	0	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.11.mix	float	0	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.11.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.11.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.11.a	float	0.18	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.11.b	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.11.c	float	0.65	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.11.d	float	0.2	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.11.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.11.output	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.12.type	choice	0	Structural	Chain	Structural	S7	0	20	0	20	0	20	Choice	ALL	graph.enabled=1	按 §5.2 角色/风险/重复上限抽取;Thru 作为空槽
+node.12.on	bool	1	Structural	Chain	Structural	S7	0	1	0	1	0	1	Bool	ALL	graph.enabled=1	活动槽数 2..8(至少 1);停用槽=直通,不是静音
+node.12.mix	float	1	Random	ModuleParams	Value	S1	0.2	0.9	0.3	0.7	0.05	1	Uniform	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	-
+node.12.level	float	0.666667	Random	ModuleParams	Value	S1	-9	3	-6	0	-18	6	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0 dB;响度敏感,Safe 不允许 >0 dB
+node.12.pan	float	0.5	Random	ModuleParams	Value	S0	-0.6	0.6	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	中心 0
+node.12.a	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.12.b	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.12.c	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.12.d	float	0.5	Random	ModuleParams	Value	S0	§3.4	§3.4	§3.4	§3.4	§3.4	§3.4	PerType	ALL	graph.enabled=1 && node.N.on=1 && node.N.type!=Thru	含义随 node.N.type 变化,范围/分布按 (模块类型,旋钮序号) 表 §3.4;冻结类旋钮 Sparse
+node.12.input	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+node.12.output	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	算法 0..31 时被 applyAlgorithm 覆盖;仅自定义星座生效,默认不抽样
+route.1.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.2	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.1.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.3	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.2.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.4	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.3.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.5	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.4.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.6	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.5.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.7	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.6.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.8	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.7.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.9	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.8.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.10	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.9.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.11	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.10.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.11.12	float	1	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.1	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.2	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.3	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.4	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.5	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.6	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.7	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.8	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.9	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.10	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.11	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+route.12.12	float	0.5	Structural	Chain	Structural	S7	-1	1	-1	1	-1	1	Derived	ALL	graph.enabled=1 && routing.algorithm=32	同上;默认不抽样(随机化只使用 0..31)
+lfo.1.rate	float	0.18185	Random	Motion	Value	S0	0.05	8	0.05	2	0.02	30	Log	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Hz
+lfo.1.phase	float	0	Random	Motion	Value	S0	0	1	0	1	0	1	Uniform	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	-
+lfo.1.shape	choice	0	Random	Motion	Choice	S0	0	4	0	3	0	4	Choice	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Safe 排除 Random(4);其余均匀
+lfo.1.sync	bool	0	Never	Motion	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 依赖宿主速度,随机化不改变同步语义;保持用户设定
+lfo.2.rate	float	0.235257	Random	Motion	Value	S0	0.05	8	0.05	2	0.02	30	Log	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Hz
+lfo.2.phase	float	0	Random	Motion	Value	S0	0	1	0	1	0	1	Uniform	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	-
+lfo.2.shape	choice	0	Random	Motion	Choice	S0	0	4	0	3	0	4	Choice	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Safe 排除 Random(4);其余均匀
+lfo.2.sync	bool	0	Never	Motion	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 依赖宿主速度,随机化不改变同步语义;保持用户设定
+lfo.3.rate	float	0.272441	Random	Motion	Value	S0	0.05	8	0.05	2	0.02	30	Log	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Hz
+lfo.3.phase	float	0	Random	Motion	Value	S0	0	1	0	1	0	1	Uniform	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	-
+lfo.3.shape	choice	0	Random	Motion	Choice	S0	0	4	0	3	0	4	Choice	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Safe 排除 Random(4);其余均匀
+lfo.3.sync	bool	0	Never	Motion	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 依赖宿主速度,随机化不改变同步语义;保持用户设定
+lfo.4.rate	float	0.302022	Random	Motion	Value	S0	0.05	8	0.05	2	0.02	30	Log	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Hz
+lfo.4.phase	float	0	Random	Motion	Value	S0	0	1	0	1	0	1	Uniform	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	-
+lfo.4.shape	choice	0	Random	Motion	Choice	S0	0	4	0	3	0	4	Choice	ALL	graph.enabled=1 && LFO N 被至少一个有效调制行引用	Safe 排除 Random(4);其余均匀
+lfo.4.sync	bool	0	Never	Motion	Never	S6	-	-	-	-	-	-	-	ALL	-	Never: 依赖宿主速度,随机化不改变同步语义;保持用户设定
+modulation.1.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.1.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.1.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.2.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.2.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.2.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.3.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.3.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.3.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.4.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.4.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.4.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.5.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.5.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.5.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.6.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.6.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.6.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.7.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.7.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.7.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.8.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.8.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.8.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.9.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.9.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.9.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.10.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.10.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.10.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.11.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.11.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.11.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.12.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.12.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.12.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.13.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.13.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.13.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.14.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.14.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.14.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.15.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.15.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.15.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+modulation.16.source	choice	0	Structural	Motion	ModSource	S8	0	9	0	9	0	9	Choice	ALL	graph.enabled=1	行三元组(source,target,depth)由调制流统一生成,至多 12 行(共 16 行)
+modulation.16.target	choice	0	Structural	Motion	ModDest	S8	0	112	0	84	0	112	Choice	ALL	graph.enabled=1	85..112 受 activeWhen 约束(§5.7),Safe 不抽 85..112;含 85..112 的状态保存为 schema 4
+modulation.16.depth	float	0.5	Random	Motion	ModDepth	S8	-0.5	0.5	-0.3	0.3	-1	1	Centered	ALL	graph.enabled=1 && 该行 source≠None && target≠None	按目标类别再收紧上限(§5.7)
+fm.enabled	bool	1	Structural	FM	Structural	S7	0	1	0	1	0	1	Bool	RS	mode∈{Resynth,Synth}	版本夹取:Synth 至少 FM/Source 之一启用;Resynth 仅 Source 启用时随机 FM(§4)
+fm.algorithm	choice	0	Structural	FM	Structural	S7	0	31	0	31	0	31	Choice	RS	fm.enabled=1 && mode∈{Resynth,Synth}	32 个算法逐一在 §5.4 评估
+fm.custom	bool	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Bool	RS	fm.enabled=1	Safe/Normal 恒为 0(用预设算法);Wild 才允许自定义矩阵
+fm.index	float	0.166667	Random	FM	Value	S2	0.5	6	0.5	3.5	0.1	12	Log	RS	fm.enabled=1 && mode≠FX	有效相位偏移=edge×index,代码 clamp ±24 rad
+fm.morph	float	0	Random	FM	Value	S0	0	0.5	0	0	0	1	Sparse	RS	fm.enabled=1 && fm.custom=0	P(非零)=Safe 0 / Normal 0.2 / Wild 0.4;与 (算法+1)%32 混合,二者都须合法
+fm.feedback	float	0.105263	Random	FM	Value	S2	0	0.45	0	0.25	0	0.8	Kumaraswamy	RS	fm.enabled=1 && mode≠FX	K(1.0,2.0) 偏低;有效反馈=2×该值
+fm.attack	float	0.139272	Random	FM	Value	S0	0.001	0.5	0.002	0.2	0.001	2	Log	RS	fm.enabled=1	-
+fm.decay	float	0.360733	Random	FM	Value	S0	0.05	2	0.1	1.5	0.01	5	Log	RS	fm.enabled=1	-
+fm.sustain	float	0.7	Random	FM	Value	S0	0.2	1	0.3	0.9	0	1	Uniform	RS	fm.enabled=1	-
+fm.release	float	0.326574	Random	FM	Value	S4	0.05	3	0.1	2	0.01	8	Log	RS	fm.enabled=1	长释放=长尾;Safe 上限 2 s
+fm.gain	float	0.65	Random	FM	Value	S1	0.45	0.8	0.55	0.75	0.3	0.9	Centered	RS	fm.enabled=1	中心=默认 0.65;响度敏感
+fm.spread	float	0.25	Random	FM	Value	S0	0	0.6	0	0.4	0	1	Uniform	RS	fm.enabled=1	-
+fm.op.1.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.1.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.1.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.1.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.1.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.1.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.2.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.2.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.2.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.2.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.2.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.2.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.3.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.3.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.3.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.3.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.3.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.3.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.4.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.4.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.4.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.4.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.4.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.4.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.5.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.5.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.5.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.5.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.5.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.5.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.6.ratio	float	0.234772	Random	FM	Choice	S3	set	set	set	set	set	set	Choice	RS	fm.enabled=1	离散音乐比率集(§5.4);规格范围 0.125..16
+fm.op.6.level	float	0.7	Random	FM	Value	S2	0.2	1	0.3	0.8	0	1	Uniform	RS	fm.enabled=1	算子调制指数上限见 §5.4
+fm.op.6.carrier	float	1	Structural	FM	Structural	S7	0	1	1	1	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	非自定义时保持默认;自定义时 ≥1 个载波(§5.4)
+fm.op.6.detune	float	0.5	Random	FM	Value	S3	-8	8	-3	3	-30	30	Centered	RS	fm.enabled=1	单位 cent;中心 0
+fm.op.6.attack	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.op.6.release	float	0.480384	Random	FM	Value	S4	0.5	2	0.7	1.4	0.25	4	Log	RS	fm.enabled=1	倍率(规格 0.1..4)
+fm.edge.1.1	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.1.2	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.1.3	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.1.4	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.1.5	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.1.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.1	float	1	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.2	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.3	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.4	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.5	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.2.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.1	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.2	float	1	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.3	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.4	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.5	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.3.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.1	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.2	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.3	float	1	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.4	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.5	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.4.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.1	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.2	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.3	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.4	float	1	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.5	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.5.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.1	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.2	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.3	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.4	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.5	float	1	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+fm.edge.6.6	float	0	Structural	FM	Structural	S7	0	1	0	0	0	1	Derived	RS	fm.enabled=1 && fm.custom=1	fm.custom=0 时被算法矩阵覆盖;仅 Wild 自定义矩阵,非零项 2..6
+source.engine	choice	0	Structural	Source	Structural	S7	0	2	0	2	0	2	Choice	RS	mode∈{Resynth,Synth}	换引擎会 reset 两个声源
+source.enabled	bool	1	Structural	Source	Structural	S7	0	1	0	1	0	1	Bool	RS	mode∈{Resynth,Synth}	见 §4 版本夹取
+source.antialias	bool	1	Never	Source	Never	S5	-	-	-	-	-	-	-	RS	-	Never: 切换会清空抽取滤波器并产生瞬态;属音质/CPU 偏好而非音色
+source.seed	float	0	Never	Source	Never	S5	-	-	-	-	-	-	-	RS	-	Never: 仅在 note-on 读取,改动不改变当前发声,且会使「同一随机种子复现」失去意义;随机化用自己的 seed 记录配方
+source.attack	float	0.117748	Random	Source	Value	S0	0.001	0.5	0.002	0.2	0.001	2	Log	RS	source.enabled=1 && source.engine>0 && mode≠FX	-
+source.decay	float	0.32042	Random	Source	Value	S0	0.05	2	0.1	1.5	0.01	5	Log	RS	source.enabled=1 && source.engine>0 && mode≠FX	-
+source.sustain	float	0.7	Random	Source	Value	S0	0.2	1	0.3	0.9	0	1	Uniform	RS	source.enabled=1 && source.engine>0 && mode≠FX	-
+source.release	float	0.271802	Random	Source	Value	S4	0.05	3	0.1	2	0.01	8	Log	RS	source.enabled=1 && source.engine>0 && mode≠FX	-
+source.gain	float	0.65	Random	Source	Value	S1	0.45	0.8	0.55	0.75	0.3	0.9	Centered	RS	source.enabled=1 && source.engine>0 && mode≠FX	中心=默认 0.65
+source.spread	float	0.25	Random	Source	Value	S0	0	0.6	0	0.4	0	1	Uniform	RS	source.enabled=1 && source.engine>0 && mode≠FX	-
+source.transpose	float	0.5	Never	Source	Never	S3	-	-	-	-	-	-	-	RS	-	Never: 整体音高/调性参考(±24 st);随机化不应改变调音(与 modal.tune 同理)
+source.pg.sequency	float	0	Random	Source	Value	S0	0	32	0	16	0	63	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.walshmix	float	0	Random	Source	Value	S0	0	0.6	0	0.35	0	1	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.czshape	choice	0	Random	Source	Choice	S0	0	5	0	5	0	5	Choice	RS	source.enabled=1 && source.engine=1 && mode≠FX	6 选项均匀
+source.pg.czdepth	float	0.5	Random	Source	Value	S0	0.1	0.9	0.2	0.7	0	1	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.czenvelope	float	0	Random	Source	Value	S0	0	0.7	0	0.4	0	1	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.czvelocity	float	0	Random	Source	Value	S0	0	0.6	0	0.3	0	1	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.vpsd	float	0.5	Random	Source	Value	S0	0.15	0.85	0.3	0.7	0.001	0.999	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.vpsv	float	0.5	Random	Source	Value	S0	0.1	0.9	0.25	0.75	0	1	Uniform	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.vpsratio	float	0	Random	Source	Value	S0	1	6	1	3	1	16	Log	RS	source.enabled=1 && source.engine=1 && mode≠FX	-
+source.pg.phaserandom	float	0	Random	Source	Value	S0	0	0.3	0	0.1	0	0.7	Kumaraswamy	RS	source.enabled=1 && source.engine=1 && mode≠FX	K(1.0,2.0) 偏低
+source.chaos.segments	float	0.333333	Random	Source	Value	S0	4	24	6	16	2	32	Uniform	RS	source.enabled=1 && source.engine=2 && mode≠FX	整数,step=1
+source.chaos.distribution	choice	0	Random	Source	Choice	S0	0	5	0	5	0	5	Choice	RS	source.enabled=1 && source.engine=2 && mode≠FX	6 选项均匀
+source.chaos.ampstep	float	0.15	Random	Source	Value	S0	0.02	0.5	0.02	0.3	0	1	Uniform	RS	source.enabled=1 && source.engine=2 && mode≠FX	-
+source.chaos.durstep	float	0.1	Random	Source	Value	S0	0.02	0.4	0.02	0.25	0	1	Uniform	RS	source.enabled=1 && source.engine=2 && mode≠FX	-
+source.chaos.durrange	float	0.5	Random	Source	Value	S0	0.1	0.9	0.2	0.8	0	1	Uniform	RS	source.enabled=1 && source.engine=2 && mode≠FX	-
+source.chaos.momentum	float	0	Random	Source	Value	S2	0	0.6	0	0.4	0	0.9	Kumaraswamy	RS	source.enabled=1 && source.engine=2 && mode≠FX	K(1.0,1.5) 偏低
+source.chaos.ampbarrier	float	1	Random	Source	Value	S1	0.4	1	0.6	1	0.1	1	Uniform	RS	source.enabled=1 && source.engine=2 && mode≠FX	幅度屏障,越小越安静
