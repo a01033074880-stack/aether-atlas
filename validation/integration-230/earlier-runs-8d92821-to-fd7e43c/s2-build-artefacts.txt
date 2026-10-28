@@ -1,0 +1,12 @@
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3 | 2026-10-25T21:11:23.2727813+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3 | 2026-10-25T22:48:26.3338091+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3 | 2026-10-25T21:11:23.3837697+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3 | 2026-10-25T22:48:31.6143144+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe | 2026-10-25T22:48:33.8211875+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherReproTool_artefacts\Release\AetherReproTool.exe | 2026-10-25T22:48:34.8164086+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicro.dir\Source\PluginEditor.cpp.obj | 2026-10-25T22:48:18.2183010+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherMicroSynth.dir\Source\PluginEditor.cpp.obj | 2026-10-25T22:48:18.1705526+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherPluginTests.dir\tests\PluginTests.cpp.obj | 2026-10-25T22:48:23.2250187+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherPluginTestsSynth.dir\tests\PluginTests.cpp.obj | 2026-10-25T22:48:23.0622528+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj | 2026-10-25T22:48:32.5549469+08:00
+C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj | 2026-10-25T22:48:47.5496704+08:00

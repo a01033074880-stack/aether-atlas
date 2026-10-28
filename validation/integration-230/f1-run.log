@@ -1,0 +1,13 @@
+2026-10-28 15:53:45 (Asia/Shanghai) start tag=f1 HEAD=fd7e43c build=build-integ-230
+2026-10-28 15:53:47 (Asia/Shanghai) check-version exit=0
+2026-10-28 15:53:48 (Asia/Shanghai) pluginval micro exit=0 vst3=C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3 built=10/25/2026 21:11:23
+2026-10-28 15:53:50 (Asia/Shanghai) pluginval synth exit=0 vst3=C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3 built=10/25/2026 21:11:23
+2026-10-28 15:53:50 (Asia/Shanghai) ReproTool built=10/28/2026 15:18:00
+2026-10-28 15:54:32 (Asia/Shanghai) heapfill original done: # heapfill-regress f1 original 7 samples end 2026-10-28 15:54:32 TOTAL runs=126 differ_from_baseline=0
+2026-10-28 15:55:04 (Asia/Shanghai) heapfill newdest A-pg done: # heapfill-regress f1 new destinations A-pg (depth 0.5) end 2026-10-28 15:55:04 TOTAL runs=54 differ_from_baseline=0
+2026-10-28 15:55:37 (Asia/Shanghai) heapfill newdest C-fm done: # heapfill-regress f1 new destinations C-fm (depth 0.5) end 2026-10-28 15:55:37 TOTAL runs=54 differ_from_baseline=0
+2026-10-28 15:56:12 (Asia/Shanghai) heapfill newdest B-chaos done: # heapfill-regress f1 new destinations B-chaos (depth 0.5) end 2026-10-28 15:56:12 TOTAL runs=54 differ_from_baseline=0
+2026-10-28 15:56:46 (Asia/Shanghai) heapfill newdest D-all done: # heapfill-regress f1 new destinations D-all (depth 0.5) end 2026-10-28 15:56:46 TOTAL runs=54 differ_from_baseline=0
+2026-10-28 15:56:48 (Asia/Shanghai) RenderPresets old built=10/25/2026 15:49:17 new built=10/28/2026 15:17:58
+2026-10-28 15:57:44 (Asia/Shanghai) preset compare done
+2026-10-28 15:57:44 (Asia/Shanghai) ALL DONE

@@ -1,0 +1,32 @@
+2026-10-25T23:19:14.1867652+08:00
+HEAD=
+[0/2] Re-checking globbed directories...
+[1/23] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginProcessor.cpp.obj
+[2/23] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginProcessor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginProcessor.cpp(448): warning C4100: 'buffer': 未引用的参数
+[3/23] Linking CXX static library "AetherMicroSynth_artefacts\Release\AETHER Micro Synth_SharedCode.lib"
+[4/23] Linking CXX static library "AetherMicro_artefacts\Release\AETHER Micro_SharedCode.lib"
+[5/23] Linking CXX executable "AetherMicroSynth_artefacts\Release\Standalone\AETHER Micro Synth.exe"
+[6/23] Linking CXX executable "AetherMicro_artefacts\Release\Standalone\AETHER Micro.exe"
+[7/23] Linking CXX shared module "AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherMicro_artefacts/Release/VST3/AETHER Micro.vst3
+[8/23] Linking CXX shared module "AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherMicroSynth_artefacts/Release/VST3/AETHER Micro Synth.vst3
+[9/23] Linking CXX executable AetherPluginTests_artefacts\Release\AetherPluginTests.exe
+[10/23] Linking CXX executable AetherPluginTestsSynth_artefacts\Release\AetherPluginTestsSynth.exe
+[11/23] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj
+[12/23] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj
+[13/23] Linking CXX executable AetherUiSnapshots_artefacts\Release\AetherUiSnapshots.exe
+[14/23] Linking CXX executable AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe
+[15/23] Linking CXX executable AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe
+[16/23] Linking CXX executable AetherReproTool_artefacts\Release\AetherReproTool.exe
+[17/23] Linking CXX executable AetherResynthSplitFx_artefacts\Release\AetherResynthSplitFx.exe
+[18/23] Linking CXX executable AetherModTargetsFx_artefacts\Release\AetherModTargetsFx.exe
+[19/23] Linking CXX executable AetherResynthSplitSynth_artefacts\Release\AetherResynthSplitSynth.exe
+[20/23] Linking CXX executable AetherModTargetsSynth_artefacts\Release\AetherModTargetsSynth.exe
+[21/23] Linking CXX executable AetherModContractFx_artefacts\Release\AetherModContractFx.exe
+[22/23] Linking CXX executable AetherModContractSynth_artefacts\Release\AetherModContractSynth.exe
+build exit=0
+2026-10-25T23:19:27.3389913+08:00

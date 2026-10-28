@@ -1,0 +1,12 @@
+default old exit=0 : rendered 36 presets (block 480)
+default new exit=0 : rendered 36 presets (block 480)
+default : total=36 differing=0 
+fresh old exit=0 : rendered 36 presets (block 480, fresh instance per preset)
+fresh new exit=0 : rendered 36 presets (block 480, fresh instance per preset)
+fresh : total=36 differing=0 
+clamp old exit=0 : rendered 36 presets (block 480)
+clamp new exit=0 : rendered 36 presets (block 480)
+clamp : total=36 differing=0 
+fresh+clamp old exit=0 : rendered 36 presets (block 480, fresh instance per preset)
+fresh+clamp new exit=0 : rendered 36 presets (block 480, fresh instance per preset)
+fresh+clamp : total=36 differing=0 

@@ -1,0 +1,27 @@
+2026-10-25T23:24:49.3056705+08:00
+HEAD=
+Internal ctest changing into directory: C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230
+Test project C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230
+      Start  1: aether_dsp
+ 1/13 Test  #1: aether_dsp .......................   Passed    1.34 sec
+      Start  2: aether_fm
+ 2/13 Test  #2: aether_fm ........................   Passed   35.22 sec
+      Start  3: aether_modular
+ 3/13 Test  #3: aether_modular ...................   Passed    7.88 sec
+      Start  4: aether_source
+ 4/13 Test  #4: aether_source ....................   Passed   11.68 sec
+      Start  5: aether_plugin
+ 5/13 Test  #5: aether_plugin ....................   Passed   69.87 sec
+      Start  6: aether_plugin_synth_ui
+ 6/13 Test  #6: aether_plugin_synth_ui ...........   Passed   57.79 sec
+      Start  7: aether_fixtures
+ 7/13 Test  #7: aether_fixtures ..................   Passed   49.06 sec
+      Start  8: aether_split_unchanged
+ 8/13 Test  #8: aether_split_unchanged ...........   Passed   42.28 sec
+      Start  9: aether_resynth_split
+ 9/13 Test  #9: aether_resynth_split .............   Passed   45.32 sec
+      Start 10: aether_mod_targets
+10/13 Test #10: aether_mod_targets ...............   Passed  312.12 sec
+      Start 11: aether_modtargets_invariant
+11/13 Test #11: aether_modtargets_invariant ......   Passed  1295.46 sec
+      Start 12: aether_modtargets_new

@@ -1,0 +1,8 @@
+# heapfill-regress f1 new destinations B-chaos (depth 0.5) start 2026-10-28 15:55:40 Asia/Shanghai exe=C:\Users\24168\Documents\Projects\wt-integration-230\build-integ-230\AetherReproTool_artefacts\Release\AetherReproTool.exe built=10/28/2026 15:18:00
+== default baseline(fill 0x00, block 256) sha=f16ed92f4f8f ; no-fill-env run: sha=f16ed92f4f8f (same=True)
+default SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+== factory-12 baseline(fill 0x00, block 256) sha=507d524e4a3e ; no-fill-env run: sha=507d524e4a3e (same=True)
+factory-12 SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+== custom-graph-fm baseline(fill 0x00, block 256) sha=0a70b0decdf5 ; no-fill-env run: sha=0a70b0decdf5 (same=True)
+custom-graph-fm SUMMARY runs=18 differ_from_baseline=0 distinct_hashes=1
+# heapfill-regress f1 new destinations B-chaos (depth 0.5) end 2026-10-28 15:56:12 TOTAL runs=54 differ_from_baseline=0

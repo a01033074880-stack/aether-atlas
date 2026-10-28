@@ -1,0 +1,7 @@
+Authoritative version (CMakeLists.txt): 2.2.0
+ALLOWED  Source/PluginProcessor.cpp:31: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:484: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PluginProcessor.cpp:525: literal '2.0.0' allowed: host-state ValueTree "version" is write-only informational metadata; compatibility is decided by the integer "schema" (1..3). Kept so this patch release does not touch code; follow-up: derive from JucePlugin_VersionString.
+ALLOWED  Source/PresetManager.cpp:124: literal '2.0.0' allowed: .aether preset JSON "version" is informational (loadPreset checks product + schema only). Same follow-up as above.
+ALLOWED  tools/RenderAtlas.cpp:30: literal '2.0.0' allowed: version field of the generated Atlas-module-catalog.json (tool output metadata); tools/ code is out of scope for this patch.
+OK: all checked files are consistent with version 2.2.0 (5 allowlisted code literal(s)).

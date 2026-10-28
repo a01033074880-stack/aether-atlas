@@ -1,0 +1,253 @@
+2026-10-25T21:38:19.7490068+08:00
+Test project C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230
+      Start  1: aether_dsp
+ 1/13 Test  #1: aether_dsp .......................   Passed    1.82 sec
+      Start  2: aether_fm
+ 2/13 Test  #2: aether_fm ........................   Passed   22.91 sec
+      Start  3: aether_modular
+ 3/13 Test  #3: aether_modular ...................   Passed    8.35 sec
+      Start  4: aether_source
+ 4/13 Test  #4: aether_source ....................   Passed   13.15 sec
+      Start  5: aether_plugin
+ 5/13 Test  #5: aether_plugin ....................***Failed   42.01 sec
+PASS stable parameter contract
+PASS host bypass is transparent, including odd blocks
+PASS host parameter display and text entry round trip units
+PASS active space freeze reports infinite host tail
+PASS Atlas freeze modulation and cyclic routing advertise persistent tails
+PASS host tail covers the longest legal six-operator release
+PASS all-parameter keyboard edits activate custom graph and FM routing
+PASS DAW state round trip and invalid payload
+PASS Atlas schema 2 stores custom routing FM and modulation
+PASS v1 schema restores the legacy sound path
+PASS source layer: parameter contract (ids, versions, defaults, old order)
+PASS source layer: schema 3 round trip; schema 1/2 saves return to source Off
+PASS source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path
+  Input -6.0206 dB, engine 1: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -6.0206 dB, engine 2: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -12.0412 dB, engine 1: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input -12.0412 dB, engine 2: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input 6.0206 dB, engine 1: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+  Input 6.0206 dB, engine 2: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+PASS source layer: Input gain scales the source like the FM path
+  clampModeForPluginType: effect {0,1,2}->{0,1,0}, synth {0,1,2}->{2,2,2}; processor renders match the unclamped reference bit for bit
+PASS mode clamp: pure mapping for both plugin types, and the processor applies it where the mode is read
+  engine 1: energy tone1 325.792, gap 144.947, tone2 25.6943
+  engine 1: gap energy source off (chain tail only) 465.689
+  engine 1: max |difference| between block 480 and blocks 64/37: 0
+  engine 2: energy tone1 139.306, gap 104.262, tone2 18.3781
+  engine 2: gap energy source off (chain tail only) 465.689
+  engine 2: max |difference| between block 480 and blocks 64/37: 0
+  input 220 Hz -> source sine at 219.999 Hz
+  input 330 Hz -> source sine at 329.993 Hz
+  input 110 Hz -> source sine at 110.006 Hz
+  transpose +12 st: input 220 Hz -> 439.987 Hz
+PASS Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch)
+PASS Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled)
+  engine 1: energy 854.921 peak 0.589298, repeat diff 0, block 64 diff 0, block 192 diff 0
+  engine 2: energy 455.747 peak 0.42293, repeat diff 0, block 64 diff 0, block 192 diff 0
+PASS source layer: automating seed, antialias and sound parameters is finite, deterministic and block-size independent
+PASS module assignment and custom cabling drive stable parameters
+PASS first custom FM edit preserves the current algorithm morph
+PASS FM remains enabled when the Atlas effects graph is bypassed
+PASS audio-driven FM and pitch modulation do not depend on host block cuts
+PASS all factory presets render finite stereo
+PASS user preset JSON roundtrip and validation
+PASS A/B snapshots restore independent values
+PASS mono layout, repeated prepare and rates
+PASS sample-offset MIDI starts only at its timestamp
+PASS external FX sidechain excites resonance without direct leakage
+PASS editor lifecycle and rendered snapshots
+PASS Atlas editor zoom switches between 50, 75 and 100 percent
+PASS Atlas content fits the window at minimum, default and maximum sizes
+PASS Atlas zoom presets keep content scale equal to the zoom
+  edition AETHER Micro (FX + Resynth)
+  placeholder destinations: tightest fit 5 px spare for "Source / Amplitude barrier" at page 2 zoom.50 720x450
+  edition AETHER Micro Synth (Synth only)
+  placeholder destinations: tightest fit 5 px spare for "Source / Amplitude barrier" at page 2 zoom.50 720x450
+PASS Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size (both plugin editions)
+PASS Atlas page notices (Patch / FM / Motion) follow edition, Mode and the Six operator engine
+  edition 0: Motion sources None, LFO 1, LFO 2, LFO 3, LFO 4, Envelope, Velocity, Pitch, Random Hold, Chaos
+  edition 1: Motion sources None, LFO 1, LFO 2, LFO 3, LFO 4, Envelope, Velocity, Pitch, Random Hold, Chaos
+PASS Atlas Synth edition: Envelope / Pitch sources and the input sends stay bound to the real parameters and explain themselves
+FAIL Atlas Motion destination selector: grouped headings, unchanged indices, room for the Source and FM groups (placeholder list): destination count 113
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+PASS Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)
+PASS Atlas Mode picker offers only the modes of the plugin edition, keeps real parameter indices and falls back sensibly
+  compile-time edition: AETHER Micro, Mode items 1:FX|2:Resynth
+PASS Atlas Mode picker follows the compile-time plugin edition (JucePlugin_IsSynth) when no override is set
+RESULT 38 tests passed, 1 failed, 0 skipped
+
+      Start  6: aether_plugin_synth_ui
+ 6/13 Test  #6: aether_plugin_synth_ui ...........***Failed   31.26 sec
+PASS stable parameter contract
+SKIP host bypass is transparent, including odd blocks (Synth edition): host bypass is an effect-only feature (the instrument edition has no audio input to pass through)
+PASS host parameter display and text entry round trip units
+PASS active space freeze reports infinite host tail
+PASS Atlas freeze modulation and cyclic routing advertise persistent tails
+PASS host tail covers the longest legal six-operator release
+PASS all-parameter keyboard edits activate custom graph and FM routing
+PASS DAW state round trip and invalid payload
+PASS Atlas schema 2 stores custom routing FM and modulation
+PASS v1 schema restores the legacy sound path
+PASS source layer: parameter contract (ids, versions, defaults, old order)
+PASS source layer: schema 3 round trip; schema 1/2 saves return to source Off
+PASS source layer: both engines render deterministic block-independent audio; Off and non-Synth modes are bit-identical to old path
+  Input -6.0206 dB, engine 1: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -6.0206 dB, engine 2: source rms ratio 0.500007 (FM path 0.500007, expected 0.5)
+  Input -12.0412 dB, engine 1: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input -12.0412 dB, engine 2: source rms ratio 0.250004 (FM path 0.250004, expected 0.25)
+  Input 6.0206 dB, engine 1: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+  Input 6.0206 dB, engine 2: source rms ratio 1.99999 (FM path 1.99999, expected 2)
+PASS source layer: Input gain scales the source like the FM path
+  clampModeForPluginType: effect {0,1,2}->{0,1,0}, synth {0,1,2}->{2,2,2}; processor renders match the unclamped reference bit for bit
+PASS mode clamp: pure mapping for both plugin types, and the processor applies it where the mode is read
+SKIP Resynth + Source: input audio drives the source (finite, deterministic, block independent, follows the input pitch) (Synth edition): Resynth needs audio input; the instrument edition has no audio input and always runs Synth (its Source behaviour is covered by aether_resynth_split, Synth form)
+SKIP Resynth + Source: Source Off keeps FX, Resynth and Synth outputs bit-identical (engine Off, Off with parameters, source disabled) (Synth edition): FX/Resynth reference renders need audio input, which the instrument edition does not have (reference would be silent); Synth Source-off identity is covered by aether_split_unchanged, Synth form
+  engine 1: energy 854.921 peak 0.589298, repeat diff 0, block 64 diff 0, block 192 diff 0
+  engine 2: energy 455.747 peak 0.42293, repeat diff 0, block 64 diff 0, block 192 diff 0
+PASS source layer: automating seed, antialias and sound parameters is finite, deterministic and block-size independent
+PASS module assignment and custom cabling drive stable parameters
+PASS first custom FM edit preserves the current algorithm morph
+PASS FM remains enabled when the Atlas effects graph is bypassed
+SKIP audio-driven FM and pitch modulation do not depend on host block cuts (Synth edition): needs audio input and Resynth; the instrument edition always runs Synth mode
+PASS all factory presets render finite stereo
+PASS user preset JSON roundtrip and validation
+PASS A/B snapshots restore independent values
+SKIP mono layout, repeated prepare and rates (Synth edition): the test configures mono on the Input bus, which the instrument edition does not have (it has no audio input)
+PASS sample-offset MIDI starts only at its timestamp
+SKIP external FX sidechain excites resonance without direct leakage (Synth edition): needs the external sidechain input bus, which the instrument edition does not have
+PASS editor lifecycle and rendered snapshots
+PASS Atlas editor zoom switches between 50, 75 and 100 percent
+PASS Atlas content fits the window at minimum, default and maximum sizes
+PASS Atlas zoom presets keep content scale equal to the zoom
+  edition AETHER Micro (FX + Resynth)
+  placeholder destinations: tightest fit 5 px spare for "Source / Amplitude barrier" at page 2 zoom.50 720x450
+  edition AETHER Micro Synth (Synth only)
+  placeholder destinations: tightest fit 5 px spare for "Source / Amplitude barrier" at page 2 zoom.50 720x450
+PASS Atlas text is readable, untruncated and non-overlapping at every zoom preset and window size (both plugin editions)
+PASS Atlas page notices (Patch / FM / Motion) follow edition, Mode and the Six operator engine
+  edition 0: Motion sources None, LFO 1, LFO 2, LFO 3, LFO 4, Envelope, Velocity, Pitch, Random Hold, Chaos
+  edition 1: Motion sources None, LFO 1, LFO 2, LFO 3, LFO 4, Envelope, Velocity, Pitch, Random Hold, Chaos
+PASS Atlas Synth edition: Envelope / Pitch sources and the input sends stay bound to the real parameters and explain themselves
+FAIL Atlas Motion destination selector: grouped headings, unchanged indices, room for the Source and FM groups (placeholder list): destination count 113
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.100): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+  source extremes (zoom.50): transpose "-24.00 st" .. "24.00 st", release max "12.00 s", vpsratio "1.00 x" .. "16.00 x"
+PASS Atlas Source panel: controls drive the 28 host parameters; engine, Mode and On change the visible set and notice (both plugin editions)
+PASS Atlas Mode picker offers only the modes of the plugin edition, keeps real parameter indices and falls back sensibly
+  compile-time edition: AETHER Micro Synth, Mode items 3:Synth
+PASS Atlas Mode picker follows the compile-time plugin edition (JucePlugin_IsSynth) when no override is set
+RESULT 32 tests passed, 1 failed, 6 skipped
+
+      Start  7: aether_fixtures
+ 7/13 Test  #7: aether_fixtures ..................   Passed   50.12 sec
+      Start  8: aether_split_unchanged
+ 8/13 Test  #8: aether_split_unchanged ...........   Passed   45.62 sec
+      Start  9: aether_resynth_split
+ 9/13 Test  #9: aether_resynth_split .............   Passed   46.10 sec
+      Start 10: aether_mod_targets
+10/13 Test #10: aether_mod_targets ...............   Passed  313.90 sec
+      Start 11: aether_modtargets_invariant
+11/13 Test #11: aether_modtargets_invariant ......   Passed  1239.27 sec
+      Start 12: aether_modtargets_new
+12/13 Test #12: aether_modtargets_new ............   Passed   63.06 sec
+      Start 13: aether_modtargets_schema4
+13/13 Test #13: aether_modtargets_schema4 ........***Failed    4.01 sec
+-- === C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherModContractFx_artefacts/Release/AetherModContractFx.exe --group schema4
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Clean Canvas.aether  (44 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Copper Strings.aether  (42 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Ember Guitar.aether  (40 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Gentle Orbit.aether  (41 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Glass Resonator.aether  (41 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Iron Drum Room.aether  (44 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Nebula Drift.aether  (47 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Prism Keys.aether  (45 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Resynth Halo.aether  (43 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Vocal Silhouette.aether  (42 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Warm Console.aether  (40 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Wooden Echoes.aether  (39 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/ab-snapshot-b.bin  (57 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/custom-graph-fm.bin  (58 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/default.bin  (61 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-00-Gentle-Orbit.bin  (56 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-05-Iron-Drum-Room.bin  (56 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-11-Copper-Strings.bin  (55 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-12-Atlas---Suspended-Paper.bin  (52 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-20-Atlas---Frozen-Architecture.bin  (52 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-35-Motion---Stochastic-Room.bin  (53 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/default  (35 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/rows-le84  (37 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/rows-le84-graph-on-mix  (36 ms)
+PASS [schema4] s2a a save with a destination > 84 is written as schema 4  (21 ms)
+PASS [schema4] s2b schema 4 reads back with every destination index unchanged, and saving again keeps schema 4  (92 ms)
+PASS [schema4] s2c the schema follows the content: moving every destination back to <= 84 saves schema 3 again  (31 ms)
+PASS [schema4] s3a 2.3.0 reads schema 1, 2 and 3  (82 ms)
+PASS [schema4] s3b 2.3.0 reads schema 4  (40 ms)
+PASS [schema4] s4a schema 5 (and 99) is refused and does not change the running state  (127 ms)
+PASS [schema4] s4b schema 0 / negative schema stays refused (unchanged rule)  (130 ms)
+FAIL [schema4] s4c a truncated schema 4 save is refused and does not change the running state: schema 4 cut to 59142 bytes changed the running state (global.mix=0.2)  (113 ms)
+PASS [schema4] s4d a schema 4 save with a wrong root tag, or garbage after the header, is refused and does not change the running state  (130 ms)
+RESULT [schema4] 32 passed, 1 failed (fx form)
+-- === FAILED (exit 1): C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherModContractFx_artefacts/Release/AetherModContractFx.exe
+-- === C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherModContractSynth_artefacts/Release/AetherModContractSynth.exe --group schema4
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Clean Canvas.aether  (35 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Copper Strings.aether  (36 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Ember Guitar.aether  (35 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Gentle Orbit.aether  (36 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Glass Resonator.aether  (34 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Iron Drum Room.aether  (35 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Nebula Drift.aether  (35 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Prism Keys.aether  (44 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Resynth Halo.aether  (38 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Vocal Silhouette.aether  (39 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Warm Console.aether  (34 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: presets-v1.0.0/Wooden Echoes.aether  (36 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/ab-snapshot-b.bin  (54 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/custom-graph-fm.bin  (55 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/default.bin  (58 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-00-Gentle-Orbit.bin  (56 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-05-Iron-Drum-Room.bin  (58 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-11-Copper-Strings.bin  (55 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-12-Atlas---Suspended-Paper.bin  (64 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-20-Atlas---Frozen-Architecture.bin  (64 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: state-v2.0.1/factory-35-Motion---Stochastic-Room.bin  (58 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/default  (48 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/rows-le84  (52 ms)
+PASS [schema4] s1 old save still saves as schema 3 and as the same canonical state as 2.2.0: synthetic/rows-le84-graph-on-mix  (58 ms)
+PASS [schema4] s2a a save with a destination > 84 is written as schema 4  (28 ms)
+PASS [schema4] s2b schema 4 reads back with every destination index unchanged, and saving again keeps schema 4  (114 ms)
+PASS [schema4] s2c the schema follows the content: moving every destination back to <= 84 saves schema 3 again  (37 ms)
+PASS [schema4] s3a 2.3.0 reads schema 1, 2 and 3  (91 ms)
+PASS [schema4] s3b 2.3.0 reads schema 4  (44 ms)
+PASS [schema4] s4a schema 5 (and 99) is refused and does not change the running state  (146 ms)
+PASS [schema4] s4b schema 0 / negative schema stays refused (unchanged rule)  (140 ms)
+FAIL [schema4] s4c a truncated schema 4 save is refused and does not change the running state: schema 4 cut to 59145 bytes changed the running state (global.mix=0.2)  (114 ms)
+PASS [schema4] s4d a schema 4 save with a wrong root tag, or garbage after the header, is refused and does not change the running state  (140 ms)
+RESULT [schema4] 32 passed, 1 failed (synth form)
+-- === FAILED (exit 1): C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherModContractSynth_artefacts/Release/AetherModContractSynth.exe
+CMake Error at C:/Users/24168/Documents/Projects/wt-integration-230/tests/RunSplitGroup.cmake:13 (message):
+  group 'schema4' failed
+
+
+
+
+77% tests passed, 3 tests failed out of 13
+
+Label Time Summary:
+pending-2.3.0-destinations    =  63.06 sec*proc (1 test)
+pending-2.3.0-schema4         =   4.01 sec*proc (1 test)
+
+Total Test time (real) = 1881.64 sec
+
+The following tests FAILED:
+	  5 - aether_plugin (Failed)
+	  6 - aether_plugin_synth_ui (Failed)
+	 13 - aether_modtargets_schema4 (Failed)                pending-2.3.0-schema4
+Errors while running CTest
+ctest exit=8
+2026-10-25T22:09:41.4693811+08:00

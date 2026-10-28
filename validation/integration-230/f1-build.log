@@ -1,0 +1,257 @@
+2026-10-28T15:16:23.7162574+08:00
+HEAD=fd7e43c
+[0/2] Re-checking globbed directories...
+[1/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\wavefolder.cpp.obj
+[2/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Sampling\granularplayer.cpp.obj
+[3/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\decimator.cpp.obj
+[4/78] Building CXX object CMakeFiles\aether_dsp.dir\libs\aether-dsp\src\Engine.cpp.obj
+[5/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Control\phasor.cpp.obj
+[6/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Effects\chorus.cpp.obj
+[7/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Filters\ladder.cpp.obj
+[8/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Utility\dcblock.cpp.obj
+[9/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\resonator.cpp.obj
+[10/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\PhysicalModeling\KarplusString.cpp.obj
+[11/78] Linking CXX static library aether_dsp.lib
+[12/78] Building CXX object CMakeFiles\atlas_daisy.dir\third_party\DaisySP\Source\Dynamics\crossfade.cpp.obj
+[13/78] Building CXX object CMakeFiles\aether_fm.dir\libs\aether-fm\src\FmSynth.cpp.obj
+[14/78] Linking CXX static library atlas_daisy.lib
+[15/78] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData1.cpp.obj
+[16/78] Building CXX object CMakeFiles\AetherAssets.dir\juce_binarydata_AetherAssets\JuceLibraryCode\BinaryData2.cpp.obj
+[17/78] Building CXX object CMakeFiles\aether_source.dir\libs\aether-source\src\Source.cpp.obj
+[18/78] Linking CXX static library aether_fm.lib
+[19/78] Linking CXX static library aether_source.lib
+[20/78] Linking CXX static library AetherAssets.lib
+[21/78] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Metadata.cpp.obj
+[22/78] Building CXX object CMakeFiles\aether_modular.dir\libs\aether-modular\src\Modular.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-230\libs\aether-modular\src\ModuleState.h(70): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[23/78] Linking CXX static library aether_modular.lib
+[24/78] Building CXX object CMakeFiles\AetherMicro.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: “初始化”: 从“_Ty”转换到“_Ty2”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PresetManager.cpp(9): note: 查看对正在编译的函数 模板 实例化“std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept”的引用
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PresetManager.cpp(7): note: 请参阅 "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" 中对 "std::pair<const char *,float>::pair" 的第一个引用
+[25/78] Building CXX object CMakeFiles\AetherMicro.dir\Source\AtlasParameters.cpp.obj
+[26/78] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginProcessor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginProcessor.cpp(448): warning C4100: 'buffer': 未引用的参数
+[27/78] Building CXX object CMakeFiles\AetherMicro.dir\Source\Parameters.cpp.obj
+[28/78] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\AtlasParameters.cpp.obj
+[29/78] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PresetManager.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): warning C4244: “初始化”: 从“_Ty”转换到“_Ty2”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+        and
+        [
+            _Ty2=float
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\utility(274): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PresetManager.cpp(9): note: 查看对正在编译的函数 模板 实例化“std::pair<const char *,float>::pair<const char(&)[16],int,0>(_Other1,_Other2 &&) noexcept”的引用
+        with
+        [
+            _Other1=const char (&)[16],
+            _Other2=int
+        ]
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PresetManager.cpp(7): note: 请参阅 "void __cdecl `anonymous namespace'::`dynamic initializer for 'factories''(void)" 中对 "std::pair<const char *,float>::pair" 的第一个引用
+[30/78] Building CXX object CMakeFiles\AetherMicro.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(45): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(440): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)”时
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: 查看对正在编译的 类 模板 实例化“juce::Line<float>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 在编译 类 模板 成员函数“juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: 请参阅 "juce::RenderingHelpers::closestPointOnInfiniteLine" 中对 "juce::Line<float>::getIntersection" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>”的引用
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const”时
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: 查看对正在编译的函数 模板 实例化“void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const”的引用
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[31/78] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\Parameters.cpp.obj
+[32/78] Building CXX object CMakeFiles\AetherRender.dir\tools\RenderAudio.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-230\tools\RenderAudio.cpp(36): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[33/78] Building CXX object CMakeFiles\AetherAtlasRender.dir\tools\RenderAtlas.cpp.obj
+[34/78] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginProcessor.cpp.obj
+[35/78] Building CXX object CMakeFiles\AetherFmTests.dir\tests\FmTests.cpp.obj
+[36/78] Building CXX object CMakeFiles\AetherMicroSynth.dir\Source\PluginEditor.cpp.obj
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(45): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(440): warning C4996: 'juce::AffineTransform::getScaleFactor': This method produces incorrect values for transforms containing rotations. See the method docs for a code example on how to calculate the correct scale factor.
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsSoftwareRenderer.h(48): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(const juce::Line<float> &)”时
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\contexts/juce_LowLevelGraphicsContext.h(128): note: 查看对正在编译的 类 模板 实例化“juce::Line<float>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_Line.h(174): note: 在编译 类 模板 成员函数“juce::Point<float> juce::Line<float>::getIntersection(juce::Line<float>) noexcept const”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(342): note: 请参阅 "juce::RenderingHelpers::closestPointOnInfiniteLine" 中对 "juce::Line<float>::getIntersection" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2405): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>”的引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2279): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine(juce::Line<float>)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2619): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::drawLine" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): warning C4459: “line”的声明隐藏了全局声明
+C:\Users\24168\Documents\Projects\wt-integration-230\Source\PluginEditor.cpp(46): note: 参见“`anonymous-namespace'::line”的声明
+C:\SDKs\JUCE\modules\juce_graphics\geometry/juce_EdgeTable.h(118): note: 模板实例化上下文(最早的实例化上下文)为
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2256): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath(const juce::Path &,const juce::AffineTransform &)”时
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2617): note: 请参阅 "juce::RenderingHelpers::StackBasedLowLevelGraphicsContext<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 中对 "juce::RenderingHelpers::SavedStateBase<juce::RenderingHelpers::SoftwareRendererSavedState>::fillPath" 的第一个引用
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2264): note: 查看对正在编译的 类 模板 实例化“juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>”的引用
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1706): note: 在编译 类 模板 成员函数“void juce::RenderingHelpers::ClipRegions::EdgeTableRegion<SavedStateType>::renderImageUntransformed(SavedStateType &,const juce::Image &,int,int,int,bool) const”时
+        with
+        [
+            SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1708): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::SoftwareRendererSavedState::renderImageUntransformed<const juce::EdgeTable>(IteratorType &,const juce::Image &,int,int,int,bool) const”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(2482): note: 查看对正在编译的函数 模板 实例化“void juce::RenderingHelpers::EdgeTableFillers::renderImageUntransformed<IteratorType>(Iterator &,const juce::Image::BitmapData &,const juce::Image::BitmapData &,int,int,int,bool)”的引用
+        with
+        [
+            IteratorType=const juce::EdgeTable,
+            Iterator=const juce::EdgeTable
+        ]
+C:\SDKs\JUCE\modules\juce_graphics\native/juce_RenderingHelpers.h(1433): note: 查看对正在编译的函数 模板 实例化“void juce::EdgeTable::iterate<juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>>(EdgeTableIterationCallback &) noexcept const”的引用
+        with
+        [
+            EdgeTableIterationCallback=juce::RenderingHelpers::EdgeTableFillers::ImageFill<juce::PixelARGB,juce::PixelARGB,true>
+        ]
+[37/78] Building CXX object CMakeFiles\AetherDspTests.dir\tests\DspTests.cpp.obj
+[38/78] Building CXX object CMakeFiles\AetherModularTests.dir\tests\ModularTests.cpp.obj
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): warning C4244: “=”: 从“const _Ty”转换到“float”，可能丢失数据
+        with
+        [
+            _Ty=int
+        ]
+C:\SDKs\AetherBuildTools\VC\Tools\MSVC\14.44.35207\include\xutility(5310): note: 模板实例化上下文(最早的实例化上下文)为
+C:\Users\24168\Documents\Projects\wt-integration-230\tests\ModularTests.cpp(263): note: 查看对正在编译的函数 模板 实例化“void std::fill<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,int>(const _FwdIt,const _FwdIt,const int &)”的引用
+        with
+        [
+            _Ty=float,
+            _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<float>>>
+        ]
+[39/78] Linking CXX static library "AetherMicro_artefacts\Release\AETHER Micro_SharedCode.lib"
+[40/78] Linking CXX static library "AetherMicroSynth_artefacts\Release\AETHER Micro Synth_SharedCode.lib"
+[41/78] Building CXX object CMakeFiles\AetherSourceTests.dir\tests\SourceTests.cpp.obj
+[42/78] Building CXX object CMakeFiles\AetherSourceBench.dir\tools\BenchSource.cpp.obj
+[43/78] Building CXX object CMakeFiles\AetherRenderPresets.dir\tools\RenderPresets.cpp.obj
+[44/78] Building CXX object CMakeFiles\AetherUiSnapshots.dir\tools\RenderUiSnapshots.cpp.obj
+[45/78] Building CXX object CMakeFiles\AetherPluginTests.dir\tests\PluginTests.cpp.obj
+[46/78] Building CXX object CMakeFiles\AetherPluginTestsSynth.dir\tests\PluginTests.cpp.obj
+[47/78] Building CXX object CMakeFiles\AetherFixtureTests.dir\tests\FixtureTests.cpp.obj
+[48/78] Building CXX object CMakeFiles\AetherReproTool.dir\tests\repro\ReproTool.cpp.obj
+[49/78] Building CXX object CMakeFiles\AetherResynthSplitFx.dir\tests\ResynthSplitTests.cpp.obj
+[50/78] Building CXX object CMakeFiles\AetherModTargetsFx.dir\tests\ModTargetTests.cpp.obj
+[51/78] Building CXX object CMakeFiles\AetherResynthSplitSynth.dir\tests\ResynthSplitTests.cpp.obj
+[52/78] Linking CXX executable AetherAtlasRender.exe
+[53/78] Linking CXX executable AetherRender.exe
+[54/78] Linking CXX executable AetherDspTests.exe
+[55/78] Linking CXX executable AetherFmTests.exe
+[56/78] Linking CXX executable AetherModularTests.exe
+[57/78] Linking CXX executable AetherSourceTests.exe
+[58/78] Linking CXX executable AetherSourceBench.exe
+[59/78] Building CXX object CMakeFiles\AetherModTargetsSynth.dir\tests\ModTargetTests.cpp.obj
+[60/78] Linking CXX executable "AetherMicro_artefacts\Release\Standalone\AETHER Micro.exe"
+[61/78] Linking CXX shared module "AetherMicro_artefacts\Release\VST3\AETHER Micro.vst3\Contents\x86_64-win\AETHER Micro.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherMicro_artefacts/Release/VST3/AETHER Micro.vst3
+[62/78] Linking CXX executable "AetherMicroSynth_artefacts\Release\Standalone\AETHER Micro Synth.exe"
+[63/78] Linking CXX executable AetherPluginTests_artefacts\Release\AetherPluginTests.exe
+[64/78] Linking CXX shared module "AetherMicroSynth_artefacts\Release\VST3\AETHER Micro Synth.vst3\Contents\x86_64-win\AETHER Micro Synth.vst3"
+removing moduleinfo.json
+creating C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230/AetherMicroSynth_artefacts/Release/VST3/AETHER Micro Synth.vst3
+[65/78] Building CXX object CMakeFiles\AetherModContractFx.dir\tests\ModDestinationContractTests.cpp.obj
+[66/78] Building CXX object CMakeFiles\AetherModContractSynth.dir\tests\ModDestinationContractTests.cpp.obj
+[67/78] Linking CXX executable AetherPluginTestsSynth_artefacts\Release\AetherPluginTestsSynth.exe
+[68/78] Linking CXX executable AetherUiSnapshots_artefacts\Release\AetherUiSnapshots.exe
+[69/78] Linking CXX executable AetherRenderPresets_artefacts\Release\AetherRenderPresets.exe
+[70/78] Linking CXX executable AetherFixtureTests_artefacts\Release\AetherFixtureTests.exe
+[71/78] Linking CXX executable AetherReproTool_artefacts\Release\AetherReproTool.exe
+[72/78] Linking CXX executable AetherResynthSplitFx_artefacts\Release\AetherResynthSplitFx.exe
+[73/78] Linking CXX executable AetherModTargetsFx_artefacts\Release\AetherModTargetsFx.exe
+[74/78] Linking CXX executable AetherResynthSplitSynth_artefacts\Release\AetherResynthSplitSynth.exe
+[75/78] Linking CXX executable AetherModTargetsSynth_artefacts\Release\AetherModTargetsSynth.exe
+[76/78] Linking CXX executable AetherModContractFx_artefacts\Release\AetherModContractFx.exe
+[77/78] Linking CXX executable AetherModContractSynth_artefacts\Release\AetherModContractSynth.exe
+build exit=0
+2026-10-28T15:18:07.0997345+08:00

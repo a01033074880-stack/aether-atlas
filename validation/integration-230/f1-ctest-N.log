@@ -1,0 +1,16 @@
+Test project C:/Users/24168/Documents/Projects/wt-integration-230/build-integ-230
+  Test  #1: aether_dsp
+  Test  #2: aether_fm
+  Test  #3: aether_modular
+  Test  #4: aether_source
+  Test  #5: aether_plugin
+  Test  #6: aether_plugin_synth_ui
+  Test  #7: aether_fixtures
+  Test  #8: aether_split_unchanged
+  Test  #9: aether_resynth_split
+  Test #10: aether_mod_targets
+  Test #11: aether_modtargets_invariant
+  Test #12: aether_modtargets_new
+  Test #13: aether_modtargets_schema4
+
+Total Tests: 13
