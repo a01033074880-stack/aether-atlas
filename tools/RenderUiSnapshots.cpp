@@ -250,7 +250,6 @@ int main(int argc,char** argv) {
     if(argc>2&&juce::String(argv[2])=="rand") {
         base.reset(); editor=nullptr;
         bool good=true;
-        AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeEngineBackend(proc); });
         for(int edition=0;edition<2;++edition) {
             AetherAudioProcessorEditor::setEditionForTesting(edition);
             AetherAudioProcessor q; q.prepareToPlay(48000,512);
@@ -272,23 +271,35 @@ int main(int argc,char** argv) {
             ed->setMinimalMode(false); ed->setWorkspace(0);
             sizes("closed",false);
             ed->performUiAction("random.open"); sizes("open",true);
-            // A roll with a pinned seed: the preset box reads "(Random) <seed>".
+            // A roll with a pinned seed: the controller renames the preset "<source> (Random) <seed>" and the popover shows the short label.
             panel->setPinned(true); panel->setSeedText("A7F3-92C1"); panel->setAmount(.6f); panel->roll(false); sizes("rolled",true);
             ed->performUiAction("random.close"); sizes("rolled-closed",false);
+            // Values edited after the roll: the popover's last line says ", edited" (hashValues(current) != recipe.resultHash).
+            ed->performUiAction("random.open");
+            setParam(q,"source.gain",q.parameterValue("source.gain")>.5f?.2f:.8f); panel->notePreset(q.currentPresetName(),q.isSnapshotB());
+            ed->performUiAction("zoom.100"); ed->setSize(1180,780); shot("edited-min-1180x780");
+            // Reserved re-rolling state (audition stage): buttons disabled, last line "Re-rolling...".
+            panel->setBusy(true); shot("busy-min-1180x780"); panel->setBusy(false);
             ed->performUiAction("random.open");
             // Lock mode: Chain, Motion and FM locked next to the default MixGlobal / System locks.
             panel->setLocked("Chain",true); panel->setLocked("Motion",true); panel->setLocked("FM",true); sizes("locks",true);
             // Full undo ring: twenty rolls leave 16 steps.
             panel->setPinned(false); for(int i=0;i<20;++i) panel->roll(false); sizes("history-full",false);
             panel->setLocked("Chain",false); panel->setLocked("Motion",false); panel->setLocked("FM",false);
-            // Randomize into B: the result sits in the B slot, A keeps the patch.
+            // Randomize into B: the result sits in face B, A stays live and keeps the patch (no host notification).
             panel->setPinned(true); panel->setSeedText("0Z9K-4Q7M"); panel->roll(true); sizes("into-b",false);
             while(panel->undo()) {}
+            // Longest factory preset name + " (Random) XXXXXXXX": the combo must still show the seed (or cut the source name, not the seed).
+            {   int longest=0; const auto names=AetherAudioProcessor::factoryPresetNames();
+                for(int i=1;i<names.size();++i) if(names[i].length()>names[longest].length()) longest=i;
+                q.setCurrentProgram(longest); panel->clearRecipe(); panel->setPinned(true); panel->setSeedText("ZZZZ-ZZZZ"); panel->roll(false);
+                panel->notePreset(q.currentPresetName(),q.isSnapshotB()); ed->performUiAction("zoom.100"); ed->setSize(1180,780); shot("longname-min-1180x780");
+                while(panel->undo()) {}
+                q.setCurrentProgram(0); panel->clearRecipe(); }
             if(edition==0) { setParam(q,"global.mode",0.f); ed->performUiAction("random.open"); sizes("fx-hint",false); }
             ed->performUiAction("random.close");
         }
         AetherAudioProcessorEditor::setEditionForTesting(-1);
-        AetherAudioProcessorEditor::setRandomizeBackendFactory({});
         return good?0:1;
     }
     struct Size { const char* name; int w,h; };
