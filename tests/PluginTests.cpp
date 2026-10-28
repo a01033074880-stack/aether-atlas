@@ -1198,7 +1198,11 @@ int main(int argc,char** argv) {
              require(total==495,"parameter total "+juce::String(total));}
             for(const auto& g:randomGroups) require(rig.panel->findChildWithID("random.lock."+g)!=nullptr,"lock chip missing: "+g);
             randomSourceLive(rig.p);
-            panel.setPinned(true);panel.setSeedText("1234-5678");panel.setAmount(.8f);
+            // The seed field must be readable before the first roll too (its text used to keep the default pale colour).
+            {panel.setOpen(true);auto* seed=panel.findChildWithID("random.seed");require(seed!=nullptr,"seed field missing");
+             if(seed->getWidth()>0) {const auto img=panel.createComponentSnapshot(seed->getBounds(),false,1.f);const auto bg=img.getPixelAt(2,2);double best=1.0;
+                 for(int y=0;y<img.getHeight();++y) for(int x=0;x<img.getWidth();++x) best=std::max(best,contrast(img.getPixelAt(x,y),bg));
+                 require(best>=4.5,"seed text contrast before the first roll: "+juce::String(best,2));}}            panel.setPinned(true);panel.setSeedText("1234-5678");panel.setAmount(.8f);
             // default: MixGlobal and System untouched, something else moves
             auto before=randomValues(rig.p);panel.roll(false);auto after=randomValues(rig.p);int moved=0;
             for(const auto& [id,v]:before) {if(!randomGroupMovable(randomGroupOf(id)))require(std::abs(after[id]-v)<1.0e-6f,"locked "+randomGroupOf(id)+" value moved: "+id);else if(std::abs(after[id]-v)>1.0e-6f)++moved;}

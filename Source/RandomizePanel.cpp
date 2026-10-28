@@ -325,6 +325,8 @@ void RandomizePanel::resized() {
     y+=3*buttonH+2*8+16;
     rows.presetLabel={pad,y,56,24}; rows.presetValue={pad+64,y,inner-64,24}; rows.presetSource={pad,y+24,inner,20}; rows.hintLine={pad,y+44,inner,20}; rows.lastLine={pad,y+64,inner,20};
     seedEdit.applyFontToAllText(style.font?style.font(juce::jmax(12.f,floorSize())):juce::Font(juce::FontOptions(12.f)),true);
+    // The seed text is inserted in the constructor, before the editor sees the look-and-feel colours; repaint it in ink or it stays near-invisible until the first roll.
+    seedEdit.setColour(juce::TextEditor::textColourId,style.ink); seedEdit.applyColourToAllText(style.ink,true);
     seedEdit.setJustification(juce::Justification::centredLeft);
 }
 bool RandomizePanel::keyPressed(const juce::KeyPress& k) { if(k==juce::KeyPress::escapeKey) { setOpen(false); return true; } return false; }
