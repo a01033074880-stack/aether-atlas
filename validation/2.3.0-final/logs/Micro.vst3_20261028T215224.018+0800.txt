@@ -1,0 +1,10 @@
+Random seed: 0x39b607b
+Validation started
+Strictness level: 5
+-----------------------------------------------------------------
+Starting tests in: pluginval / Scan for plugins located in: C:\Users\24168\Documents\Projects\wt-integration-230final\Micro.vst3...
+Num plugins found: 0
+!!! Test 1 failed: No types found. This usually means the plugin binary is missing or damaged, an incompatible format or that it is an AU that isn't found by macOS so can't be created.
+There was no plugin file found at: C:\Users\24168\Documents\Projects\wt-integration-230final\Micro.vst3
+FAILED!!  1 test failed, out of a total of 1
+FAILURE
