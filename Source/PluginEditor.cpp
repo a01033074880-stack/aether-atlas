@@ -170,7 +170,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     InstrumentSlider cableGain;juce::TextButton removeCable{"Remove cable"};
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cableAttachment;
     std::unique_ptr<juce::FileChooser> chooser;std::vector<int> browserItems;
-    std::unique_ptr<aether::ui::RandomizeBackend> randomBackend;std::unique_ptr<aether::ui::RandomizePanel> randomPanel;juce::TextButton randomRoll{"Randomize"};std::unique_ptr<aether::ui::GlyphButton> randomCaret;
+    std::unique_ptr<aether::ui::RandomizeBackend> randomBackend;std::unique_ptr<aether::ui::RandomizePanel> randomPanel;juce::TextButton randomRoll{"Randomize"},randomMotion{"Randomize Motion"};std::unique_ptr<aether::ui::GlyphButton> randomCaret;
     juce::Rectangle<int> content,left,right,stage,footer;std::array<juce::Point<float>,12> nodePoints{};
     int workspace=0,slot=0,lastType=-1,lastEngine=-1,source=-1,selectedSource=-1,selectedDestination=-1;bool minimal=false,compact=false;float zoomFactor=1.f;juce::Point<float> cableEnd;juce::String currentName;
     Impl(AetherAudioProcessorEditor& o,AetherAudioProcessor& proc):owner(o),p(proc){
@@ -351,7 +351,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     void resized()override{resizedLayout();positionRandomPanel();}
     void resizedLayout(){
         if(compact){resizedCompact();return;}
-        auto r=getLocalBounds().reduced(26,0);auto top=r.removeFromTop(104);auto tabs=top.withY(60).withHeight(31);tabs.removeFromLeft(215);for(auto* b:{&patchTab,&fmTab,&motionTab,&sourceTab})b->setBounds(tabs.removeFromLeft(119).reduced(3,0));zoom.setBounds(top.getRight()-208,20,92,28);minimalButton.setBounds(top.getRight()-103,20,103,28);help.setBounds(590,20,28,28);if(randomCaret){randomRoll.setButtonText("Randomize");randomRoll.setBounds(446,20,96,28);randomCaret->setBounds(542,20,24,28);}noticeLabel.setBounds(733,60,juce::jmax(0,top.getRight()-733),31);
+        auto r=getLocalBounds().reduced(26,0);auto top=r.removeFromTop(104);auto tabs=top.withY(60).withHeight(31);tabs.removeFromLeft(215);for(auto* b:{&patchTab,&fmTab,&motionTab,&sourceTab})b->setBounds(tabs.removeFromLeft(119).reduced(3,0));zoom.setBounds(top.getRight()-208,20,92,28);minimalButton.setBounds(top.getRight()-103,20,103,28);help.setBounds(590,20,28,28);if(randomCaret){randomRoll.setButtonText("Randomize");randomRoll.setBounds(446,20,96,28);randomCaret->setBounds(542,20,24,28);}{const bool motionRoll=randomCaret&&workspace==2&&!minimal;randomMotion.setBounds(733,60,motionRoll?150:0,31);const int noticeX=motionRoll?733+158:733;noticeLabel.setBounds(noticeX,60,juce::jmax(0,top.getRight()-noticeX),31);}
         auto tools=top.withY(20).withHeight(28);tools.removeFromLeft(625);presets.setBounds(tools.removeFromLeft(juce::jmax(140,tools.getWidth()-402)));tools.removeFromLeft(8);for(auto* b:{&load,&save,&ab})b->setBounds(tools.removeFromLeft(59).reduced(3,0));
         footer={26,getHeight()-96,getWidth()-52,76};content={26,114,getWidth()-52,getHeight()-222};
         auto fr=footer.withY(footer.getY()+22).withHeight(48);for(int i=0;i<3;++i)globals[size_t(i)]->setBounds(fr.removeFromLeft(juce::jmax(120,footer.getWidth()/7)).reduced(0,1));fr.removeFromLeft(18);globals[3]->setBounds(fr.removeFromLeft(126));globals[4]->setBounds(fr.removeFromLeft(100));panic.setBounds(footer.getRight()-70,footer.getY()+27,70,29);
@@ -377,11 +377,12 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
     void updateVisibility(){
         for(auto* c:std::initializer_list<juce::Component*>{&search,&browserViewport,&canvas,&gallery,&algorithm,&cableGain,&removeCable})c->setVisible(!minimal&&workspace==0);
         for(auto* c:std::initializer_list<juce::Component*>{&fmAlgorithm,&fmDiagram,&fmMatrix})c->setVisible(!minimal&&workspace==1);
-        motionScope.setVisible(!minimal&&workspace==2);lastEngine=sourceEngine();for(size_t i=0;i<sourceControls.size();++i){const bool group=i<11||(i<21?lastEngine==1:lastEngine==2);sourceControls[i]->setVisible(!minimal&&workspace==3&&group);}statusLabel.setVisible(!minimal&&workspace==3);sourceEnvelope.setVisible(!minimal&&workspace==3&&!compact);refreshSource();refreshNotice();for(auto& c:inspector)c->setVisible(!minimal&&workspace==0);for(auto& c:fmControls)c->setVisible(!minimal&&workspace==1);for(auto& c:motionControls)c->setVisible(!minimal&&workspace==2);allViewport.setVisible(minimal);
+        motionScope.setVisible(!minimal&&workspace==2);randomMotion.setVisible(randomCaret!=nullptr&&!minimal&&workspace==2);lastEngine=sourceEngine();for(size_t i=0;i<sourceControls.size();++i){const bool group=i<11||(i<21?lastEngine==1:lastEngine==2);sourceControls[i]->setVisible(!minimal&&workspace==3&&group);}statusLabel.setVisible(!minimal&&workspace==3);sourceEnvelope.setVisible(!minimal&&workspace==3&&!compact);refreshSource();refreshNotice();for(auto& c:inspector)c->setVisible(!minimal&&workspace==0);for(auto& c:fmControls)c->setVisible(!minimal&&workspace==1);for(auto& c:motionControls)c->setVisible(!minimal&&workspace==2);allViewport.setVisible(minimal);
         globals[5]->setVisible(!minimal&&workspace==0);globals[6]->setVisible(!minimal&&workspace==0);globals[7]->setVisible(!minimal&&workspace==0);
         patchTab.setToggleState(!minimal&&workspace==0,juce::dontSendNotification);fmTab.setToggleState(!minimal&&workspace==1,juce::dontSendNotification);motionTab.setToggleState(!minimal&&workspace==2,juce::dontSendNotification);sourceTab.setToggleState(!minimal&&workspace==3,juce::dontSendNotification);minimalButton.setToggleState(minimal,juce::dontSendNotification);
     }
     void resizedCompact(){
+        randomMotion.setVisible(false);   // compact layout: Randomize Motion is reached through the Randomize panel
         const int W=getWidth(),H=getHeight(),m=12,headerH=72,footerH=70;
         auto row=juce::Rectangle<int>(m,8,W-2*m,28);
         minimalButton.setBounds(row.removeFromRight(100));row.removeFromRight(6);zoom.setBounds(row.removeFromRight(84));row.removeFromRight(6);
@@ -548,9 +549,10 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         randomRoll.setComponentID("random.header.roll");randomRoll.setName("Randomize");randomRoll.setTooltip("Randomize with the amount, seed and locks set in the Randomize panel.");
         randomCaret->setComponentID("random.header.menu");randomCaret->setTooltip("Randomize settings: amount, seed, locks, undo.");
         addAndMakeVisible(randomRoll);addAndMakeVisible(*randomCaret);
+        randomMotion.setComponentID("random.header.motion");randomMotion.setName("Randomize Motion");randomMotion.setTooltip("Randomize only the Motion page: LFO values, modulation depths and the source and destination of every modulation row.");addChildComponent(randomMotion);
         randomPanel=std::make_unique<aether::ui::RandomizePanel>(*randomBackend,randomStyle(),[this]{randomChanged();});
-        addChildComponent(*randomPanel);randomPanel->addAnchor(*randomCaret);randomPanel->addAnchor(randomRoll);
-        randomRoll.onClick=[this]{randomPanel->roll(false);};
+        addChildComponent(*randomPanel);randomPanel->addAnchor(*randomCaret);randomPanel->addAnchor(randomRoll);randomPanel->addAnchor(randomMotion);
+        randomRoll.onClick=[this]{randomPanel->roll(false);};randomMotion.onClick=[this]{randomPanel->rollMotion();};
         randomCaret->onClick=[this]{randomPanel->setOpen(!randomPanel->isOpen());positionRandomPanel();};
         randomPanel->notePreset(p.currentPresetName(),p.isSnapshotB());refreshRandomHint();
     }
@@ -576,6 +578,7 @@ struct AetherAudioProcessorEditor::Impl final:juce::Component,private juce::Time
         if(a=="random.close"){randomPanel->setOpen(false);return true;}
         if(a=="random.roll"){randomPanel->roll(false);return true;}
         if(a=="random.rollb"){randomPanel->roll(true);return true;}
+        if(a=="random.rollmotion"){randomPanel->rollMotion();return true;}
         if(a=="random.undo")return randomPanel->undo();
         return false;
     }
