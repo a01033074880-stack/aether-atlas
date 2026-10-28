@@ -861,7 +861,7 @@ class SnapshotRing { /* 容量 16,环形,push 在随机化提交前执行 */ };
 // 草案,不是实现
 struct LockSet {
     std::bitset<aether::totalParameterCount> params;                 // 逐参数锁(按 spec 下标)
-    uint32_t sections;           // 整段:Chain 槽 1..8 的每槽一位 | FM | Source | LFO 1..4 每个一位 | Mod 总开关
+    uint32_t sections;           // 整段:Chain 槽 1..12 的每槽一位 | FM | Source | LFO 1..4 每个一位 | Mod 总开关 (2026-10-28 勘误:槽位共 12 个,每槽一位 = kLockSlot0<<s,s=0..11)
     uint16_t modRows;            // 调制行 1..16:一位 = (source,target,depth) 三元组整体锁
     bool isLocked(int specIndex) const noexcept;
 };

@@ -106,13 +106,14 @@ function(aether_plugin target product synth code)
     COPY_PLUGIN_AFTER_BUILD FALSE FORMATS VST3 Standalone
     VST3_CATEGORIES ${aether_categories})
   target_sources(${target} PRIVATE
-    Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+    Source/Parameters.cpp Source/AtlasParameters.cpp Source/PresetManager.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp
+    Source/RandomizeControllerStub.cpp)  # STUB: header-only randomize API check (step 1), replaced by RandomizeController.cpp
   target_include_directories(${target} PUBLIC Source)
   target_compile_definitions(${target} PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0 JUCE_REPORT_APP_USAGE=0
     JUCE_USE_WIN_WEBVIEW2=0 JUCE_ASIO=0)
-  target_link_libraries(${target} PUBLIC aether_dsp aether_fm aether_modular aether_source AetherAssets juce::juce_audio_utils juce::juce_dsp
+  target_link_libraries(${target} PUBLIC aether_dsp aether_fm aether_modular aether_source aether_rand AetherAssets juce::juce_audio_utils juce::juce_dsp
     PRIVATE juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
   if(MSVC)
     target_compile_options(${target} PRIVATE /utf-8 /bigobj)
