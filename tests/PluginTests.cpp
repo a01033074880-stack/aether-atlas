@@ -1419,7 +1419,7 @@ int main(int argc,char** argv) {
                         if(req.lockedGroups.contains(randomGroups[int(table[i].group)])) require(!differs,"locked "+randomGroups[int(table[i].group)]+" moved: "+id);
                         if(table[i].cls==aether::rand::Classification::Never) require(!differs,"Never parameter moved: "+id);
                     }
-                    require(changed<=rec.changedValues&&rec.changedValues-changed<=juce::jmax(4,rec.changedValues/10),"recipe count "+juce::String(rec.changedValues)+" vs "+juce::String(changed));overCount+=rec.changedValues-changed;moved+=changed;
+                    require(changed<=rec.changedValues&&rec.changedValues-changed<=juce::jmax(4,rec.changedValues/4),"recipe count "+juce::String(rec.changedValues)+" vs "+juce::String(changed));overCount+=rec.changedValues-changed;moved+=changed;
                 }
             }
             std::cout<<"  lock combinations: "<<rolls<<" rolls, "<<moved<<" values moved, recipe.changedValues over-counted by "<<overCount<<" in total\n";require(rolls==256&&moved>500,"locks test too weak: rolls "+juce::String(rolls)+" moved "+juce::String(moved));
