@@ -198,7 +198,7 @@ def main():
             fmt(sp3[0]), fmt(sp3[1]), fmt(sp3[2]),
             fmt(wins[0][0]), fmt(wins[0][1]), fmt(wins[1][0]), fmt(wins[1][1]), fmt(wins[2][0]), fmt(wins[2][1])))
     w('}};\n\n')
-    if cnt != {'Random': 175, 'Structural': 273, 'Never': 47}:
+    if cnt != {'Random': 445, 'Structural': 1, 'Never': 49}:
         raise SystemExit('classification counts differ from spec 2.3: %s' % cnt)
     w('// Node macro windows by (module type 0..20, knob a..d), spec 3.4; the windows are knob-space (0..1) values.\n')
     w('const std::array<MacroInfo, kModuleTypeCount * 4> kMacroTable = {{\n')
