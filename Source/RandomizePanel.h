@@ -8,13 +8,13 @@
 
 // Randomize popover for the Atlas editor (stage B of 2.3.0).
 //
-// The UI depends only on RandomizeBackend. makeEngineBackend() is the real implementation: it drives the pure engine
-// aether::rand (libs/aether-rand, frozen at 9f21611) with generate / validate / applyPatch on the message thread.
-//   - Live commit: beginChangeGesture / setValueNotifyingHost / endChangeGesture for each changed parameter only (RandSpec P.5)
-//   - Undo Random: 16-step ring kept on the UI side (the engine has no public SnapshotRing); message thread only
-//   - Randomize into B: the processor has no public AlternateSnapshot writer, so the backend uses toggleAB + replaceState
-//   - Display name "(Random) <seed>"; the source preset is remembered in the recipe
-// The editor shows no Randomize controls until a backend factory is installed (release path unchanged).
+// The UI depends only on RandomizeBackend. makeEngineBackend() is the real implementation, a thin adapter over
+// aether::rand::RandomizeController (Source/RandomizeController.h, reached through AetherAudioProcessor::randomizer()):
+//   - the controller owns the 16-step Undo Random ring, the LockSet, the recipe, the A/B faces and the "(Random)" preset name
+//   - Live face: one atomic APVTS::replaceState per random (message thread only; one notification per changed parameter, no gestures)
+//   - Undo records the PHYSICAL A/B face, so it restores into the face the roll came from, also after an A/B toggle
+//   - Randomize into B writes only the B snapshot (no host notification, the user stays on A)
+// The editor installs this backend by default; setRandomizeBackendFactory still replaces it (tests).
 namespace aether::ui {
 
 inline constexpr int randomUndoSteps=16;
@@ -44,8 +44,9 @@ struct RandomizeRecipe {
     juce::StringArray lockedGroups;
     juce::String sourcePreset;      // RandomRecipe::sourcePreset (name before the first roll of a chain)
     bool intoB=false;               // RandomRecipe::intoB — result written into the B / AlternateSnapshot slot
-    bool onSlotB=false;             // RandomSnapshot::Target::AlternateSnapshot vs Live (UI: which slot shows the roll)
-    int changedValues=0;            // parameters whose value really changed (Patch::diffs that moved the parameter)
+    bool onLiveFace=true;           // the roll was written to the face that is live now (false: it sits in B while A is live, or vice versa)
+    bool modified=false;            // values of the rolled face were edited since the roll (hashValues(current) != recipe.resultHash)
+    int changedValues=0;            // parameters whose value really changed (Outcome::changedParams); -1 when unknown (recipe restored from a saved state)
     juce::StringArray touchedGroups;
     int algoVersion=0;              // aether::rand::kRandAlgoVersion of the engine that made the roll
     int attempt=0;                  // accepted re-roll index (Config::attempt, 0..5)
@@ -53,7 +54,7 @@ struct RandomizeRecipe {
     juce::String note;              // why nothing changed: "all locked", "amount 0", "no change", "no safe patch", "wrong thread"
 };
 
-// Thin UI façade over the future aether::rand::generate + SnapshotRing + LockSet + RandomRecipe (§P).
+// Thin UI facade over aether::rand::RandomizeController (generate + SnapshotRing + LockSet + RandomRecipe, §P).
 class RandomizeBackend {
 public:
     virtual ~RandomizeBackend()=default;
@@ -63,6 +64,9 @@ public:
     // Live slot (= SnapshotRing Target::Live) / into B (= Target::AlternateSnapshot). Both push one SnapshotRing step.
     virtual RandomizeRecipe randomize(const RandomizeRequest&)=0;
     virtual RandomizeRecipe randomizeIntoB(const RandomizeRequest&)=0;
+    // Lock chips <-> the controller's LockSet (saved with the plugin state). The default applies until a lock was ever written.
+    virtual juce::StringArray lockedGroups() const { return defaultLocked(); }
+    virtual void setLockedGroups(const juce::StringArray&) {}
     // Undo Random; false when the ring is empty. undoDepth() is 0..randomUndoSteps (== SnapshotRing capacity 16).
     virtual bool undo()=0;
     virtual int undoDepth() const=0;
@@ -128,11 +132,15 @@ public:
     bool isLocked(const juce::String& group) const;
     void setLocked(const juce::String& group,bool locked);
     void resetLocks();
+    // Reserved "re-rolling" state (audition stage, loudness compensation is the sound engineer's P2): disables the roll and undo buttons.
+    void setBusy(bool);
+    bool isBusy() const noexcept { return busy; }
     // Actions (the same as the buttons)
     RandomizeRecipe roll(bool intoB);
     bool undo();
     int undoDepth() const { return backend.undoDepth(); }
-    // Naming: "(Random) <seed>" while the roll on screen sits in the slot now shown; empty otherwise. notePreset (called by the editor's timer) drops the recipe when the processor's preset changed.
+    // Naming: "(Random) <seed>" while the roll on screen sits on the live face; empty otherwise. notePreset (called by the editor's timer) drops
+    // the recipe when the processor's preset name changed to something other than the roll's own name, and follows lock / "modified" changes.
     juce::String presetLabel() const;
     juce::String sourcePreset() const;
     void notePreset(const juce::String& processorPresetName,bool onSlotB);
@@ -146,9 +154,9 @@ public:
 private:
     class PanelButton; class LockChip; struct OutsideClicks;
     RandomizeBackend& backend; RandomizeStyle style; std::function<void()> changed;
-    bool open=false,seedPinned=false,currentSlotB=false;
+    bool open=false,seedPinned=false,busy=false,havePresetName=false,shownModified=false;
     RandomizeMode requestMode=RandomizeMode::mutate; float requestAmount=.35f; std::uint64_t seed=0;
-    juce::String hint,presetName;
+    juce::String hint,presetName,noChangeNote;
     juce::StringArray locked;
     std::function<std::uint64_t()> seedSource;
     std::vector<juce::Component*> anchors;
