@@ -741,15 +741,10 @@ void secR12() {
         }
     }
     info("R12 fuzz runs %ld (sane inputs %ld), ok patches %ld, not-ok patches %ld", runs, sane, okPatches, failedPatches);
-    // observed (not asserted: spec silent): behaviour for amount > 1 and attempt out of range
+    // observed (not asserted: spec silent): behaviour for amount > 1. attempt out of range is asserted in R13 (e); the old "attempt 6 != 5, != 0" observation no longer holds.
     {
         const StateView s = defaults({2, true});
         info("R12 observed: Mutate amount 2.0 == amount 1.0 : %d", static_cast<int>(samePatch(generate(s, cMut(5, 2.f, Safety::Wild), LockSet{}), generate(s, cMut(5, 1.f, Safety::Wild), LockSet{}))));
-        Config a = cFull(5); a.attempt = -1;
-        info("R12 observed: attempt -1 == attempt 0 : %d", static_cast<int>(samePatch(generate(s, a, LockSet{}), generate(s, cFull(5), LockSet{}))));
-        Config b = cFull(5); b.attempt = 6;
-        Config b5 = cFull(5); b5.attempt = 5;
-        info("R12 observed: attempt 6 == attempt 5 : %d, attempt 6 == attempt 0 : %d", static_cast<int>(samePatch(generate(s, b, LockSet{}), generate(s, b5, LockSet{}))), static_cast<int>(samePatch(generate(s, b, LockSet{}), generate(s, cFull(5), LockSet{}))));
     }
     CHECK(runs == 150000);
 }
@@ -814,6 +809,44 @@ void secR13() {
                     }
                     CHECKF(distinct.size() == 6, "only %zu distinct patches over attempts 0..5 (%s seed %llu %s)", distinct.size(), ed.name, static_cast<unsigned long long>(seed), m == 0 ? "Full" : "Mutate");
                 }
+
+    // (e) attempt out of range == the nearest boundary (engine clamps attempt to [0,5], feat/randomize-engine-230 ecde036):
+    //     the generated patch (ok/reason/diffs, bit-identical) AND the 495 values of applyPatch must be identical.
+    {
+        const int lowEq[] = {-1, -2, -100, -65536, INT_MIN + 1, INT_MIN};
+        const int highEq[] = {6, 7, 100, 65536, INT_MAX - 1, INT_MAX};
+        long cmp = 0;
+        for (const Ed& ed : kEds)
+            for (Safety sf : kSafeties)
+                for (std::uint64_t seed : kSeedSet)
+                    for (int m = 0; m < 2; ++m)
+                        for (int st = 0; st < 2; ++st) {
+                            const StateView s = st == 0 ? defaults(ed.e) : scattered(ed.e, seed ^ 0x77);
+                            const auto mk = [&](int attempt) { Config c = m == 0 ? cFull(seed, sf) : cMut(seed, 0.7f, sf); c.attempt = attempt; return c; };
+                            const Patch p0 = generate(s, mk(0), LockSet{}), p5 = generate(s, mk(5), LockSet{});
+                            const Arr v0 = applyPatch(s, p0), v5 = applyPatch(s, p5);
+                            for (int k : lowEq) {
+                                const Patch pk = generate(s, mk(k), LockSet{});
+                                CHECKF(samePatch(pk, p0), "attempt %d != attempt 0 (patch; %s safety %d seed %llu)", k, ed.name, static_cast<int>(sf), static_cast<unsigned long long>(seed));
+                                CHECKF(sameArr(applyPatch(s, pk), v0), "attempt %d != attempt 0 (495 applied values; %s safety %d seed %llu)", k, ed.name, static_cast<int>(sf), static_cast<unsigned long long>(seed));
+                                ++cmp;
+                            }
+                            for (int k : highEq) {
+                                const Patch pk = generate(s, mk(k), LockSet{});
+                                CHECKF(samePatch(pk, p5), "attempt %d != attempt 5 (patch; %s safety %d seed %llu)", k, ed.name, static_cast<int>(sf), static_cast<unsigned long long>(seed));
+                                CHECKF(sameArr(applyPatch(s, pk), v5), "attempt %d != attempt 5 (495 applied values; %s safety %d seed %llu)", k, ed.name, static_cast<int>(sf), static_cast<unsigned long long>(seed));
+                                ++cmp;
+                            }
+                        }
+        CHECK(cmp == 5L * 3 * 10 * 2 * 2 * 12);
+        info("R13 attempt clamp: %ld out-of-range comparisons (6 low + 6 high attempts), each checked on patch and on 495 applied values", cmp);
+        {   // the two boundaries are different patches (otherwise the clamp checks above would be vacuous)
+            const StateView s = defaults({2, true});
+            Config lo = cFull(5); lo.attempt = 0;
+            Config hi = cFull(5); hi.attempt = 5;
+            CHECK(!samePatch(generate(s, lo, LockSet{}), generate(s, hi, LockSet{})));
+        }
+    }
 
     // (d) motion-only scope leaves chain / FM / source untouched, chain-only leaves motion untouched
     for (std::uint64_t seed = 1; seed <= 100; ++seed)
