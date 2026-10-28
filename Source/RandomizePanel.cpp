@@ -1,19 +1,16 @@
 #include "RandomizePanel.h"
 #include <algorithm>
 #include <cmath>
+#include <aether/Rand.h>
+#include <array>
+#include <bitset>
 #include <deque>
+#include <thread>
 
+namespace ar=aether::rand;
 namespace aether::ui {
 namespace {
 constexpr const char* seedAlphabet="0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-std::uint64_t mix64(std::uint64_t x) {
-    x+=0x9e3779b97f4a7c15ULL; x=(x^(x>>30))*0xbf58476d1ce4e5b9ULL; x=(x^(x>>27))*0x94d049bb133111ebULL; return x^(x>>31);
-}
-float unitFor(std::uint64_t seed,const juce::String& id) {
-    std::uint64_t h=1469598103934665603ULL;
-    for(const char c:id.toStdString()) h=(h^static_cast<unsigned char>(c))*1099511628211ULL;
-    return float(mix64(seed^h)>>40)/16777216.f;
-}
 std::uint64_t systemSeed() {
     auto& r=juce::Random::getSystemRandom();
     return ((std::uint64_t(std::uint32_t(r.nextInt()))<<8)^std::uint64_t(std::uint32_t(r.nextInt())))&randomSeedMask;
@@ -40,76 +37,144 @@ bool parseRandomSeed(const juce::String& text,std::uint64_t& seed) {
 juce::String randomPresetLabel(std::uint64_t seed) { return "(Random) "+formatRandomSeed(seed); }
 
 // ------------------------------------------------------------------------------------------------------------------------
-// MockBackend — stand-in for aether::rand::generate + SnapshotRing (§P.1 / §P.2) until the real engine lands.
-// Live writes use begin/set/end per changed id (§P.5). Undo restores via replaceState (mock shortcut; real path also uses
-// begin/set/end). into-B has no public AlternateSnapshot writer yet, so the mock approximates it with toggleAB (leaves the
-// user on B); the real path writes the B ValueTree only and keeps A live (§P.2 Target::AlternateSnapshot).
+// EngineBackend: the real aether::rand engine behind the popover (RandSpec P.1 / P.3 / P.5).
+//  - generate(StateView, Config, LockSet) -> Patch, then validate(); a patch that fails validate() is re-rolled with the next
+//    attempt (Config::attempt 0..5, spec 6.1). Nothing is written when all six fail.
+//  - Live commit writes only the Patch diffs, one begin/set/end gesture per changed parameter (the path of applyValues and
+//    loadFactoryPreset, P.5). Unchanged parameters send nothing. requestPanic() only when a structural id changed.
+//  - Undo Random keeps 16 whole-state steps on the UI side (the engine has no public SnapshotRing). Live steps restore the
+//    normalised values with the same gesture path; into-B steps restore both slots with toggleAB / replaceState.
+//  - Randomize into B: AetherAudioProcessor keeps the other slot private (no public AlternateSnapshot writer, and the
+//    processor is not ours to change), so A is copied onto the B slot via toggleAB + replaceState and the patch is written there;
+//    the user stays on B. Host notification of that path is the one of toggleAB (replaceState, no gestures).
+//  - generate() is not realtime safe (Patch holds a std::vector): every call is refused off the thread that made the backend
+//    (the editor's message thread). The UI does not measure loudness, so graph.trim (trimDbForLoudness) is not written.
 // ------------------------------------------------------------------------------------------------------------------------
 juce::StringArray randomSpecGroups() { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
-// RandSpec §1.2 classification of a parameter id (node slots carry their role in the last segment).
+// RandSpec 1.2 group of a parameter id, read from the engine's table (a single source of truth with the locks).
 juce::String randomGroupOf(const juce::String& id) {
-    if(id=="routing.algorithm"||id=="graph.feedback"||id.startsWith("route.")) return "Chain";
-    if(id.startsWith("node.")) { const auto leaf=id.fromLastOccurrenceOf(".",false,false); return leaf=="type"||leaf=="on"||leaf=="input"||leaf=="output"?"Chain":"ModuleParams"; }
-    if(id.startsWith("fm.")) return "FM";
-    if(id.startsWith("source.")) return "Source";
-    if(id.startsWith("lfo.")||id.startsWith("modulation.")) return "Motion";
-    if(id=="global.input"||id=="global.output"||id=="global.mix"||id.startsWith("master.")||id=="graph.trim") return "MixGlobal";
-    return "System";
+    const int i=ar::paramIndex(id.toStdString());
+    return i<0?juce::String("System"):randomSpecGroups()[int(ar::paramTable()[size_t(i)].group)];
 }
 
 namespace {
-class MockBackend final:public RandomizeBackend {
+struct EngineLocks { std::uint32_t scope=ar::ScopeAll; ar::LockSet set; };
+// UI lock chips -> engine: a locked group leaves the scope (when it has a scope bit) AND locks each of its parameters by index,
+// so nothing of it can be written even if a rule looks across groups. MixGlobal / System are Never in the engine (no scope bit).
+EngineLocks engineLocksFor(const juce::StringArray& locked) {
+    EngineLocks l; const auto table=ar::paramTable(); const auto groups=randomSpecGroups();
+    for(int g=0;g<groups.size();++g) {
+        if(!locked.contains(groups[g])) continue;
+        for(int i=0;i<ar::kParamCount;++i) if(int(table[size_t(i)].group)==g) l.set.params.set(size_t(i));
+        switch(static_cast<ar::Group>(g)) {
+            case ar::Group::Chain: l.scope&=~std::uint32_t(ar::ScopeChain); break;
+            case ar::Group::ModuleParams: l.scope&=~std::uint32_t(ar::ScopeModuleParams); break;
+            case ar::Group::FM: l.scope&=~std::uint32_t(ar::ScopeFM); l.set.sections|=ar::kLockFm; break;
+            case ar::Group::Source: l.scope&=~std::uint32_t(ar::ScopeSource); l.set.sections|=ar::kLockSource; break;
+            case ar::Group::Motion: l.scope&=~std::uint32_t(ar::ScopeMotion); l.set.sections|=ar::kLockMod|(0xFu*ar::kLockLfo0); break;
+            case ar::Group::MixGlobal: case ar::Group::System: break;
+        }
+    }
+    return l;
+}
+// Ids whose change cuts the running sound (RandSpec P.5 #4): module type, routing algorithm, Source engine, FM / Source on.
+bool isStructuralIndex(int i) {
+    if(i==ar::kRoutingAlgorithm||i==ar::kSourceEngine||i==ar::kFmEnabled||i==ar::kSourceEnabled) return true;
+    return i>=ar::kNodeOffset&&i<ar::kRouteOffset&&(i-ar::kNodeOffset)%11==0;
+}
+
+class EngineBackend final:public RandomizeBackend {
 public:
-    explicit MockBackend(AetherAudioProcessor& proc):p(proc) {}
-    // UI section chips: the seven RandSpec §1.2 groups, in spec order (LockSet::sections projection). MixGlobal and System hold
-    // only Never ids plus graph.trim (§2.3), so they start locked: the engine would not move them anyway.
-    juce::StringArray lockGroups() const override { return {"Chain","ModuleParams","FM","Source","Motion","MixGlobal","System"}; }
+    explicit EngineBackend(AetherAudioProcessor& proc):p(proc),owner(std::this_thread::get_id()) {
+        const auto& specs=aether::parameterSpecs(); const auto table=ar::paramTable();
+        ready=int(specs.size())==ar::kParamCount;
+        for(int i=0;ready&&i<ar::kParamCount;++i) {
+            const auto& spec=specs[size_t(i)];
+            parameters[size_t(i)]=p.state.getParameter(spec.id); raws[size_t(i)]=p.state.getRawParameterValue(spec.id);
+            ready=spec.id==juce::String(table[size_t(i)].id)&&parameters[size_t(i)]!=nullptr&&raws[size_t(i)]!=nullptr;
+        }
+        jassert(ready); // parameterSpecs() and the engine table must list the same 495 ids in the same order
+    }
+    // UI section chips: the seven RandSpec 1.2 groups. MixGlobal and System hold only Never ids plus graph.trim (2.3), so they
+    // start locked: the engine would not move them anyway.
+    juce::StringArray lockGroups() const override { return randomSpecGroups(); }
     juce::StringArray defaultLocked() const override { return {"MixGlobal","System"}; }
     RandomizeRecipe randomize(const RandomizeRequest& r) override { return run(r,false); }
     RandomizeRecipe randomizeIntoB(const RandomizeRequest& r) override { return run(r,true); }
     bool undo() override {
-        if(ring.empty()) return false;
+        if(ring.empty()||!onOwnerThread()) return false;
         auto e=std::move(ring.back()); ring.pop_back();
-        // SnapshotRing restore of Target::Live (and the mock's into-B which left the user on B).
-        p.state.replaceState(e.before);
+        if(e.switchedToB) {
+            if(!p.isSnapshotB()) p.toggleAB();      // go to the B slot the roll wrote into
+            p.state.replaceState(e.oldB.createCopy());   // B gets its old content back (APVTS::replaceState adopts the tree it is given, so always pass a copy)
+            p.toggleAB();                           // back on A (B keeps the old content)
+            p.state.replaceState(e.beforeA.createCopy()); // A as it was before the roll
+        } else {
+            if(p.isSnapshotB()!=e.onSlotB) p.toggleAB();
+            restore(e.values);
+        }
         current=std::move(e.recipeBefore);
-        if(e.switchedToB&&p.isSnapshotB()) p.toggleAB();
         return true;
     }
     int undoDepth() const override { return int(ring.size()); }
     std::optional<RandomizeRecipe> recipe() const override { return current; }
     void forgetRecipe() override { current.reset(); }
 private:
-    // RandomSnapshot stand-in (§P.2): whole APVTS tree + prior recipe + whether into-B flipped the live slot.
-    struct Entry { juce::ValueTree before; std::optional<RandomizeRecipe> recipeBefore; bool switchedToB=false; };
-    AetherAudioProcessor& p; std::deque<Entry> ring; std::optional<RandomizeRecipe> current;
-    static juce::String groupOf(const juce::String& id) { return randomGroupOf(id); }
-    // §4.2: FX skips FM and Source; Resynth only touches them while Source is on; Synth always may.
-    bool groupIdle(const juce::String& group) const {
-        if(group!="FM"&&group!="Source") return false;
-        const int mode=aether::clampModeForPluginType(juce::jlimit(0,2,int(p.parameterValue("global.mode")+.5f)),JucePlugin_IsSynth!=0);
-        if(mode==0) return true;
-        return mode==1&&!(p.parameterValue("source.enabled")>.5f&&p.parameterValue("source.engine")>.5f);
+    using Values=std::array<float,ar::kParamCount>;
+    // RandomSnapshot (P.2): the live slot's normalised values + the prior recipe; into-B keeps both slots as trees.
+    struct Entry { Values values{}; std::optional<RandomizeRecipe> recipeBefore; bool onSlotB=false,switchedToB=false; juce::ValueTree beforeA,oldB; };
+    AetherAudioProcessor& p; std::thread::id owner; bool ready=false;
+    std::array<juce::RangedAudioParameter*,ar::kParamCount> parameters{};
+    std::array<std::atomic<float>*,ar::kParamCount> raws{};
+    std::deque<Entry> ring; std::optional<RandomizeRecipe> current;
+    bool onOwnerThread() const { return std::this_thread::get_id()==owner; }
+    ar::StateView stateView() const {
+        ar::StateView v;
+        for(int i=0;i<ar::kParamCount;++i) v.value[size_t(i)]=raws[size_t(i)]->load(std::memory_order_relaxed);
+        // EditionContext: the build decides (clampModeForPluginType), exactly like AetherAudioProcessor::effectiveMode.
+        const bool synth=JucePlugin_IsSynth!=0;
+        v.edition.isSynth=synth; v.edition.effectiveMode=aether::clampModeForPluginType(int(raws[size_t(aether::mode)]->load(std::memory_order_relaxed)),synth);
+        return v;
+    }
+    Values normalised() const { Values v{}; for(int i=0;i<ar::kParamCount;++i) v[size_t(i)]=parameters[size_t(i)]->getValue(); return v; }
+    void restore(const Values& values) {
+        bool structural=false;
+        for(int i=0;i<ar::kParamCount;++i) {
+            auto* prm=parameters[size_t(i)]; if(prm->getValue()==values[size_t(i)]) continue;
+            prm->beginChangeGesture(); prm->setValueNotifyingHost(values[size_t(i)]); prm->endChangeGesture(); structural|=isStructuralIndex(i);
+        }
+        if(structural) p.requestPanic();
     }
     RandomizeRecipe run(const RandomizeRequest& r,bool intoB) {
-        Entry e{p.state.copyState(),current,false};
-        // into-B mock: copy A onto B and leave B live. Real path: write AlternateSnapshot only, A stays (§P.2).
-        if(intoB&&!p.isSnapshotB()) { auto a=p.state.copyState(); p.toggleAB(); p.state.replaceState(a); e.switchedToB=true; }
         RandomizeRecipe rec; rec.seed=r.seed&randomSeedMask; rec.mode=r.mode; rec.amount=r.amount; rec.lockedGroups=r.lockedGroups; rec.intoB=intoB;
-        rec.sourcePreset=current?current->sourcePreset:p.currentPresetName();
-        // Mutate + amount==0 => empty patch (§6.2); no parameter writes, still push the ring so Undo is consistent.
-        const float amount=juce::jlimit(0.f,1.f,r.amount);
-        const bool emptyMutate=r.mode==RandomizeMode::mutate&&amount<=0.f;
-        if(!emptyMutate) for(const auto& spec:aether::parameterSpecs()) {
-            if(spec.boolean||spec.choices.size()>0) continue; // mock: continuous / integer only (Never/Structural not modelled)
-            const auto group=groupOf(spec.id); if(r.lockedGroups.contains(group)||group=="MixGlobal"||group=="System"||groupIdle(group)) continue; // Never groups never move (§2.3)
-            auto* prm=p.state.getParameter(spec.id); if(prm==nullptr) continue;
-            const float before=prm->getValue(),u=unitFor(rec.seed,spec.id);
-            const float target=r.mode==RandomizeMode::mutate?before+(u*2.f-1.f)*amount*.5f:before+(u-before)*(.5f+.5f*amount);
-            // Live commit path recommended by §P.5 (same as applyValues / loadFactoryPreset).
-            prm->beginChangeGesture(); prm->setValueNotifyingHost(juce::jlimit(0.f,1.f,target)); prm->endChangeGesture();
-            if(std::abs(prm->getValue()-before)>1.0e-6f) { ++rec.changedValues; rec.touchedGroups.addIfNotAlreadyThere(group); }
+        rec.sourcePreset=current?current->sourcePreset:p.currentPresetName(); rec.onSlotB=p.isSnapshotB(); rec.algoVersion=ar::kRandAlgoVersion;
+        if(!ready||!onOwnerThread()) { rec.rejected=true; rec.note=ready?"wrong thread":"table mismatch"; return rec; }
+        ar::Config cfg; cfg.seed=rec.seed; cfg.mode=r.mode==RandomizeMode::full?ar::Mode::Full:ar::Mode::Mutate;
+        cfg.amount=juce::jlimit(0.f,1.f,r.amount); cfg.safety=ar::Safety::Safe; cfg.intoB=intoB;
+        const auto locks=engineLocksFor(r.lockedGroups); cfg.scopeMask=locks.scope;
+        const auto view=stateView();
+        ar::Patch patch; bool accepted=false; juce::String why;
+        for(int attempt=0;attempt<=5&&!accepted;++attempt) {
+            cfg.attempt=attempt; patch=ar::generate(view,cfg,locks.set);
+            if(!patch.report.ok) { why=patch.report.reason?patch.report.reason:"generate"; continue; }
+            const auto v=ar::validate(view,patch,cfg,locks.set); accepted=v.ok; if(!v.ok) why=v.reason?v.reason:"validate";
         }
+        if(!accepted) { rec.rejected=true; rec.note="no safe patch: "+why; return rec; }   // nothing written, ring and recipe untouched
+        rec.attempt=cfg.attempt;
+        Entry e; e.values=normalised(); e.recipeBefore=current; e.onSlotB=p.isSnapshotB();
+        // into B from A: copy A onto the B slot and write the patch there (the user ends on B). On B already: roll into the live B.
+        if(intoB&&!p.isSnapshotB()) {
+            e.beforeA=p.state.copyState(); p.toggleAB(); e.oldB=p.state.copyState(); p.state.replaceState(e.beforeA.createCopy()); e.switchedToB=true;   // copy: replaceState adopts the tree, the entry must keep its own
+        }
+        const auto result=ar::applyPatch(view,patch); bool structural=false;
+        const auto table=ar::paramTable();
+        for(const auto& d:patch.diffs) {
+            auto* prm=parameters[size_t(d.specIndex)]; const float before=prm->getValue();
+            prm->beginChangeGesture(); prm->setValueNotifyingHost(prm->convertTo0to1(result[size_t(d.specIndex)])); prm->endChangeGesture();
+            if(std::abs(prm->getValue()-before)>1.0e-7f) { ++rec.changedValues; rec.touchedGroups.addIfNotAlreadyThere(randomSpecGroups()[int(table[size_t(d.specIndex)].group)]); structural|=isStructuralIndex(d.specIndex); }
+        }
+        if(structural) p.requestPanic();
+        if(rec.changedValues==0) rec.note=r.lockedGroups.size()>=7?"all locked":(cfg.mode==ar::Mode::Mutate&&cfg.amount<=0.f?"amount 0":"no change");
         rec.onSlotB=p.isSnapshotB();
         ring.push_back(std::move(e)); while(int(ring.size())>randomUndoSteps) ring.pop_front();
         current=rec; return rec;
@@ -117,7 +182,7 @@ private:
 };
 }
 
-std::unique_ptr<RandomizeBackend> makeMockBackend(AetherAudioProcessor& p) { return std::make_unique<MockBackend>(p); }
+std::unique_ptr<RandomizeBackend> makeEngineBackend(AetherAudioProcessor& p) { return std::make_unique<EngineBackend>(p); }
 
 // ------------------------------------------------------------------------------------------------------------------------
 // Widgets
@@ -299,7 +364,7 @@ juce::String RandomizePanel::sourceText() const {
 }
 juce::String RandomizePanel::lastRollText() const {
     const auto rec=backend.recipe(); if(!rec) return {};
-    if(rec->changedValues==0) return "Nothing changed (all locked)";
+    if(rec->changedValues==0) return "Nothing changed ("+(rec->note.isEmpty()?juce::String("no change"):rec->note)+")";
     return juce::String(rec->changedValues)+(rec->changedValues==1?" value":" values")+" changed in "+juce::String(rec->touchedGroups.size())+(rec->touchedGroups.size()==1?" group":" groups");
 }
 void RandomizePanel::refreshWidgets() {

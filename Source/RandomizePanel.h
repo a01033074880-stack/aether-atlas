@@ -8,15 +8,12 @@
 
 // Randomize popover for the Atlas editor (stage B of 2.3.0).
 //
-// UI depends only on RandomizeBackend. Naming tracks RandSpec §P (docs/randomization-spec.md @ a1726a5), which is still a
-// draft and must not be edited here:
-//   - aether::rand::generate(StateView, Config, LockSet) -> Patch   // pure function, no JUCE (MockBackend fakes it)
-//   - SnapshotRing capacity 16                                      // Undo Random; Message thread only
-//   - LockSet (sections / rows / per-param)                         // UI exposes section chips today
-//   - RandomRecipe                                                  // seed, mode, amount, sourcePreset, intoB, ...
-//   - Display name "(Random) <seed>"; source remembered in the recipe
-//   - Live commit: beginChangeGesture/setValueNotifyingHost/endChangeGesture per changed id (§P.5);
-//     into-B writes the alternate snapshot (ValueTree) with no host notify. Mock approximates into-B via toggleAB.
+// The UI depends only on RandomizeBackend. makeEngineBackend() is the real implementation: it drives the pure engine
+// aether::rand (libs/aether-rand, frozen at 9f21611) with generate / validate / applyPatch on the message thread.
+//   - Live commit: beginChangeGesture / setValueNotifyingHost / endChangeGesture for each changed parameter only (RandSpec P.5)
+//   - Undo Random: 16-step ring kept on the UI side (the engine has no public SnapshotRing); message thread only
+//   - Randomize into B: the processor has no public AlternateSnapshot writer, so the backend uses toggleAB + replaceState
+//   - Display name "(Random) <seed>"; the source preset is remembered in the recipe
 // The editor shows no Randomize controls until a backend factory is installed (release path unchanged).
 namespace aether::ui {
 
@@ -48,8 +45,12 @@ struct RandomizeRecipe {
     juce::String sourcePreset;      // RandomRecipe::sourcePreset (name before the first roll of a chain)
     bool intoB=false;               // RandomRecipe::intoB — result written into the B / AlternateSnapshot slot
     bool onSlotB=false;             // RandomSnapshot::Target::AlternateSnapshot vs Live (UI: which slot shows the roll)
-    int changedValues=0;            // Patch::diffs.size() stand-in
+    int changedValues=0;            // parameters whose value really changed (Patch::diffs that moved the parameter)
     juce::StringArray touchedGroups;
+    int algoVersion=0;              // aether::rand::kRandAlgoVersion of the engine that made the roll
+    int attempt=0;                  // accepted re-roll index (Config::attempt, 0..5)
+    bool rejected=false;            // no patch passed validate(): nothing was written, no undo step, the recipe is unchanged
+    juce::String note;              // why nothing changed: "all locked", "amount 0", "no change", "no safe patch", "wrong thread"
 };
 
 // Thin UI façade over the future aether::rand::generate + SnapshotRing + LockSet + RandomRecipe (§P).
@@ -69,12 +70,12 @@ public:
     virtual std::optional<RandomizeRecipe> recipe() const=0;
     virtual void forgetRecipe()=0;
 };
-// Deterministic stand-in for tests/snapshots: fakes generate()+SnapshotRing on continuous params, honours section locks.
-// Never part of a shipped build path. Real engine is a pure function with no JUCE dependency (§P.1).
 // RandSpec §1.2 groups in spec order, and the group of a parameter id (Chain, ModuleParams, FM, Source, Motion, MixGlobal, System).
 juce::StringArray randomSpecGroups();
 juce::String randomGroupOf(const juce::String& parameterId);
-std::unique_ptr<RandomizeBackend> makeMockBackend(AetherAudioProcessor&);
+// Real backend on aether::rand. Create and use it on the message thread; generate() is not realtime safe (Patch holds a vector),
+// so a call from any other thread is refused (RandomizeRecipe::rejected, nothing written).
+std::unique_ptr<RandomizeBackend> makeEngineBackend(AetherAudioProcessor&);
 
 // Colours and text hooks of the host editor, so the popover looks like the rest of Atlas and follows its text floor.
 struct RandomizeStyle {

@@ -245,12 +245,12 @@ int main(int argc,char** argv) {
         AetherAudioProcessorEditor::setEditionForTesting(-1);
         return good?0:1;
     }
-    // "rand" mode: 2.3.0 stage B Randomize popover on the mock backend. Closed header, popover open, after a roll, lock mode, full undo history (16/16), Randomize into B and the FX hint,
+    // "rand" mode: 2.3.0 stage B Randomize popover on the aether::rand engine backend. Closed header, popover open, after a roll, lock mode, full undo history (16/16), Randomize into B and the FX hint,
     // for both plugin editions at the minimum size, the default size and the 50% compact layout, 1x and 2x. Usage: AetherUiSnapshots <dir> rand
     if(argc>2&&juce::String(argv[2])=="rand") {
         base.reset(); editor=nullptr;
         bool good=true;
-        AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeMockBackend(proc); });
+        AetherAudioProcessorEditor::setRandomizeBackendFactory([](AetherAudioProcessor& proc) { return aether::ui::makeEngineBackend(proc); });
         for(int edition=0;edition<2;++edition) {
             AetherAudioProcessorEditor::setEditionForTesting(edition);
             AetherAudioProcessor q; q.prepareToPlay(48000,512);
